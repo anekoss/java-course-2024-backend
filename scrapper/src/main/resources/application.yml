@@ -13,3 +13,9 @@ server:
 
 logging:
   config: classpath:log4j2-plain.xml
+
+client:
+  github:
+    base-url: https://api.github.com
+  stackOverflow:
+    base-url: https://api.stackexchange.com
