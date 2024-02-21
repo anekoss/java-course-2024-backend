@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +26,8 @@ public class ListCommandTest {
     private static final Update updateMock = Mockito.mock(Update.class);
     private final Printer printer = new HtmlPrinter();
 
-    @BeforeClass
-    public static void init() {
+    @BeforeEach
+    public void init() {
         Message message = Mockito.mock(Message.class);
         when(updateMock.message()).thenReturn(message);
         User user = Mockito.mock(User.class);

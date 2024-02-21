@@ -7,7 +7,7 @@ import edu.java.bot.commands.commandImpl.TrackCommand;
 import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,10 +20,11 @@ public class TrackCommandTest {
     private final Command trackCommand = new TrackCommand(commandServiceMock);
     private static final Update updateMock = Mockito.mock(Update.class);
     private final Printer printer = new HtmlPrinter();
+    private Message message;
 
-    @BeforeClass
-    public static void init() {
-        Message message = Mockito.mock(Message.class);
+    @BeforeEach
+    public void init() {
+        message = Mockito.mock(Message.class);
         User user = Mockito.mock(User.class);
         when(message.from()).thenReturn(user);
         when(user.id()).thenReturn(1L);
@@ -40,6 +41,7 @@ public class TrackCommandTest {
 
     @Test
     public void testHandleInvalidLink() {
+        when(message.text()).thenReturn("test");
         when(commandServiceMock.track(any(), any())).thenReturn(CommandExecutionStatus.LINK_INVALID);
         assertThat(trackCommand.handle(
             updateMock,
@@ -49,6 +51,7 @@ public class TrackCommandTest {
 
     @Test
     public void testHandleSuccess() {
+        when(message.text()).thenReturn("test");
         when(commandServiceMock.track(any(), any())).thenReturn(CommandExecutionStatus.SUCCESS);
         assertThat(trackCommand.handle(
             updateMock,
@@ -58,7 +61,8 @@ public class TrackCommandTest {
 
     @Test
     public void testHandleAlreadyTrackLink() {
-        when(commandServiceMock.unTrack(any(), any())).thenReturn(CommandExecutionStatus.LINK_ALREADY_TRACK);
+        when(message.text()).thenReturn("test");
+        when(commandServiceMock.track(any(), any())).thenReturn(CommandExecutionStatus.LINK_ALREADY_TRACK);
         assertThat(trackCommand.handle(
             updateMock,
             printer

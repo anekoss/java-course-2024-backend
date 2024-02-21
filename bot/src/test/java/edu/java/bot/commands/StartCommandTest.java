@@ -7,7 +7,7 @@ import edu.java.bot.commands.commandImpl.StartCommand;
 import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,8 +21,8 @@ public class StartCommandTest {
     private final Printer printer = new HtmlPrinter();
     private static Message message;
 
-    @BeforeClass
-    public static void init() {
+    @BeforeEach
+    public void init() {
         message = Mockito.mock(Message.class);
         User user = Mockito.mock(User.class);
         when(message.from()).thenReturn(user);
