@@ -1,6 +1,5 @@
 package edu.java.bot.printer;
 
-import edu.java.bot.printer.HtmlPrinter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import static org.assertj.core.api.Assertions.assertThat;

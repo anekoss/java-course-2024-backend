@@ -1,8 +1,6 @@
 package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.commands.Command;
-import edu.java.bot.commands.CommandManager;
 import edu.java.bot.commands.commandImpl.HelpCommand;
 import edu.java.bot.commands.commandImpl.ListCommand;
 import edu.java.bot.commands.commandImpl.StartCommand;
@@ -14,7 +12,7 @@ import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
 

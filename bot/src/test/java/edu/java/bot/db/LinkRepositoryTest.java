@@ -1,7 +1,5 @@
 package edu.java.bot.db;
 
-import edu.java.bot.db.Link;
-import edu.java.bot.db.LinkRepository;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LinkRepositoryTest {
 
     private Map<URL, Link> urlLinkMap = new HashMap<>();
-    ;
     private Map<URL, Set<Long>> linkUsersMap = new HashMap<>();
     private LinkRepository linkRepository = new LinkRepository(urlLinkMap, linkUsersMap);
 

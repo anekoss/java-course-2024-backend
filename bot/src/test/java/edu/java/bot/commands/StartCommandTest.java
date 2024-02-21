@@ -8,7 +8,7 @@ import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

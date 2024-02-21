@@ -1,7 +1,6 @@
 package edu.java.bot.service;
 
 import edu.java.bot.db.Link;
-import edu.java.bot.service.LinkService;
 import edu.java.bot.service.validator.UrlValidator;
 import java.net.MalformedURLException;
 import java.net.URI;

@@ -3,16 +3,12 @@ package edu.java.bot.commands;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
-import edu.java.bot.commands.Command;
-import edu.java.bot.commands.CommandExecutionStatus;
 import edu.java.bot.commands.commandImpl.TrackCommand;
 import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +39,7 @@ public class TrackCommandTest {
     }
 
     @Test
-    public void testHandleInvalidLink() throws URISyntaxException, MalformedURLException {
+    public void testHandleInvalidLink() {
         when(commandServiceMock.track(any(), any())).thenReturn(CommandExecutionStatus.LINK_INVALID);
         assertThat(trackCommand.handle(
             updateMock,
@@ -52,7 +48,7 @@ public class TrackCommandTest {
     }
 
     @Test
-    public void testHandleSuccess() throws URISyntaxException, MalformedURLException {
+    public void testHandleSuccess() {
         when(commandServiceMock.track(any(), any())).thenReturn(CommandExecutionStatus.SUCCESS);
         assertThat(trackCommand.handle(
             updateMock,
