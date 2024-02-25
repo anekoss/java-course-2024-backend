@@ -30,7 +30,7 @@
 
         <!-- Tests -->
         <testcontainers.version>1.19.4</testcontainers.version>
-        <wiremock.version>3.3.1</wiremock.version>
+        <wiremock.version>3.4.1</wiremock.version>
 
         <!-- Plugins -->
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
@@ -57,11 +57,14 @@
                 <artifactId>java-telegram-bot-api</artifactId>
                 <version>${java-telegram-bot-api.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.github.tomakehurst/wiremock-standalone -->
             <dependency>
                 <groupId>org.wiremock</groupId>
                 <artifactId>wiremock-standalone</artifactId>
                 <version>${wiremock.version}</version>
+                <scope>test</scope>
             </dependency>
+
 
             <dependency>
                 <groupId>org.testcontainers</groupId>

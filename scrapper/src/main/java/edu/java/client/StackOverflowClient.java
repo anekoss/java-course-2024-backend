@@ -3,7 +3,6 @@ package edu.java.client;
 import edu.java.response.StackOverflowResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 public class StackOverflowClient {
@@ -18,9 +17,14 @@ public class StackOverflowClient {
         this.webClient = WebClient.builder().baseUrl(defaultUrl).build();
     }
 
-    Mono<StackOverflowResponse> fetchQuestion(Long id) {
-        return webClient.get().uri("answers/{ids}/questions", id).retrieve().bodyToMono(StackOverflowResponse.class)
-            .doOnError(error -> log.error(error.getMessage()));
+    public StackOverflowResponse fetchQuestion(Integer id) {
+        return webClient.get()
+            .uri(uriBuilder -> uriBuilder.path("2.3/questions/{id}").queryParam("site", "stackoverflow")
+                .queryParam("sort", "activity").build(id)).retrieve().bodyToMono(StackOverflowResponse.class)
+            .doOnError(error -> {
+                log.error(error.getMessage());
+                throw new IllegalArgumentException("No response body was returned from the service");
+            }).block();
     }
 
 }
