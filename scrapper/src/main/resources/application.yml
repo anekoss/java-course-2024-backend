@@ -1,4 +1,9 @@
 app:
+  client:
+    github:
+      base-url: "https://api.github.com"
+    stackOverflow:
+      base-url: "https://api.stackexchange.com"
   scheduler:
     enable: true
     interval: 10s
@@ -13,3 +18,4 @@ server:
 
 logging:
   config: classpath:log4j2-plain.xml
+
