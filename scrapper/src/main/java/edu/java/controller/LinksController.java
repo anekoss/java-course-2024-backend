@@ -1,0 +1,53 @@
+package edu.java.controller;
+
+import edu.java.dto.AddLinkRequest;
+import edu.java.dto.LinkResponse;
+import edu.java.dto.ListLinksResponse;
+import edu.java.dto.RemoveLinkRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.net.URI;
+import java.net.URISyntaxException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+@Slf4j
+@RestController
+public class LinksController {
+
+    @GetMapping(path = "/links", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<ListLinksResponse> getLinks(
+        @RequestHeader(value = "Tg-Chat-Id") Long tgChatId
+    ) {
+        log.info("Ссылки успешно получены {}", tgChatId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(path = "/links", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity<LinkResponse> deleteLink(
+        @RequestHeader(value = "Tg-Chat-Id") @NotNull Long tgChatId, @RequestBody @Valid RemoveLinkRequest request
+    ) throws URISyntaxException {
+        log.info("Ссылка успешно убрана {}", request.link());
+        URI uri = new URI(request.link());
+        return ResponseEntity.ok(new LinkResponse(tgChatId, uri));
+    }
+
+    @PostMapping(path = "/links", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity<LinkResponse> addLink(
+        @RequestHeader(value = "Tg-Chat-Id") @NotNull Long tgChatId,
+        @RequestBody @Valid AddLinkRequest request
+    ) throws URISyntaxException {
+        log.info("Ссылка успешно добавлена {}", request.link());
+        URI uri = new URI(request.link());
+        return ResponseEntity.ok(new LinkResponse(tgChatId, uri));
+
+    }
+
+}
