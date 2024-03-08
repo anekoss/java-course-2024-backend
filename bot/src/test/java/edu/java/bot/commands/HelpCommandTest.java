@@ -26,14 +26,14 @@ public class HelpCommandTest {
     @Test
     public void testHandleNoAvailableCommands() {
         assertThat(helpCommand.handle(updateMock, printer)).isEqualTo(
-            "В данный момент нет доступных комманд.");
+            "В данный момент нет доступных команд.");
     }
 
     @Test
     public void testHandle() {
-        String response = "<b>Список доступных команд:</b>\n<b>/list</b> - показать список отслеживаемых ссылок\n" +
-            "<b>/help</b> - вывести описание комманд\n<b>/track</b> - начать отслеживание ссылки\n" +
-            "<b>/start</b> - получить информацию о боте\n<b>/untrack</b> - прекратить отслеживание ссылки\n";
+        String response = "<b>Список доступных команд:</b>\n<b>/list</b> - Показать список отслеживаемых ссылок\n" +
+            "<b>/help</b> - Вывести описание команд\n<b>/track</b> - Начать отслеживание ссылки\n" +
+            "<b>/start</b> - Получить информацию о боте\n<b>/untrack</b> - Прекратить отслеживание ссылки\n";
         TrackCommand trackCommand = new TrackCommand(commandServiceMock);
         UnTrackCommand unTrackCommand = new UnTrackCommand(commandServiceMock);
         ListCommand listCommand = new ListCommand(commandServiceMock);

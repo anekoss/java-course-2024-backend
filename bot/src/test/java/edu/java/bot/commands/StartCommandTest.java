@@ -34,7 +34,7 @@ public class StartCommandTest {
     public void testHandle() {
         assertThat(startCommand.handle(updateMock, printer)).isEqualTo(
             "Привет! Это сервис для отслеживания обновлений контента по ссылкам.\n"
-                + "Чтобы узнать о доступных коммандах введите /help.");
+                + "Чтобы узнать о доступных командах введите /help.");
     }
 
 }

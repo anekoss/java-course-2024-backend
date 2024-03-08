@@ -4,17 +4,13 @@ import edu.java.bot.db.Link;
 import edu.java.bot.service.validator.Validator;
 import java.net.URL;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class LinkService {
     private final Validator urlValidator;
-
-    @Autowired
-    public LinkService(Validator urlValidator) {
-        this.urlValidator = urlValidator;
-    }
 
     public Optional<Link> createValidLink(String stringUrl) {
         Optional<URL> url = urlValidator.isValid(stringUrl);

@@ -6,17 +6,13 @@ import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
 import java.net.URL;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ListCommand implements Command {
     private final CommandService commandService;
-
-    @Autowired
-    public ListCommand(CommandService commandService) {
-        this.commandService = commandService;
-    }
 
     @Override
     public String command() {
@@ -25,7 +21,7 @@ public class ListCommand implements Command {
 
     @Override
     public String description() {
-        return "показать список отслеживаемых ссылок";
+        return "Показать список отслеживаемых ссылок";
     }
 
     @Override

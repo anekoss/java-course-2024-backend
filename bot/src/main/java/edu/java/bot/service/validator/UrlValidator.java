@@ -5,13 +5,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UrlValidator implements Validator {
-
-    public UrlValidator() {
-    }
 
     public Optional<URL> isValid(String url) {
         if (url == null) {

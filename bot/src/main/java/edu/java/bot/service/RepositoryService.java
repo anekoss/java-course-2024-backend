@@ -7,19 +7,14 @@ import edu.java.bot.db.UserRepository;
 import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RepositoryService {
     private final LinkRepository linkRepository;
     private final UserRepository userRepository;
-
-    @Autowired
-    public RepositoryService(LinkRepository linkRepository, UserRepository userRepository) {
-        this.linkRepository = linkRepository;
-        this.userRepository = userRepository;
-    }
 
     public boolean saveUser(Long id, User user) {
         return userRepository.addUser(id, user).isPresent();

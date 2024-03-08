@@ -5,18 +5,14 @@ import edu.java.bot.commands.Command;
 import edu.java.bot.commands.CommandExecutionStatus;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import static edu.java.bot.commands.CommandExecutionStatus.SUCCESS;
 
 @Component
+@RequiredArgsConstructor
 public class UnTrackCommand implements Command {
     private final CommandService commandService;
-
-    @Autowired
-    public UnTrackCommand(CommandService commandService) {
-        this.commandService = commandService;
-    }
 
     @Override
     public String command() {
@@ -25,7 +21,7 @@ public class UnTrackCommand implements Command {
 
     @Override
     public String description() {
-        return "прекратить отслеживание ссылки";
+        return "Прекратить отслеживание ссылки";
     }
 
     @Override

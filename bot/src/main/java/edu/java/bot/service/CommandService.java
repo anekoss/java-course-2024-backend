@@ -6,22 +6,16 @@ import edu.java.bot.db.User;
 import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import static edu.java.bot.commands.CommandExecutionStatus.USER_ALREADY_REGISTER;
 
 @Service
+@RequiredArgsConstructor
 public class CommandService {
     private final UserService userService;
     private final RepositoryService repositoryService;
     private final LinkService linkService;
-
-    @Autowired
-    public CommandService(RepositoryService repositoryService, UserService userService, LinkService linkService) {
-        this.repositoryService = repositoryService;
-        this.userService = userService;
-        this.linkService = linkService;
-    }
 
     public CommandExecutionStatus start(Long id) {
         User user = userService.createUser(id);

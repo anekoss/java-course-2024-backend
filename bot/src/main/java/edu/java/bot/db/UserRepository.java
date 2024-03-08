@@ -6,19 +6,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UserRepository {
     private final Map<Long, User> userMap;
     private final Map<Long, Set<URL>> userLinksMap;
-
-    @Autowired
-    public UserRepository(Map<Long, User> userMap, Map<Long, Set<URL>> userLinksMap) {
-        this.userMap = userMap;
-        this.userLinksMap = userLinksMap;
-    }
 
     public Optional<Long> addUser(@NotNull Long id, @NotNull User user) {
         if (userMap.putIfAbsent(id, user) == null) {

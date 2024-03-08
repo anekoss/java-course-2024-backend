@@ -22,6 +22,11 @@ public record ApplicationConfig(@NotEmpty String telegramToken) {
     private static final int THREAD_COUNT = 8;
 
     @Bean
+    public Map<Long, Command> prevCommands() {
+        return new HashMap<>();
+    }
+
+    @Bean
     public CommandManager commandManager(Command[] command, Command unknownCommand) {
         Map<String, Command> commandMap = new HashMap<>();
         Arrays.stream(command).forEach(command1 -> commandMap.put(command1.command(), command1));

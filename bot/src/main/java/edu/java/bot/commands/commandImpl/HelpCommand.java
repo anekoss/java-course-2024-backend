@@ -6,18 +6,14 @@ import edu.java.bot.commands.CommandManager;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class HelpCommand implements Command {
 
     private final CommandService commandService;
-
-    @Autowired
-    public HelpCommand(CommandService commandService) {
-        this.commandService = commandService;
-    }
 
     @Override
     public String command() {
@@ -26,13 +22,13 @@ public class HelpCommand implements Command {
 
     @Override
     public String description() {
-        return "вывести описание комманд";
+        return "Вывести описание команд";
     }
 
     @Override
     public String handle(@NotNull Update update, @NotNull Printer printer) {
         if (CommandManager.getCommandDescription() == null || CommandManager.getCommandDescription().isEmpty()) {
-            return "В данный момент нет доступных комманд.";
+            return "В данный момент нет доступных команд.";
         }
         StringBuilder response =
             new StringBuilder().append(printer.boldText("Список доступных команд:")).append(printer.nextLine());

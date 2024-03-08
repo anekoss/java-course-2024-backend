@@ -3,13 +3,12 @@ package edu.java.bot.printer;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class HtmlPrinter implements Printer {
-
-    public HtmlPrinter() {
-    }
 
     @Override
     public SendMessage getMessage(@NotNull Long chatId, @NotNull String message) {

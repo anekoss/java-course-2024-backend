@@ -7,32 +7,20 @@ import com.pengrad.telegrambot.request.SetMyCommands;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-@Component
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class Bot implements AutoCloseable, UpdatesListener {
     private final TelegramBotImpl bot;
     private final SetMyCommands setMyCommands;
     private final ExecutorService executorService;
     private final UserMessageProcessor userMessageProcessor;
-
-    @Autowired
-    public Bot(
-        TelegramBotImpl bot,
-        UserMessageProcessor userMessageProcessor,
-        SetMyCommands setMyCommands,
-        ExecutorService executorService
-    ) {
-        this.bot = bot;
-        this.userMessageProcessor = userMessageProcessor;
-        this.setMyCommands = setMyCommands;
-        this.executorService = executorService;
-    }
 
     @EventListener({ContextRefreshedEvent.class})
     void start() {

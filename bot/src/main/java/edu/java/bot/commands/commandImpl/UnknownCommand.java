@@ -4,18 +4,14 @@ import com.pengrad.telegrambot.model.Update;
 import edu.java.bot.commands.Command;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UnknownCommand implements Command {
 
     private final CommandService commandService;
-
-    @Autowired(required = false)
-    public UnknownCommand(CommandService commandService) {
-        this.commandService = commandService;
-    }
 
     @Override
     public String command() {
@@ -24,7 +20,7 @@ public class UnknownCommand implements Command {
 
     @Override
     public String description() {
-        return "Бот не знает такую команду :( \nИспользуйте /help чтобы узнать о доступных коммандах.";
+        return "Бот не знает такую команду :( \nИспользуйте /help чтобы узнать о доступных командах.";
     }
 
     @Override

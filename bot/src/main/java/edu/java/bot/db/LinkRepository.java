@@ -4,18 +4,14 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class LinkRepository {
     private final Map<URL, Link> urlLinkMap;
     private final Map<URL, Set<Long>> linkUsersMap;
-
-    @Autowired public LinkRepository(Map<URL, Link> urlLinkMap, Map<URL, Set<Long>> linkUsersMap) {
-        this.urlLinkMap = urlLinkMap;
-        this.linkUsersMap = linkUsersMap;
-    }
 
     public void addUserToLink(Long id, URL url, Link link) {
         urlLinkMap.putIfAbsent(url, link);

@@ -17,7 +17,7 @@ public class CommandServiceTest {
 
     private final String testUrl = "test";
     private final CommandService commandService =
-        new CommandService(repositoryServiceMock, userServiceMock, linkServiceMock);
+        new CommandService(userServiceMock, repositoryServiceMock, linkServiceMock);
 
     @Test
     public void testStartByUnregisterUser() {

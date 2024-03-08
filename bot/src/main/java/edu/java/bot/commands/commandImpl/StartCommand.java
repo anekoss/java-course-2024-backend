@@ -4,18 +4,14 @@ import com.pengrad.telegrambot.model.Update;
 import edu.java.bot.commands.Command;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class StartCommand implements Command {
 
     private final CommandService commandService;
-
-    @Autowired
-    public StartCommand(CommandService commandService) {
-        this.commandService = commandService;
-    }
 
     @Override
     public String command() {
@@ -24,7 +20,7 @@ public class StartCommand implements Command {
 
     @Override
     public String description() {
-        return "получить информацию о боте";
+        return "Получить информацию о боте";
     }
 
     @Override
@@ -33,7 +29,7 @@ public class StartCommand implements Command {
         commandService.start(id);
         String response =
             "Привет! Это сервис для отслеживания обновлений контента по ссылкам.\n"
-                + "Чтобы узнать о доступных коммандах введите /help.";
+                + "Чтобы узнать о доступных командах введите /help.";
         return response;
     }
 }
