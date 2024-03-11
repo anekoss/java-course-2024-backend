@@ -22,12 +22,15 @@ public class GitHubClient {
 
     public GitHubResponse fetchRepository(String owner, String repo) {
         GitHubResponse response =
-            webCLient.get().uri("/repos/{owner}/{repo}", owner, repo)
-                .retrieve().bodyToMono(GitHubResponse.class)
-                .doOnError(error -> {
+            webCLient.get()
+                .uri("/repos/{owner}/{repo}", owner, repo)
+                .retrieve()
+                .bodyToMono(GitHubResponse.class)
+                .onErrorMap(error -> {
                     log.error(error.getMessage());
                     throw new IllegalArgumentException("No response body was returned from the service");
-                }).block();
+                })
+                .block();
         return response;
     }
 

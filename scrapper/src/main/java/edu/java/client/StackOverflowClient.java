@@ -20,11 +20,14 @@ public class StackOverflowClient {
     public StackOverflowResponse fetchQuestion(Integer id) {
         return webClient.get()
             .uri(uriBuilder -> uriBuilder.path("2.3/questions/{id}").queryParam("site", "stackoverflow")
-                .queryParam("sort", "activity").build(id)).retrieve().bodyToMono(StackOverflowResponse.class)
-            .doOnError(error -> {
+                .queryParam("sort", "activity").build(id))
+            .retrieve()
+            .bodyToMono(StackOverflowResponse.class)
+            .onErrorMap(error -> {
                 log.error(error.getMessage());
                 throw new IllegalArgumentException("No response body was returned from the service");
-            }).block();
+            })
+            .block();
     }
 
 }
