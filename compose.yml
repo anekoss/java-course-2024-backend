@@ -17,11 +17,11 @@ services:
     depends_on:
       - postgresql
     command:
-      - --changelog-file=./scrapper/src/main/resources/migrations/master.xml
-      - --driver=org.postgresql.Driver
-      - --url=jdbc:postgresql://postgresql:5432/scrapper
-      - --username=postgres
-      - --password=postgres
+      - changelog-file=./scrapper/src/main/resources/migrations/master.xml
+      - driver=org.postgresql.Driver
+      - url=jdbc:postgresql://postgresql:5432/scrapper
+      - username=postgres
+      - password=postgres
       - update
     volumes:
       - ./scrapper/src/main/resources/migrations:/liquibase/changelog
