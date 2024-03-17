@@ -1,4 +1,4 @@
-package edu.java.bot.db;
+package edu.java.bot.domain;
 
 import jakarta.validation.constraints.NotNull;
 import java.net.URL;
