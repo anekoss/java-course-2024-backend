@@ -1,4 +1,4 @@
-package edu.java.bot.db;
+package edu.java.bot.domain;
 
 import java.net.URL;
 import java.util.HashSet;

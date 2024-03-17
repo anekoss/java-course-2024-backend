@@ -1,9 +1,9 @@
 package edu.java.client;
 
-import edu.java.dto.AddLinkRequest;
-import edu.java.dto.LinkResponse;
-import edu.java.dto.ListLinksResponse;
-import edu.java.dto.RemoveLinkRequest;
+import edu.java.controller.dto.AddLinkRequest;
+import edu.java.controller.dto.LinkResponse;
+import edu.java.controller.dto.ListLinksResponse;
+import edu.java.controller.dto.RemoveLinkRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package edu.java.dto;
+package edu.java.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;

@@ -1,6 +1,6 @@
 package edu.java.bot.controller;
 
-import edu.java.bot.dto.LinkUpdateRequest;
+import edu.java.bot.client.dto.LinkUpdateRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
