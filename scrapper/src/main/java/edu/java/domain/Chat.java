@@ -31,4 +31,8 @@ public class Chat {
 
     }
 
+    public Chat(Long chatId) {
+        this.chatId = chatId;
+    }
+
 }

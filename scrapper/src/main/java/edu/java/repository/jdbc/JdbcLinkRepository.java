@@ -4,50 +4,55 @@ import edu.java.domain.Link;
 import edu.java.repository.LinkRepository;
 import java.net.URI;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class JdbcLinkRepository implements LinkRepository {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public int save(Link link) {
-        return jdbcTemplate.update("insert into links(uri, type) values (?, ?)", link.getUri(), link.getType());
-    }
-
-    @Override
-    public int delete(Link link) {
-        return jdbcTemplate.update("delete from links where id = ?", link.getId());
-    }
-
-    @Override
-    public Link findByUri(URI uri) {
-        try {
-            return jdbcTemplate.queryForObject("select * from links where uri = ?", Link.class, uri);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
+    public int save(Long chatId, Link link) {
+        Long linkId = jdbcTemplate.queryForObject("select * from links where uri = ?", Long.class, link.getUri());
+        if (linkId == null) {
+            jdbcTemplate.update(
+                "insert into links(uri, type, updated_at, checked_at)",
+                link.getUri(),
+                link.getType(),
+                link.getUpdatedAt(),
+                link.getCheckedAt()
+            );
+            linkId = jdbcTemplate.queryForObject("select * from links where uri = ?", Long.class, link.getUri());
         }
+        Long tgChatId = jdbcTemplate.queryForObject("select * from chats where chat_id = ?", Long.class, chatId);
+        return jdbcTemplate.update("insert into chat_links(chat_id, link_id) values (?, ?)", tgChatId, linkId);
+    }
+
+    @Override
+    public int delete(Long chatId, URI uri) {
+        Long tgChatId = jdbcTemplate.queryForObject("select * from chats where chat_id = ?", Long.class, chatId);
+        Long linkId = jdbcTemplate.queryForObject("select * from links where uri = ?", Long.class, uri);
+        Long countLinks =
+            jdbcTemplate.queryForObject("select count(*) from chat_links where link_id = ?", Long.class, linkId);
+        if (countLinks == 1) {
+            return jdbcTemplate.update("delete from links where linkId = ?", linkId);
+        }
+        return jdbcTemplate.update("delete from chat_links where chat_id = ? and link_id = ?", chatId, linkId);
     }
 
     @Override
     public List<Link> findAll() {
-        try {
-            return jdbcTemplate.queryForList("select * from links", Link.class);
-        } catch (EmptyResultDataAccessException e) {
-            return List.of();
-        }
+        return jdbcTemplate.queryForList("select * from links", Link.class);
     }
 
-    public List<Link> findStaleLinks(long limit) {
-        try {
-            return jdbcTemplate.queryForList("select * from links order by checked_at desc limit ?", Link.class, limit);
-        } catch (EmptyResultDataAccessException e) {
-            return List.of();
-        }
+    @Override
+    public List<Link> findByChatId(Long chatId) {
+        return jdbcTemplate.queryForList(
+            "select * from chat_links join links on chat_links.link_id = links.id where chat_links.chat_id = ?",
+            Link.class,
+            chatId
+        );
     }
 }

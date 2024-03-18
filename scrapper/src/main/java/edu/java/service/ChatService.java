@@ -1,6 +1,6 @@
 package edu.java.service;
 
-public interface TgChatService {
+public interface ChatService {
     void register(long tgChatId);
 
     void unregister(long tgChatId);

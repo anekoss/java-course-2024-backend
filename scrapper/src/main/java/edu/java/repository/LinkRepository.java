@@ -6,13 +6,12 @@ import java.util.List;
 
 public interface LinkRepository {
 
-    int save(Link link);
+    int save(Long chatId, Link link);
 
-    int delete(Link link);
-
-    Link findByUri(URI uri);
+    int delete(Long chatId, URI uri);
 
     List<Link> findAll();
 
-    List<Link> findStaleLinks(long limit);
+    List<Link> findByChatId(Long chatId);
+
 }
