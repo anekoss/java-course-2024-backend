@@ -1,4 +1,4 @@
-package edu.java.client;
+package edu.java.bot.client;
 
 import edu.java.controller.dto.AddLinkRequest;
 import edu.java.controller.dto.LinkResponse;
@@ -42,6 +42,11 @@ public class LinksClient {
         return webCLient.post().header(tgChatIdHeader, String.valueOf(tgChatId)).bodyValue(request).retrieve()
             .toEntity(LinkResponse.class).doOnError(error -> log.error(error.getMessage())).block();
     }
+
+    public ResponseEntity<LinkResponse> updateLink(Long tgChatId, AddLinkRequest request) {
+        return webCLient.
+    }
+
 }
 
 

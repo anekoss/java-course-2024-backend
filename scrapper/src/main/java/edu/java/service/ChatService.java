@@ -1,7 +1,10 @@
 package edu.java.service;
 
-public interface ChatService {
-    void register(long tgChatId);
+import edu.java.exception.AlreadyRegisterException;
+import edu.java.exception.ChatNotFoundException;
 
-    void unregister(long tgChatId);
+public interface ChatService {
+    void register(long tgChatId) throws AlreadyRegisterException;
+
+    void unregister(long tgChatId) throws ChatNotFoundException;
 }

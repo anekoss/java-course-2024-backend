@@ -1,4 +1,4 @@
-package edu.java.client;
+package edu.java.bot.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

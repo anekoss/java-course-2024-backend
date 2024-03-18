@@ -1,8 +1,9 @@
 package edu.java.service.jdbc;
 
 import edu.java.domain.Chat;
+import edu.java.exception.AlreadyRegisterException;
+import edu.java.exception.ChatNotFoundException;
 import edu.java.repository.ChatRepository;
-import edu.java.repository.LinkRepository;
 import edu.java.service.ChatService;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +13,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JdbcChatService implements ChatService {
     private final ChatRepository chatRepository;
-    private final LinkRepository linkRepository;
 
     @Override
-    public void register(long tgChatId) {
+    public void register(long tgChatId) throws AlreadyRegisterException {
         Optional<Chat> optionalChat = chatRepository.findByChatId(tgChatId);
-        if (!optionalChat.isEmpty()) {
+        if (optionalChat.isPresent()) {
             throw new AlreadyRegisterException();
         }
         Chat chat = new Chat(tgChatId);
@@ -25,9 +25,9 @@ public class JdbcChatService implements ChatService {
     }
 
     @Override
-    public void unregister(long tgChatId) {
+    public void unregister(long tgChatId) throws ChatNotFoundException {
         Optional<Chat> optionalChat = chatRepository.findByChatId(tgChatId);
-        if (!optionalChat.isEmpty()) {
+        if (optionalChat.isEmpty()) {
             throw new ChatNotFoundException();
         }
         chatRepository.delete(optionalChat.get());

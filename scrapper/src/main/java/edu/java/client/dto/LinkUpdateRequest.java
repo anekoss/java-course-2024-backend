@@ -1,4 +1,4 @@
-package edu.java.bot.client.dto;
+package edu.java.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;

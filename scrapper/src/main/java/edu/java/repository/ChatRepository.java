@@ -14,4 +14,5 @@ public interface ChatRepository {
     List<Chat> findAll();
 
     Optional<Chat> findByChatId(Long chatId);
+    List<Long> findChatIdByLinkId(Long linkId);
 }

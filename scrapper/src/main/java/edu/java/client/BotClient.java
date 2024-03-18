@@ -1,6 +1,6 @@
-package edu.java.bot.client;
+package edu.java.client;
 
-import edu.java.bot.client.dto.LinkUpdateRequest;
+import edu.java.client.dto.LinkUpdateRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

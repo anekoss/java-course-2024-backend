@@ -3,6 +3,7 @@ package edu.java.repository.jdbc;
 import edu.java.domain.Link;
 import edu.java.repository.LinkRepository;
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,19 +16,15 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     public int save(Long chatId, Link link) {
+        jdbcTemplate.update(
+            "insert into links(uri, type, updated_at, checked_at)",
+            link.getUri(),
+            link.getType(),
+            link.getUpdatedAt(),
+            link.getCheckedAt()
+        );
         Long linkId = jdbcTemplate.queryForObject("select * from links where uri = ?", Long.class, link.getUri());
-        if (linkId == null) {
-            jdbcTemplate.update(
-                "insert into links(uri, type, updated_at, checked_at)",
-                link.getUri(),
-                link.getType(),
-                link.getUpdatedAt(),
-                link.getCheckedAt()
-            );
-            linkId = jdbcTemplate.queryForObject("select * from links where uri = ?", Long.class, link.getUri());
-        }
-        Long tgChatId = jdbcTemplate.queryForObject("select * from chats where chat_id = ?", Long.class, chatId);
-        return jdbcTemplate.update("insert into chat_links(chat_id, link_id) values (?, ?)", tgChatId, linkId);
+        return jdbcTemplate.update("insert into chat_links(chat_id, link_id) values (?, ?)", chatId, linkId);
     }
 
     @Override
@@ -53,6 +50,21 @@ public class JdbcLinkRepository implements LinkRepository {
             "select * from chat_links join links on chat_links.link_id = links.id where chat_links.chat_id = ?",
             Link.class,
             chatId
+        );
+    }
+
+    @Override
+    public List<Link> findStaleLinks(Long limit) {
+        return jdbcTemplate.queryForList("select * from links order by checked_at desc limit ?", Link.class, limit);
+    }
+
+    @Override
+    public int update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
+        return jdbcTemplate.update(
+            "update links set updated_at = ?, checked_at = ? where id = ?",
+            updatedAt,
+            checkedAt,
+            linkId
         );
     }
 }
