@@ -1,7 +1,7 @@
 package edu.java.bot.configuration;
 
-import edu.java.bot.db.Link;
-import edu.java.bot.db.User;
+import edu.java.bot.domain.Link;
+import edu.java.bot.domain.User;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
