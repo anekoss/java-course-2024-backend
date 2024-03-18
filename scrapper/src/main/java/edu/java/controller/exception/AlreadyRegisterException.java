@@ -1,4 +1,4 @@
-package edu.java.exception;
+package edu.java.controller.exception;
 
 public class AlreadyRegisterException extends Exception {
 

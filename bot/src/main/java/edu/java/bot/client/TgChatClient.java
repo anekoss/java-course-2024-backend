@@ -1,6 +1,5 @@
-package edu.java.client;
+package edu.java.bot.client;
 
-import edu.java.client.dto.GitHubResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -12,22 +11,33 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
 @Component
-public class GitHubClient {
+public class TgChatClient {
 
+    private final String pathId = "/{id}";
     private final WebClient webCLient;
 
-    public GitHubClient(@Value("${app.client.github.base-url}") @NotBlank @URL String url) {
+    public TgChatClient(@Value("${app.client.tgChatClient.base-url}") @NotBlank @URL String url) {
         this.webCLient = WebClient.builder().baseUrl(url).build();
     }
 
-    public GitHubResponse fetchRepository(String owner, String repo) {
-        return webCLient.get()
-                        .uri("/repos/{owner}/{repo}", owner, repo)
-                        .retrieve()
+    public Void registerChat(Long id) {
+        return webCLient.post().uri(pathId, id).retrieve()
                         .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
                             throw new HttpServerErrorException(clientResponse.statusCode());
                         })
-                        .bodyToMono(GitHubResponse.class)
+                        .bodyToMono(Void.class)
+                        .onErrorMap(error -> {
+                            throw new IllegalArgumentException(error.getMessage());
+                        })
+                        .block();
+    }
+
+    public Void deleteChat(Long id) {
+        return webCLient.delete().uri(pathId, id).retrieve()
+                        .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
+                            throw new HttpServerErrorException(clientResponse.statusCode());
+                        })
+                        .bodyToMono(Void.class)
                         .onErrorMap(error -> {
                             throw new IllegalArgumentException(error.getMessage());
                         })

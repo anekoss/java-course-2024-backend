@@ -26,7 +26,6 @@ public class LinksController {
     public ResponseEntity<ListLinksResponse> getLinks(
         @RequestHeader(value = "Tg-Chat-Id") Long tgChatId
     ) {
-        log.info("Ссылки успешно получены {}", tgChatId);
         return ResponseEntity.ok().build();
     }
 
@@ -34,7 +33,6 @@ public class LinksController {
     public ResponseEntity<LinkResponse> deleteLink(
         @RequestHeader(value = "Tg-Chat-Id") @NotNull Long tgChatId, @RequestBody @Valid RemoveLinkRequest request
     ) throws URISyntaxException {
-        log.info("Ссылка успешно убрана {}", request.link());
         URI uri = new URI(request.link());
         return ResponseEntity.ok(new LinkResponse(tgChatId, uri));
     }
@@ -44,7 +42,6 @@ public class LinksController {
         @RequestHeader(value = "Tg-Chat-Id") @NotNull Long tgChatId,
         @RequestBody @Valid AddLinkRequest request
     ) throws URISyntaxException {
-        log.info("Ссылка успешно добавлена {}", request.link());
         URI uri = new URI(request.link());
         return ResponseEntity.ok(new LinkResponse(tgChatId, uri));
 

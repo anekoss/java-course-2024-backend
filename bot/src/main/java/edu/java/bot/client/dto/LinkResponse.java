@@ -1,4 +1,4 @@
-package edu.java.controller.dto;
+package edu.java.bot.client.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +8,6 @@ import org.hibernate.validator.constraints.URL;
 
 public record LinkResponse(
     @NotNull @Min(0) Long id,
-    @NotBlank @URL URI url
+    @NotBlank @URL URI uri
 ) {
 }

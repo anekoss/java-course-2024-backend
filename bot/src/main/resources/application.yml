@@ -1,5 +1,10 @@
 app:
   telegram-token: ${TOKEN}
+  client:
+    tgChatClient:
+      base-url: "http://localhost:8080/TgChatClient"
+    linksClient:
+      base-url: "http://localhost:8080/links"
 
 spring:
   application:

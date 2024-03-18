@@ -1,8 +1,8 @@
 package edu.java.controller;
 
-import edu.java.exception.AlreadyExistException;
-import edu.java.exception.AlreadyRegisterException;
-import edu.java.exception.ChatNotFoundException;
+import edu.java.controller.exception.AlreadyExistException;
+import edu.java.controller.exception.AlreadyRegisterException;
+import edu.java.controller.exception.ChatNotFoundException;
 import java.net.URISyntaxException;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springdoc.api.ErrorMessage;
@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
@@ -28,7 +29,7 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyRegisterException.class)
-    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "повторная регистрация")
+    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Повторная регистрация")
     public ErrorMessage userAlreadyRegister(AlreadyRegisterException exception, WebRequest request) {
         return new ErrorMessage(exception.getMessage());
     }
@@ -40,8 +41,14 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyExistException.class)
-    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "повторное добавление ссылки")
+    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Повторное добавление ссылки")
     public ErrorMessage linkAlreadyAdded(AlreadyExistException exception, WebRequest request) {
+        return new ErrorMessage(exception.getMessage());
+    }
+
+    @ExceptionHandler(HttpServerErrorException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Сервер не может обработать запрос к сайту")
+    public ErrorMessage serverError(HttpServerErrorException exception, WebRequest request) {
         return new ErrorMessage(exception.getMessage());
     }
 }
