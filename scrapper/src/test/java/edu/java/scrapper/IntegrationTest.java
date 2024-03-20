@@ -25,7 +25,7 @@ public abstract class IntegrationTest {
     public static String CHANGE_LOG = "src/main/resources/migrations/master.xml";
 
     static {
-        POSTGRES = new PostgreSQLContainer<>("postgres:15")
+        POSTGRES = new PostgreSQLContainer<>("postgres:16")
             .withDatabaseName("scrapper")
             .withUsername("postgres")
             .withPassword("postgres");
