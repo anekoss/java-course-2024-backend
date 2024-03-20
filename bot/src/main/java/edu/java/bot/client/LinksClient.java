@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import static edu.java.bot.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 

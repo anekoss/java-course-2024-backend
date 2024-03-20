@@ -13,6 +13,9 @@ public class ClientStatusCodeHandler {
     public static final ExchangeFilterFunction ERROR_RESPONSE_FILTER = ExchangeFilterFunction
             .ofResponseProcessor(ClientStatusCodeHandler::exchangeFilterResponseProcessor);
 
+    private ClientStatusCodeHandler() {
+    }
+
     private static Mono<ClientResponse> exchangeFilterResponseProcessor(ClientResponse response) {
         if (response.statusCode().is5xxServerError()) {
             log.error(response.statusCode() + " SERVER_ERROR");

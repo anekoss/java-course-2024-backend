@@ -28,8 +28,7 @@ public class GitHubClient {
 
     public GitHubResponse fetchRepository(String owner, String repo) {
         try {
-            return webCLient.
-                    get()
+            return webCLient.get()
                     .uri("/repos/{owner}/{repo}", owner, repo)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
