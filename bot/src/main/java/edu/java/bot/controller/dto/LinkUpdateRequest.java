@@ -1,4 +1,4 @@
-package edu.java.client.dto;
+package edu.java.bot.controller.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;

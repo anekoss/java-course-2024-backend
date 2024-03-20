@@ -1,4 +1,4 @@
-package edu.java.controller.dto;
+package edu.java.bot.client.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.URL;

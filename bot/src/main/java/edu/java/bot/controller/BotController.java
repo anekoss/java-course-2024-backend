@@ -1,6 +1,6 @@
 package edu.java.bot.controller;
 
-import edu.java.bot.client.dto.LinkUpdateRequest;
+import edu.java.bot.controller.dto.LinkUpdateRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,8 +16,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class BotController {
     @PostMapping(path = "/updates", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> linkUpdate(@RequestBody @Valid LinkUpdateRequest request) throws URISyntaxException {
-        log.info("Обновление обработано {}", request.uri());
-        URI uri = new URI(request.uri());
+        URI uri = new URI(request.url());
         return ResponseEntity.ok().build();
     }
 
