@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.StackOverflowClient;
 import edu.java.client.dto.StackOverflowResponse;
+import edu.java.client.exception.BadResponseBodyException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class StackOverflowClientTest {
     }
 
     @Test
-    void testFetchQuestionShouldReturnCorrectResponse() throws IOException {
+    void testFetchQuestionShouldReturnCorrectResponse() throws IOException, BadResponseBodyException {
         String response =
                 String.join("", Files.readAllLines(okResponsePath));
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))

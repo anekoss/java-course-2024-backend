@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.BotClient;
 import edu.java.client.dto.LinkUpdateRequest;
+import edu.java.client.exception.BadResponseBodyException;
 import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ public class BotClientTest {
 
     @Test
     @AssertTrue
-    void testLinkUpdatesShouldReturnCorrectResponse() {
+    void testLinkUpdatesShouldReturnCorrectResponse() throws BadResponseBodyException {
         wireMockServer.stubFor(WireMock.post(WireMock.urlPathTemplate("/updates"))
                                        .withHeader("Accept", WireMock.containing(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Content-Type", WireMock.containing(MediaType.APPLICATION_JSON_VALUE))

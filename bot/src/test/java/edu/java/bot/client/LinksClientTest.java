@@ -8,6 +8,7 @@ import edu.java.bot.client.dto.AddLinkRequest;
 import edu.java.bot.client.dto.LinkResponse;
 import edu.java.bot.client.dto.ListLinksResponse;
 import edu.java.bot.client.dto.RemoveLinkRequest;
+import edu.java.bot.client.exception.BadResponseBodyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -39,7 +40,7 @@ public class LinksClientTest {
     }
 
     @Test
-    void testGetLinksShouldReturnCorrectResponse() throws URISyntaxException {
+    void testGetLinksShouldReturnCorrectResponse() throws URISyntaxException, BadResponseBodyException {
         ListLinksResponse excepted = new ListLinksResponse(new LinkResponse[]{new LinkResponse(1L, new URI("https://example.com/link1"))}, 1L);
         wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
@@ -79,7 +80,7 @@ public class LinksClientTest {
 
 
     @Test
-    void testDeleteLinkShouldReturnCorrectResponse() throws URISyntaxException {
+    void testDeleteLinkShouldReturnCorrectResponse() throws URISyntaxException, BadResponseBodyException {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));
@@ -125,7 +126,7 @@ public class LinksClientTest {
 
 
     @Test
-    void testAddLinkShouldReturnCorrectResponse() throws URISyntaxException {
+    void testAddLinkShouldReturnCorrectResponse() throws URISyntaxException, BadResponseBodyException {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));

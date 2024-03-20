@@ -1,5 +1,6 @@
 package edu.java.bot.client;
 
+import edu.java.bot.client.exception.BadResponseBodyException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import static edu.java.bot.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 
@@ -26,7 +26,7 @@ public class TgChatClient {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
-    public Void registerChat(Long id) {
+    public Void registerChat(Long id) throws BadResponseBodyException {
         try {
 
             return webCLient.post()
@@ -38,11 +38,11 @@ public class TgChatClient {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException("Bad response body was returned from the service");
+            throw new BadResponseBodyException();
         }
     }
 
-    public Void deleteChat(Long id) {
+    public Void deleteChat(Long id) throws BadResponseBodyException {
         try {
             return webCLient.delete()
                             .uri(pathId, id)
@@ -53,7 +53,7 @@ public class TgChatClient {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException("Bad response body was returned from the service");
+            throw new BadResponseBodyException();
         }
     }
 

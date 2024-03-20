@@ -4,6 +4,7 @@ import edu.java.bot.client.dto.AddLinkRequest;
 import edu.java.bot.client.dto.LinkResponse;
 import edu.java.bot.client.dto.ListLinksResponse;
 import edu.java.bot.client.dto.RemoveLinkRequest;
+import edu.java.bot.client.exception.BadResponseBodyException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -29,7 +30,7 @@ public class LinksClient {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
-    public ListLinksResponse getLinks(Long tgChatId) {
+    public ListLinksResponse getLinks(Long tgChatId) throws BadResponseBodyException {
         try {
             return webCLient.get()
                             .accept(MediaType.APPLICATION_JSON)
@@ -41,11 +42,11 @@ public class LinksClient {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException("Bad response body was returned from the service");
+            throw new BadResponseBodyException();
         }
     }
 
-    public LinkResponse deleteLink(Long tgChatId, RemoveLinkRequest request) {
+    public LinkResponse deleteLink(Long tgChatId, RemoveLinkRequest request) throws BadResponseBodyException {
         try {
             return webCLient.method(HttpMethod.DELETE)
                             .accept(MediaType.APPLICATION_JSON)
@@ -58,11 +59,11 @@ public class LinksClient {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException("Bad response body was returned from the service");
+            throw new BadResponseBodyException();
         }
     }
 
-    public LinkResponse addLink(Long tgChatId, AddLinkRequest request) {
+    public LinkResponse addLink(Long tgChatId, AddLinkRequest request) throws BadResponseBodyException {
         try {
             return webCLient.post()
                             .accept(MediaType.APPLICATION_JSON)
@@ -75,7 +76,7 @@ public class LinksClient {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException("Bad response body was returned from the service");
+            throw new BadResponseBodyException();
         }
     }
 }

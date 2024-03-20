@@ -3,6 +3,7 @@ package edu.java.bot.client;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import edu.java.bot.client.exception.BadResponseBodyException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class TgChatClientTest {
     }
 
     @Test
-    void testRegisterChatShouldReturnCorrectResponse() {
+    void testRegisterChatShouldReturnCorrectResponse() throws BadResponseBodyException {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(200))
         );
@@ -64,7 +65,7 @@ public class TgChatClientTest {
 
 
     @Test
-    void testDeleteChatShouldReturnCorrectResponse() {
+    void testDeleteChatShouldReturnCorrectResponse() throws BadResponseBodyException {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(200))
         );

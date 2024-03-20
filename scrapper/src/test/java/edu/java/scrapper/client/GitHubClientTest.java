@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubResponse;
+import edu.java.client.exception.BadResponseBodyException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class GitHubClientTest {
     }
 
     @Test
-    void testGetRepositoryShouldReturnCorrectResponse() throws IOException {
+    void testGetRepositoryShouldReturnCorrectResponse() throws IOException, BadResponseBodyException {
         String response = String.join("", Files.readAllLines(okResponsePath));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(200)

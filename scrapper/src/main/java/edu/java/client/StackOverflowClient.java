@@ -1,6 +1,7 @@
 package edu.java.client;
 
 import edu.java.client.dto.StackOverflowResponse;
+import edu.java.client.exception.BadResponseBodyException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import static edu.java.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 @Slf4j
@@ -24,7 +24,7 @@ public class StackOverflowClient {
         this.webClient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
-    public StackOverflowResponse fetchQuestion(Long id) {
+    public StackOverflowResponse fetchQuestion(Long id) throws BadResponseBodyException {
         try {
             return webClient.get()
                             .uri(uriBuilder -> uriBuilder.path("2.3/questions/{id}")
@@ -38,7 +38,7 @@ public class StackOverflowClient {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException("Bad response body was returned from the service");
+            throw new BadResponseBodyException();
         }
     }
 

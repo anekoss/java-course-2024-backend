@@ -1,6 +1,7 @@
 package edu.java.client;
 
 import edu.java.client.dto.LinkUpdateRequest;
+import edu.java.client.exception.BadResponseBodyException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -26,7 +27,7 @@ public class BotClient {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
-    public String linkUpdates(LinkUpdateRequest request) {
+    public String linkUpdates(LinkUpdateRequest request) throws BadResponseBodyException {
         try {
             return webCLient
                     .post()
@@ -41,7 +42,7 @@ public class BotClient {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new IllegalArgumentException("Bad response body was returned from the service");
+            throw new BadResponseBodyException();
         }
     }
 }
