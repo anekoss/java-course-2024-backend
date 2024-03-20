@@ -30,8 +30,6 @@ public class StackOverflowClientTest {
                                                                .options(wireMockConfig().dynamicPort())
                                                                .build();
     private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/stackOverflow/stackOverflow_ok.json");
-    private final Path badResponsePath =
-            Path.of("src/test/java/edu/java/scrapper/stackOverflow/stackOverflow_bad.json");
 
     @Autowired
     private StackOverflowClient stackOverflowClient;
@@ -63,9 +61,7 @@ public class StackOverflowClientTest {
     }
 
     @Test
-    void testFetchQuestionShouldReturnClientError() throws IOException {
-        String response =
-                String.join("", Files.readAllLines(badResponsePath));
+    void testFetchQuestionShouldReturnClientError() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
                                        .withPathParam("id", WireMock.equalTo("78056352"))
                                        .withQueryParam("sort", WireMock.equalTo("activity"))
@@ -80,9 +76,7 @@ public class StackOverflowClientTest {
     }
 
     @Test
-    void testFetchQuestionShouldReturnServerError() throws IOException {
-        String response =
-                String.join("", Files.readAllLines(badResponsePath));
+    void testFetchQuestionShouldReturnServerError() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
                                        .withPathParam("id", WireMock.equalTo("78056352"))
                                        .withQueryParam("sort", WireMock.equalTo("activity"))
@@ -97,9 +91,7 @@ public class StackOverflowClientTest {
     }
 
     @Test
-    void testFetchQuestionShouldReturnIllegalException() throws IOException {
-        String response =
-                String.join("", Files.readAllLines(badResponsePath));
+    void testFetchQuestionShouldReturnIllegalException() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
                                        .withPathParam("id", WireMock.equalTo("78056352"))
                                        .withQueryParam("sort", WireMock.equalTo("activity"))
@@ -107,7 +99,7 @@ public class StackOverflowClientTest {
                                        .willReturn(WireMock.aResponse()
                                                            .withStatus(200)
                                                            .withHeader("Content-Type", "application/json")
-                                               .withBody("{id:mew}")));
+                                                           .withBody("{id:mew}")));
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> stackOverflowClient.fetchQuestion(78056352L)

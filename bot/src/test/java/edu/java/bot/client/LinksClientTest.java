@@ -4,8 +4,10 @@ package edu.java.bot.client;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import edu.java.bot.client.dto.AddLinkRequest;
 import edu.java.bot.client.dto.LinkResponse;
 import edu.java.bot.client.dto.ListLinksResponse;
+import edu.java.bot.client.dto.RemoveLinkRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -43,9 +45,10 @@ public class LinksClientTest {
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .willReturn(WireMock.jsonResponse(response, 200)));
-        ListLinksResponse actualResponse = linksClient.getLinks(1L);
-        assertThat(actualResponse.size()).isEqualTo(excepted.size());
-        assertThat(actualResponse.linkResponses()).isEqualTo(excepted.linkResponses());
+        ListLinksResponse actual = linksClient.getLinks(1L);
+        assertThat(actual.linkResponses()).isEqualTo(excepted.linkResponses());
+        assertThat(actual.size()).isEqualTo(excepted.size());
+
     }
 
     @Test
@@ -63,7 +66,7 @@ public class LinksClientTest {
 
     @Test
     void testGetLinksShouldReturnServerError() {
-        wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
+        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .willReturn(WireMock.jsonResponse(response, 500)));
@@ -77,41 +80,93 @@ public class LinksClientTest {
 
     @Test
     void testDeleteLinkShouldReturnCorrectResponse() throws URISyntaxException {
-        ListLinksResponse excepted = new ListLinksResponse(new LinkResponse[]{new LinkResponse(1L, new URI("https://example.com/link1"))}, 1L);
+        String request = "{\"link\":\"https://example.com/link1\"}";
+        String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
+        LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));
         wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .withRequestBody(WireMock.equalToJson(request))
                                        .willReturn(WireMock.jsonResponse(response, 200)));
-        ListLinksResponse actualResponse = linksClient.getLinks(1L);
-        assertThat(actualResponse.size()).isEqualTo(excepted.size());
-        assertThat(actualResponse.linkResponses()).isEqualTo(excepted.linkResponses());
+        assertThat(linksClient.deleteLink(1L, new RemoveLinkRequest("https://example.com/link1"))).isEqualTo(excepted);
     }
 
     @Test
     void testDeleteLinkShouldReturnClientError() {
-        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
+        String request = "{\"link\":\"https://example.com/link1\"}";
+        String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
+        wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .withRequestBody(WireMock.equalToJson(request))
                                        .willReturn(WireMock.jsonResponse(response, 404)));
         HttpClientErrorException exception = assertThrows(
                 HttpClientErrorException.class,
-                () -> linksClient.getLinks(1L)
+                () -> linksClient.deleteLink(1L, new RemoveLinkRequest("https://example.com/link1"))
         );
         assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
     }
 
     @Test
     void testDeleteLinkShouldReturnServerError() {
-        wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
+        String request = "{\"link\":\"https://example.com/link1\"}";
+        String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
+        wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .withRequestBody(WireMock.equalToJson(request))
                                        .willReturn(WireMock.jsonResponse(response, 500)));
         HttpServerErrorException exception = assertThrows(
                 HttpServerErrorException.class,
-                () -> linksClient.getLinks(1L)
+                () -> linksClient.deleteLink(1L, new RemoveLinkRequest("https://example.com/link1"))
         );
         assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
     }
 
+
+    @Test
+    void testAddLinkShouldReturnCorrectResponse() throws URISyntaxException {
+        String request = "{\"link\":\"https://example.com/link1\"}";
+        String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
+        LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));
+        wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
+                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
+                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .withRequestBody(WireMock.equalToJson(request))
+                                       .willReturn(WireMock.jsonResponse(response, 200)));
+        assertThat(linksClient.addLink(1L, new AddLinkRequest("https://example.com/link1"))).isEqualTo(excepted);
+    }
+
+    @Test
+    void testAddLinkShouldReturnClientError() {
+        String request = "{\"link\":\"https://example.com/link1\"}";
+        String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
+        wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
+                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
+                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .withRequestBody(WireMock.equalToJson(request))
+                                       .willReturn(WireMock.jsonResponse(response, 404)));
+        HttpClientErrorException exception = assertThrows(
+                HttpClientErrorException.class,
+                () -> linksClient.addLink(1L, new AddLinkRequest("https://example.com/link1"))
+        );
+        assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
+    }
+
+    @Test
+    void testAddLinkShouldReturnServerError() {
+        String request = "{\"link\":\"https://example.com/link1\"}";
+        String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
+        wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
+                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
+                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .withRequestBody(WireMock.equalToJson(request))
+                                       .willReturn(WireMock.jsonResponse(response, 500)));
+        HttpServerErrorException exception = assertThrows(
+                HttpServerErrorException.class,
+                () -> linksClient.addLink(1L, new AddLinkRequest("https://example.com/link1"))
+        );
+        assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
+    }
 
 }

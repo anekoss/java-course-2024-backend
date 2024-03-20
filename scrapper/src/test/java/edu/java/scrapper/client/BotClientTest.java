@@ -16,9 +16,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
-
-import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -42,7 +39,7 @@ public class BotClientTest {
     }
 
     @BeforeAll
-    static void initRequest() throws JsonProcessingException {
+    static void initRequest() {
         linkUpdateRequest = new LinkUpdateRequest(1L, "https://api.stackexchange.com", "description", new Long[]{1L});
         request = "{\"id\":1,\"url\":\"https://api.stackexchange.com\",\"description\":\"description\",\"tgChatIds\":[1]}";
     }
@@ -61,7 +58,7 @@ public class BotClientTest {
     }
 
     @Test
-    void testLinkUpdatesShouldReturnClientError() throws IOException {
+    void testLinkUpdatesShouldReturnClientError() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/updates"))
                                        .withHeader("Accept", WireMock.containing(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Content-Type", WireMock.containing(MediaType.APPLICATION_JSON_VALUE))
