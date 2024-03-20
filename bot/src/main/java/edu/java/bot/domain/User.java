@@ -1,4 +1,4 @@
-package edu.java.bot.db;
+package edu.java.bot.domain;
 
 public record User(Long id) {
 

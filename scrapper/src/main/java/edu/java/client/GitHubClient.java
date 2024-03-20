@@ -1,9 +1,13 @@
 package edu.java.client;
 
-import edu.java.response.GitHubResponse;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.java.client.dto.GitHubResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.OffsetDateTime;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -34,4 +38,12 @@ public class GitHubClient {
         return response;
     }
 
+    public static record StackOverflowResponse(List<StackOverflowItem> items) {
+        public record StackOverflowItem(@JsonProperty("question_id") Long id,
+                                        @JsonProperty("title") String title,
+                                        @JsonProperty("link") String link,
+                                        @JsonProperty("creation_date") OffsetDateTime createdAt,
+                                        @JsonProperty("last_activity_date") OffsetDateTime updatedAt) {
+        }
+    }
 }

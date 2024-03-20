@@ -1,8 +1,8 @@
 package edu.java.bot.service;
 
 import edu.java.bot.commands.CommandExecutionStatus;
-import edu.java.bot.db.Link;
-import edu.java.bot.db.User;
+import edu.java.bot.domain.Link;
+import edu.java.bot.domain.User;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

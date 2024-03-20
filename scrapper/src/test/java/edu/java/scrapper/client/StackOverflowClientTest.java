@@ -1,9 +1,10 @@
-package edu.java.scrapper;
+package edu.java.scrapper.client;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import edu.java.client.GitHubClient;
 import edu.java.client.StackOverflowClient;
-import edu.java.response.StackOverflowResponse;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class StackOverflowClientTest {
     @Autowired
     private StackOverflowClient stackOverflowClient;
-    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/stackOverflow/stackOverflow_ok.json");
+    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/client/stackOverflow/stackOverflow_ok.json");
     private final Path badResponsePath =
-        Path.of("src/test/java/edu/java/scrapper/stackOverflow/stackOverflow_bad.json");
+        Path.of("src/test/java/edu/java/scrapper/client/stackOverflow/stackOverflow_bad.json");
 
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
@@ -47,8 +48,8 @@ public class StackOverflowClientTest {
             .withQueryParam("site", WireMock.equalTo("stackoverflow"))
             .willReturn(WireMock.aResponse().withStatus(200).withHeader("Content-Type", "application/json")
                 .withBody(response)));
-        StackOverflowResponse stackOverflowResponse =
-            new StackOverflowResponse(List.of(new StackOverflowResponse.StackOverflowItem(78056352L,
+        GitHubClient.StackOverflowResponse stackOverflowResponse =
+            new GitHubClient.StackOverflowResponse(List.of(new GitHubClient.StackOverflowResponse.StackOverflowItem(78056352L,
                 "React Leaflet map not Re-rendering",
                 "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",
                 OffsetDateTime.parse("2024-02-25T14:38:10Z"), OffsetDateTime.parse("2024-02-25T14:38:10Z")
