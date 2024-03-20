@@ -31,8 +31,8 @@ public class GitHubClientTest {
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())
                                                                .build();
-    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/github/github_ok.json");
-    private final Path badResponsePath = Path.of("src/test/java/edu/java/scrapper/github/github_bad.json");
+    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_ok.json");
+    private final Path badResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_bad.json");
     @Autowired
     private GitHubClient gitHubClient;
 
@@ -97,7 +97,7 @@ public class GitHubClientTest {
     }
 
     @Test
-    void testGetRepositoryShouldHandleDecodingException() {
+    void testGetRepositoryShouldReturnBadResponseBody() {
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(200)
                                                               .withHeader(
@@ -105,7 +105,7 @@ public class GitHubClientTest {
                                                                       MediaType.APPLICATION_JSON_VALUE
                                                               )
                                                               .withBody("{id:mewmew}")));
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project"));
+        BadResponseBodyException exception = assertThrows(BadResponseBodyException.class, () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project"));
         assertThat(exception.getMessage()).isEqualTo("Bad response body was returned from the service");
     }
 

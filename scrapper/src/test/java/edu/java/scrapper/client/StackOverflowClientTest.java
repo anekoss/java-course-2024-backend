@@ -92,7 +92,7 @@ public class StackOverflowClientTest {
     }
 
     @Test
-    void testFetchQuestionShouldReturnIllegalException() {
+    void testFetchQuestionShouldReturnBadResponseBody() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
                                        .withPathParam("id", WireMock.equalTo("78056352"))
                                        .withQueryParam("sort", WireMock.equalTo("activity"))
@@ -101,8 +101,8 @@ public class StackOverflowClientTest {
                                                            .withStatus(200)
                                                            .withHeader("Content-Type", "application/json")
                                                            .withBody("{id:mew}")));
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        BadResponseBodyException exception = assertThrows(
+                BadResponseBodyException.class,
                 () -> stackOverflowClient.fetchQuestion(78056352L)
         );
         assertThat(exception.getMessage()).isEqualTo("Bad response body was returned from the service");
