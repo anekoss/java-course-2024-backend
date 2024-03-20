@@ -22,15 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GitHubClientTest {
-    @Autowired
-    private GitHubClient gitHubClient;
-    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_ok.json");
-    private final Path badResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_bad.json");
-
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
         .options(wireMockConfig().dynamicPort())
         .build();
+    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_ok.json");
+    private final Path badResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_bad.json");
+    @Autowired
+    private GitHubClient gitHubClient;
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
