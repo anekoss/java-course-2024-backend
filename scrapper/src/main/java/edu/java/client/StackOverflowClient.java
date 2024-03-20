@@ -1,5 +1,6 @@
 package edu.java.client;
 
+import edu.java.client.dto.StackOverflowResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -16,12 +17,12 @@ public class StackOverflowClient {
         this.webClient = WebClient.builder().baseUrl(defaultUrl).build();
     }
 
-    public GitHubClient.StackOverflowResponse fetchQuestion(Integer id) {
+    public StackOverflowResponse fetchQuestion(Integer id) {
         return webClient.get()
             .uri(uriBuilder -> uriBuilder.path("2.3/questions/{id}").queryParam("site", "stackoverflow")
                 .queryParam("sort", "activity").build(id))
             .retrieve()
-            .bodyToMono(GitHubClient.StackOverflowResponse.class)
+            .bodyToMono(StackOverflowResponse.class)
             .onErrorMap(error -> {
                 log.error(error.getMessage());
                 throw new IllegalArgumentException("No response body was returned from the service");
