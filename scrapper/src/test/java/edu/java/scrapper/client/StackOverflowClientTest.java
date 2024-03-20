@@ -29,7 +29,7 @@ public class StackOverflowClientTest {
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())
                                                                .build();
-    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/stackOverflow/stackOverflow_ok.json");
+    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/client/stackOverflow/stackOverflow_ok.json");
 
     @Autowired
     private StackOverflowClient stackOverflowClient;
