@@ -4,8 +4,8 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.21.xsd">
     <changeSet id="init_tables" author="anekoss">
-        <sqlFile path="migrations/sql/create_chats_table.sql"/>
-        <sqlFile path="migrations/sql/create_links_table.sql"/>
-        <sqlFile path="migrations/sql/create_chat_links_table.sql"/>
+        <sqlFile path="migrations/sql/create_chats_table.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="migrations/sql/create_links_table.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="migrations/sql/create_chat_links_table.sql" relativeToChangelogFile="true"/>
     </changeSet>
 </databaseChangeLog>
