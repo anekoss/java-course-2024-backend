@@ -1,9 +1,9 @@
-package edu.java.scrapper;
+package edu.java.scrapper.client;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.GitHubClient;
-import edu.java.response.GitHubResponse;
+import edu.java.client.dto.GitHubResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class GitHubClientTest {
     @Autowired
     private GitHubClient gitHubClient;
-    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/github/github_ok.json");
-    private final Path badResponsePath = Path.of("src/test/java/edu/java/scrapper/github/github_bad.json");
+    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_ok.json");
+    private final Path badResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_bad.json");
 
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
