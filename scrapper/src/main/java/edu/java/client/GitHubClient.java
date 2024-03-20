@@ -25,16 +25,15 @@ public class GitHubClient {
     }
 
     public GitHubResponse fetchRepository(String owner, String repo) {
-        return
-                webCLient.get()
-                         .uri("/repos/{owner}/{repo}", owner, repo)
-                         .retrieve()
-                         .bodyToMono(GitHubResponse.class)
-                         .onErrorMap(error -> {
-                             log.error(error.getMessage());
-                             throw new IllegalArgumentException("No response body was returned from the service");
-                         })
-                         .block();
+        return webCLient.get()
+                        .uri("/repos/{owner}/{repo}", owner, repo)
+                        .retrieve()
+                        .bodyToMono(GitHubResponse.class)
+                        .onErrorMap(error -> {
+                            log.error(error.getMessage());
+                            throw new IllegalArgumentException("No response body was returned from the service");
+                        })
+                        .block();
     }
 
     public static record StackOverflowResponse(List<StackOverflowItem> items) {
