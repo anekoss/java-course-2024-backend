@@ -7,13 +7,15 @@ import java.util.List;
 
 public interface LinkRepository {
 
-    int save(Long chatId, Link link);
+    int save(Long tgChatId, Link link);
 
-    int delete(Long chatId, URI uri);
+    int delete(Long tgChatId, URI uri);
 
     List<Link> findAll();
 
-    List<Link> findByChatId(Long chatId);
+    List<Link> findByChatId(Long tgChatId);
+
+    Long findIdByUri(URI uri);
 
     List<Link> findStaleLinks(Long limit);
 

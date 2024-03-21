@@ -11,11 +11,11 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
-@Table(name = "chats")
+@Table(name = "tg_chats")
 @Entity
 @Getter
 @Setter
-public class Chat {
+public class TgChat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +27,11 @@ public class Chat {
     @ManyToMany(mappedBy = "chats")
     private Set<Link> links;
 
-    public Chat() {
+    public TgChat() {
 
     }
 
-    public Chat(Long chatId) {
+    public TgChat(Long chatId) {
         this.chatId = chatId;
     }
 

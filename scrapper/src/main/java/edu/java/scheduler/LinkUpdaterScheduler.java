@@ -14,6 +14,7 @@ public class LinkUpdaterScheduler {
 
     @Scheduled(fixedDelayString = "#{@scheduler.forceCheckDelay}")
     public void update() {
-        linkUpdaterService.update();
+        long cntUpdate = linkUpdaterService.update();
+        log.info("update {} links", cntUpdate);
     }
 }

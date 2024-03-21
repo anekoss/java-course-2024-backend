@@ -1,10 +1,10 @@
 package edu.java.service.jdbc;
 
-import edu.java.domain.Chat;
+import edu.java.controller.exception.AlreadyExistException;
+import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.domain.Link;
-import edu.java.exception.AlreadyExistException;
-import edu.java.exception.ChatNotFoundException;
-import edu.java.repository.ChatRepository;
+import edu.java.domain.TgChat;
+import edu.java.repository.TgChatRepository;
 import edu.java.repository.LinkRepository;
 import edu.java.service.LinkService;
 import edu.java.service.LinkTypeService;
@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class JdbcLinkService implements LinkService {
-    private final ChatRepository chatRepository;
+    private final TgChatRepository tgChatRepository;
     private final LinkRepository linkRepository;
     private final LinkTypeService linkTypeService;
 
     @Override
     public Link add(long tgChatId, URI url) throws ChatNotFoundException, AlreadyExistException {
-        Optional<Chat> optionalChat = chatRepository.findByChatId(tgChatId);
+        Optional<TgChat> optionalChat = tgChatRepository.findByChatId(tgChatId);
         if (optionalChat.isEmpty()) {
             throw new ChatNotFoundException();
         }
@@ -39,7 +39,7 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     public Link remove(long tgChatId, URI url) throws ChatNotFoundException, ResourceNotFoundException {
-        Optional<Chat> optionalChat = chatRepository.findByChatId(tgChatId);
+        Optional<TgChat> optionalChat = tgChatRepository.findByChatId(tgChatId);
         if (optionalChat.isEmpty()) {
             throw new ChatNotFoundException();
         }
@@ -60,4 +60,5 @@ public class JdbcLinkService implements LinkService {
         }
         return links;
     }
+
 }

@@ -33,7 +33,7 @@ public class Link {
     private OffsetDateTime checkedAt;
 
     @ManyToMany(mappedBy = "links")
-    private Set<Chat> chats;
+    private Set<TgChat> tgChats;
 
     public Link() {
 

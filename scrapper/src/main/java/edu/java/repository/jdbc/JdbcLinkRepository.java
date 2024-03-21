@@ -15,7 +15,7 @@ public class JdbcLinkRepository implements LinkRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public int save(Long chatId, Link link) {
+    public int save(Long tgChatId, Link link) {
         jdbcTemplate.update(
             "insert into links(uri, type, updated_at, checked_at)",
             link.getUri(),
@@ -23,20 +23,20 @@ public class JdbcLinkRepository implements LinkRepository {
             link.getUpdatedAt(),
             link.getCheckedAt()
         );
-        Long linkId = jdbcTemplate.queryForObject("select * from links where uri = ?", Long.class, link.getUri());
-        return jdbcTemplate.update("insert into chat_links(chat_id, link_id) values (?, ?)", chatId, linkId);
+        Long linkId = findIdByUri(link.getUri());
+        return jdbcTemplate.update("insert into tg_chat_links(tg_chat_id, link_id) values (?, ?)", tgChatId, linkId);
     }
 
     @Override
-    public int delete(Long chatId, URI uri) {
-        Long tgChatId = jdbcTemplate.queryForObject("select * from chats where chat_id = ?", Long.class, chatId);
-        Long linkId = jdbcTemplate.queryForObject("select * from links where uri = ?", Long.class, uri);
-        Long countLinks =
-            jdbcTemplate.queryForObject("select count(*) from chat_links where link_id = ?", Long.class, linkId);
-        if (countLinks == 1) {
+    public int delete(Long tgChatId, URI uri) {
+        Long linkId = findIdByUri(uri);
+        String countLinksQuery = "select count(*) from tg_chat_links where link_id = ?";
+        Long countLinks = jdbcTemplate.queryForObject(countLinksQuery, Long.class, linkId);
+        if (countLinks == 1L) {
             return jdbcTemplate.update("delete from links where linkId = ?", linkId);
         }
-        return jdbcTemplate.update("delete from chat_links where chat_id = ? and link_id = ?", chatId, linkId);
+        String deleteQuery = "delete from tg_chat_links where tg_chat_id = ? and link_id = ?";
+        return jdbcTemplate.update(deleteQuery, tgChatId, linkId);
     }
 
     @Override
@@ -45,12 +45,15 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Override
-    public List<Link> findByChatId(Long chatId) {
-        return jdbcTemplate.queryForList(
-            "select * from chat_links join links on chat_links.link_id = links.id where chat_links.chat_id = ?",
-            Link.class,
-            chatId
-        );
+    public List<Link> findByChatId(Long tgChatId) {
+        String query =
+            "select * from tg_chat_links join links on tg_chat_links.link_id = links.id "
+                + "where tg_chat_links.tg_chat_id = ?";
+        return jdbcTemplate.queryForList(query, Link.class, tgChatId);
+    }
+
+    public Long findIdByUri(URI uri) {
+        return jdbcTemplate.queryForObject("select id from links where uri = ?", Long.class, uri);
     }
 
     @Override

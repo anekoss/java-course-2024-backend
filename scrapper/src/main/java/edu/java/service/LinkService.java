@@ -1,8 +1,8 @@
 package edu.java.service;
 
+import edu.java.controller.exception.AlreadyExistException;
+import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.domain.Link;
-import edu.java.exception.AlreadyExistException;
-import edu.java.exception.ChatNotFoundException;
 import java.net.URI;
 import java.util.List;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
