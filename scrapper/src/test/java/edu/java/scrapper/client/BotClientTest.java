@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.BotClient;
 import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.client.exception.BadResponseBodyException;
+import edu.java.scrapper.IntegrationTest;
 import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class BotClientTest {
+public class BotClientTest extends IntegrationTest {
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())

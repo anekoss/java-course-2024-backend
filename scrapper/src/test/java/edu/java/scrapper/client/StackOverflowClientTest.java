@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.StackOverflowClient;
 import edu.java.client.dto.StackOverflowResponse;
 import edu.java.client.exception.BadResponseBodyException;
+import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class StackOverflowClientTest {
+public class StackOverflowClientTest extends IntegrationTest {
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())
