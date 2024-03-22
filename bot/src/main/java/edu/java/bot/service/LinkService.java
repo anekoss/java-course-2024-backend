@@ -1,6 +1,6 @@
 package edu.java.bot.service;
 
-import edu.java.bot.db.Link;
+import edu.java.bot.domain.Link;
 import edu.java.bot.service.validator.Validator;
 import java.net.URL;
 import java.util.Optional;

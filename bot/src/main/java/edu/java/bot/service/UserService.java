@@ -1,6 +1,6 @@
 package edu.java.bot.service;
 
-import edu.java.bot.db.User;
+import edu.java.bot.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
