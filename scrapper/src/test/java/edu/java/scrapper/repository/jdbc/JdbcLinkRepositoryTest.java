@@ -13,7 +13,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
@@ -21,7 +20,6 @@ import static edu.java.domain.LinkType.GITHUB;
 import static edu.java.domain.LinkType.STACKOVERFLOW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class JdbcLinkRepositoryTest extends IntegrationTest {
@@ -70,8 +68,10 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         initChats();
         Link link = new Link(new URI("https://stackoverflow.com/"), STACKOVERFLOW);
         Long chatId = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
+        assertThat(chatId).isNotNull().isGreaterThan(0L);
         linkRepository.save(chatId, link);
-        assertThrows(DuplicateKeyException.class, () -> linkRepository.save(chatId, link));
+        Long count = jdbcTemplate.queryForObject("select count(*) from tg_chats where chat_id = ?", Long.class, 210L);
+        assertThat(count).isEqualTo(1L);
     }
 
     @Test
@@ -155,13 +155,10 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         linkRepository.delete(chatId2, new URI("https://stackoverflow.com/"));
         Long chatLinkCount1 =
             jdbcTemplate.queryForObject("select count(*) from tg_chat_links where tg_chat_id = ?", Long.class, chatId1);
-        System.out.println(chatLinkCount1);
         assertEquals(chatLinkCount1, 0L);
         Long chatLinkCount2 =
             jdbcTemplate.queryForObject("select count(*) from tg_chat_links where tg_chat_id = ?", Long.class, chatId2);
         assertEquals(chatLinkCount2, 1L);
-        System.out.println(chatLinkCount2);
-
         Long linkCount = jdbcTemplate.queryForObject(
             "select count(*) from links where uri = ?",
             Long.class,
