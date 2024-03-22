@@ -1,8 +1,8 @@
 package edu.java.configuration;
 
 import edu.java.domain.LinkType;
-import java.util.Map;
 import edu.java.service.LinkTypeService;
+import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,8 +18,9 @@ public class LinkTypeConfig {
             LinkType.GITHUB
         );
     }
+
     @Bean
-    public LinkTypeService linkTypeService(){
+    public LinkTypeService linkTypeService() {
         return new LinkTypeService(linkTypeMap());
     }
 }
