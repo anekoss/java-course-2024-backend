@@ -1,16 +1,22 @@
 package edu.java.scrapper.service;
 
+import edu.java.domain.LinkType;
 import edu.java.service.LinkTypeService;
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import static edu.java.domain.LinkType.GITHUB;
 import static edu.java.domain.LinkType.STACKOVERFLOW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-@RequiredArgsConstructor
 public class LinkTypeServiceTest {
-    private final LinkTypeService linkTypeService;
+
+    private final LinkTypeService linkTypeService = new LinkTypeService(Map.of(
+        LinkType.STACKOVERFLOW.getHost(),
+        LinkType.STACKOVERFLOW,
+        LinkType.GITHUB.getHost(),
+        LinkType.GITHUB
+    ));
 
     @Test
     void testShouldReturnCorrectType() {

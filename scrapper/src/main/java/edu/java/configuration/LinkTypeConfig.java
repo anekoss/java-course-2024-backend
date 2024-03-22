@@ -2,6 +2,7 @@ package edu.java.configuration;
 
 import edu.java.domain.LinkType;
 import java.util.Map;
+import edu.java.service.LinkTypeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,12 +10,16 @@ import org.springframework.context.annotation.Configuration;
 public class LinkTypeConfig {
 
     @Bean
-    Map<String, LinkType> linkTypeMap() {
+    public Map<String, LinkType> linkTypeMap() {
         return Map.of(
             LinkType.STACKOVERFLOW.getHost(),
             LinkType.STACKOVERFLOW,
             LinkType.GITHUB.getHost(),
             LinkType.GITHUB
         );
+    }
+    @Bean
+    public LinkTypeService linkTypeService(){
+        return new LinkTypeService(linkTypeMap());
     }
 }
