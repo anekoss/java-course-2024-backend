@@ -4,8 +4,8 @@ import edu.java.controller.exception.AlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.domain.Link;
 import edu.java.domain.TgChat;
-import edu.java.repository.TgChatRepository;
 import edu.java.repository.LinkRepository;
+import edu.java.repository.TgChatRepository;
 import edu.java.service.LinkService;
 import edu.java.service.LinkTypeService;
 import java.net.URI;
@@ -29,11 +29,11 @@ public class JdbcLinkService implements LinkService {
             throw new ChatNotFoundException();
         }
         List<Link> links = linkRepository.findByChatId(optionalChat.get().getId());
-        if (links.stream().anyMatch(link -> link.getUri() == url)) {
+        if (links.stream().anyMatch(link -> link.getUri().equals(url))) {
             throw new AlreadyExistException();
         }
         Link link = new Link(url, linkTypeService.getType(url.getHost()));
-        linkRepository.save(tgChatId, link);
+        linkRepository.save(optionalChat.get().getId(), link);
         return link;
     }
 
@@ -44,7 +44,7 @@ public class JdbcLinkService implements LinkService {
             throw new ChatNotFoundException();
         }
         List<Link> links = linkRepository.findByChatId(optionalChat.get().getId());
-        Optional<Link> link = links.stream().filter(link1 -> link1.getUri() == url).findFirst();
+        Optional<Link> link = links.stream().filter(link1 -> link1.getUri().equals(url)).findFirst();
         if (link.isEmpty()) {
             throw new ResourceNotFoundException("Ссылка не найдена");
         }
@@ -54,7 +54,7 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     public List<Link> listAll(long tgChatId) {
-        List<Link> links = linkRepository.findByChatId(tgChatId);
+        List<Link> links = linkRepository.findAll();
         if (links == null) {
             return List.of();
         }

@@ -27,7 +27,7 @@ public class GithubUpdateChecker implements UpdateChecker {
                         updatedAt = gitHubResponse.updatedAt();
                     }
                     link.setUpdatedAt(updatedAt);
-                    link.setUpdatedAt(OffsetDateTime.now());
+                    link.setCheckedAt(OffsetDateTime.now());
                 }
             } catch (BadResponseBodyException e) {
                 log.error(e.getMessage());

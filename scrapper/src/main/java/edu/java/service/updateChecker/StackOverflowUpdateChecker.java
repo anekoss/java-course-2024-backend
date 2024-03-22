@@ -6,8 +6,6 @@ import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.service.UpdateChecker;
 import java.time.OffsetDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class StackOverflowUpdateChecker implements UpdateChecker {
+    private static final int PART_QUESTION = 4;
     private final StackOverflowClient stackOverflowClient;
 
     public Link check(Link link) {
@@ -31,7 +30,7 @@ public class StackOverflowUpdateChecker implements UpdateChecker {
                         }
                     }
                     link.setUpdatedAt(updatedAt);
-                    link.setUpdatedAt(OffsetDateTime.now());
+                    link.setCheckedAt(OffsetDateTime.now());
                 }
             } catch (BadResponseBodyException e) {
                 log.error(e.getMessage());
@@ -41,10 +40,9 @@ public class StackOverflowUpdateChecker implements UpdateChecker {
     }
 
     private Long getQuestion(String uri) {
-        Pattern pattern = Pattern.compile("/(\\d+)/");
-        Matcher matcher = pattern.matcher(uri);
-        if (matcher.find()) {
-            return Long.parseLong(matcher.group());
+        String[] pathParts = uri.split("/");
+        if (pathParts.length >= PART_QUESTION) {
+            return Long.parseLong(pathParts[PART_QUESTION]);
         }
         return -1L;
     }

@@ -5,8 +5,8 @@ import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
-import edu.java.repository.TgChatRepository;
 import edu.java.repository.LinkRepository;
+import edu.java.repository.TgChatRepository;
 import edu.java.service.LinkUpdaterService;
 import edu.java.service.UpdateChecker;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class JdbcLinkUpdaterService implements LinkUpdaterService {
     private final TgChatRepository tgChatRepository;
     private final Long limit;
 
-    public long update() {
+    public List<Link> update() {
         List<Link> links = linkRepository.findStaleLinks(limit);
         List<Link> updates = new ArrayList<>();
         for (Link link : links) {
@@ -38,7 +38,7 @@ public class JdbcLinkUpdaterService implements LinkUpdaterService {
                 }
             }
         }
-        return sendUpdates(updates);
+        return updates;
     }
 
     public long sendUpdates(List<Link> links) {

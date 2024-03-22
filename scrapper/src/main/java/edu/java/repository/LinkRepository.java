@@ -4,6 +4,7 @@ import edu.java.domain.Link;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface LinkRepository {
 
@@ -15,7 +16,7 @@ public interface LinkRepository {
 
     List<Link> findByChatId(Long tgChatId);
 
-    Long findIdByUri(URI uri);
+    Optional<Long> findIdByUri(URI uri);
 
     List<Link> findStaleLinks(Long limit);
 
