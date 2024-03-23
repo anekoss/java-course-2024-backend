@@ -1,10 +1,11 @@
 package edu.java.service;
 
 import edu.java.domain.Link;
-import java.util.List;
+import edu.java.domain.UpdateType;
+import java.util.Map;
 
 public interface LinkUpdaterService {
-    List<Link> update();
+    Map<Link, UpdateType>  update();
 
-    long sendUpdates(List<Link> links);
+    long sendUpdates(Map<Link, UpdateType> updateTypeMap);
 }

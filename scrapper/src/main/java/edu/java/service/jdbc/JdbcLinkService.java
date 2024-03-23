@@ -3,6 +3,7 @@ package edu.java.service.jdbc;
 import edu.java.controller.exception.AlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.domain.Link;
+import edu.java.domain.LinkType;
 import edu.java.domain.TgChat;
 import edu.java.repository.LinkRepository;
 import edu.java.repository.TgChatRepository;
@@ -32,6 +33,7 @@ public class JdbcLinkService implements LinkService {
         if (links.stream().anyMatch(link -> link.getUri().equals(url))) {
             throw new AlreadyExistException();
         }
+        LinkType type = linkTypeService.getType(url.getHost());
         Link link = new Link(url, linkTypeService.getType(url.getHost()));
         linkRepository.save(optionalChat.get().getId(), link);
         return link;

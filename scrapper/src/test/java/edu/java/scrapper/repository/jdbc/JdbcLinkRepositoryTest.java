@@ -49,7 +49,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         assertThat(actualLink).isNotNull();
         assertThat(actualLink.getId()).isGreaterThan(0L);
         assertThat(actualLink.getUri()).isEqualTo(link.getUri());
-        assertThat(actualLink.getType()).isEqualTo(link.getType());
+        assertThat(actualLink.getLinkType()).isEqualTo(link.getLinkType());
         assertThat(actualLink.getCheckedAt()).isEqualToIgnoringNanos(link.getCheckedAt());
         assertThat(actualLink.getUpdatedAt()).isEqualToIgnoringNanos(link.getUpdatedAt());
         Long chatLinkId = jdbcTemplate.queryForObject(
@@ -250,7 +250,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         );
         List<Link> links = linkRepository.findStaleLinks(1L);
         assertThat(links.size()).isEqualTo(1);
-        assertThat(links.getFirst().getType()).isEqualTo(STACKOVERFLOW);
+        assertThat(links.getFirst().getLinkType()).isEqualTo(STACKOVERFLOW);
     }
 
     @Test

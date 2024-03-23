@@ -1,8 +1,10 @@
 package edu.java.service;
 
 import edu.java.domain.Link;
+import edu.java.domain.UpdateType;
+import java.util.Map;
 
 public interface UpdateChecker {
 
-    Link check(Link link);
+    Map.Entry<Link, UpdateType> check(Link link);
 }

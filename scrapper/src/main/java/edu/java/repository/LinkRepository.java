@@ -12,6 +12,8 @@ public interface LinkRepository {
 
     int delete(Long tgChatId, URI uri);
 
+    Long findStackOverflowAnswerCountByLinkId(Long id);
+
     List<Link> findAll();
 
     List<Link> findByChatId(Long tgChatId);
@@ -21,5 +23,7 @@ public interface LinkRepository {
     List<Link> findStaleLinks(Long limit);
 
     int update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt);
+
+    int updateAnswerCountByLinkId(Long answerCount, Long linkId);
 
 }

@@ -1,6 +1,7 @@
 package edu.java.scrapper.repository.jdbc;
 
 import edu.java.domain.TgChat;
+import edu.java.repository.JpaTgChatRepository;
 import edu.java.repository.jdbc.JdbcTgChatRepository;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,8 @@ public class JdbcChatRepositoryTest extends IntegrationTest {
     private JdbcTgChatRepository tgChatRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JpaTgChatRepository jpaTgChatRepository;
 
     @Test
     @Transactional
@@ -91,14 +94,14 @@ public class JdbcChatRepositoryTest extends IntegrationTest {
         jdbcTemplate.update("insert into tg_chats(chat_id) values (?)", 210L);
         jdbcTemplate.update("insert into tg_chats(chat_id) values (?)", 153L);
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://github.com/anekoss/tinkoff-project",
             GITHUB.toString(),
             OffsetDateTime.now(),
             OffsetDateTime.now()
         );
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://stackoverflow.com/",
             STACKOVERFLOW.toString(),
             OffsetDateTime.now(),
@@ -224,7 +227,7 @@ public class JdbcChatRepositoryTest extends IntegrationTest {
     @Rollback
     void testFindChatIdsByLinkIdWithoutChatIdAndWithLinkId() {
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://stackoverflow.com/",
             STACKOVERFLOW.toString(),
             OffsetDateTime.now(),
@@ -242,5 +245,13 @@ public class JdbcChatRepositoryTest extends IntegrationTest {
     void testFindChatIdsByLinkIdWithoutChatIdAndWithoutLinkId() {
         List<Long> chatIds = tgChatRepository.findChatIdsByLinkId(177L);
         assertThat(chatIds.size()).isEqualTo(0);
+    }
+
+    @Test
+    void test() {
+        initData();
+        Optional<TgChat> chat = jpaTgChatRepository.findByChatId(210L);
+        TgChat chat1 = chat.get();
+        System.out.println(chat1.getLinks());
     }
 }

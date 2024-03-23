@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.net.URI;
@@ -29,34 +28,33 @@ public class Link {
     @Column(name = "uri")
     private URI uri;
 
-    @Column(name = "type")
+    @Column(name = "link_type")
     @Enumerated(EnumType.STRING)
-    private LinkType type;
+    private LinkType linkType;
 
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
     @Column(name = "checked_at")
     private OffsetDateTime checkedAt;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "link_id")
+    @OneToMany(mappedBy = "links", cascade = CascadeType.REMOVE)
     private Set<TgChat> tgChats;
 
     public Link() {
 
     }
 
-    public Link(Long id, URI uri, LinkType type, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
+    public Link(Long id, URI uri, LinkType linkType, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
         this.id = id;
         this.uri = uri;
-        this.type = type;
+        this.linkType = linkType;
         this.checkedAt = updatedAt;
         this.updatedAt = checkedAt;
     }
 
-    public Link(URI uri, LinkType type) {
+    public Link(URI uri, LinkType linkType) {
         this.uri = uri;
-        this.type = type;
+        this.linkType = linkType;
         this.checkedAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
     }

@@ -14,7 +14,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import static edu.java.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
-
 @Slf4j
 @Component
 public class BotClient {
@@ -22,22 +21,23 @@ public class BotClient {
     private final WebClient webCLient;
 
     public BotClient(
-            @Value("${app.client.botClient.base-url}")
-            @NotBlank @URL String url) {
+        @Value("${app.client.botClient.base-url}")
+        @NotBlank @URL String url
+    ) {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
     public String linkUpdates(LinkUpdateRequest request) throws BadResponseBodyException {
         try {
             return webCLient
-                    .post()
-                    .uri("/updates")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .body(Mono.just(request), LinkUpdateRequest.class)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+                .post()
+                .uri("/updates")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(request), LinkUpdateRequest.class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
         } catch (HttpServerErrorException | HttpClientErrorException e) {
             throw e;
         } catch (Exception e) {

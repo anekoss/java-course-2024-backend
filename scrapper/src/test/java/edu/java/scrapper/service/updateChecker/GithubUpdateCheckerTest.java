@@ -5,11 +5,15 @@ import edu.java.client.dto.GitHubResponse;
 import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
+import edu.java.domain.UpdateType;
 import edu.java.service.updateChecker.GithubUpdateChecker;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import static edu.java.domain.UpdateType.NO_UPDATE;
+import static edu.java.domain.UpdateType.UPDATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -33,9 +37,10 @@ public class GithubUpdateCheckerTest {
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2023-02-11T11:13:57Z"));
         link.setCheckedAt(checkedAt);
-        Link updatedLink = updateChecker.check(link);
-        assertThat(updatedLink.getUpdatedAt()).isEqualTo(OffsetDateTime.parse("2024-02-11T11:13:57Z"));
-        assertThat(updatedLink.getCheckedAt()).isAfter(checkedAt);
+        Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
+        assertThat(updatedLink.getValue()).isEqualTo(UPDATE);
+        assertThat(updatedLink.getKey().getUpdatedAt()).isEqualTo(OffsetDateTime.parse("2024-02-11T11:13:57Z"));
+        assertThat(updatedLink.getKey().getCheckedAt()).isAfter(checkedAt);
     }
 
     @Test
@@ -53,9 +58,10 @@ public class GithubUpdateCheckerTest {
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2023-02-11T11:13:57Z"));
         link.setCheckedAt(checkedAt);
-        Link updatedLink = updateChecker.check(link);
-        assertThat(updatedLink.getUpdatedAt()).isEqualTo(link.getUpdatedAt());
-        assertThat(updatedLink.getCheckedAt()).isAfter(checkedAt);
+        Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
+        assertThat(updatedLink.getValue()).isEqualTo(NO_UPDATE);
+        assertThat(updatedLink.getKey().getUpdatedAt()).isEqualTo(link.getUpdatedAt());
+        assertThat(updatedLink.getKey().getCheckedAt()).isAfter(checkedAt);
     }
 
     @Test
@@ -65,9 +71,10 @@ public class GithubUpdateCheckerTest {
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2023-02-11T11:13:57Z"));
         link.setCheckedAt(checkedAt);
-        Link updatedLink = updateChecker.check(link);
-        assertThat(updatedLink.getUpdatedAt()).isEqualTo(link.getUpdatedAt());
-        assertThat(updatedLink.getCheckedAt()).isEqualTo(link.getCheckedAt());
+        Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
+        assertThat(updatedLink.getValue()).isEqualTo(NO_UPDATE);
+        assertThat(updatedLink.getKey().getUpdatedAt()).isEqualTo(link.getUpdatedAt());
+        assertThat(updatedLink.getKey().getCheckedAt()).isEqualTo(link.getCheckedAt());
     }
 
 }

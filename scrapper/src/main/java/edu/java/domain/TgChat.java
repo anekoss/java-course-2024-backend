@@ -3,12 +3,15 @@ package edu.java.domain;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,9 +29,13 @@ public class TgChat {
     @Column(name = "chat_id")
     private Long chatId;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "tg_chat_id")
-    private Set<Link> links;
+    @ManyToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "tg_chat_links",
+        joinColumns = {@JoinColumn(name = "tg_chat_id")},
+        inverseJoinColumns = {@JoinColumn(name = "link_id")}
+    )
+    private Set<Link> links = new HashSet<>();
 
     public TgChat() {
 

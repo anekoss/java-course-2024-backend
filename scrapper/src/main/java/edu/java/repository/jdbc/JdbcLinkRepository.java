@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +24,7 @@ public class JdbcLinkRepository implements LinkRepository {
     private static final String FIELD_URI = "uri";
     private static final String FIELD_UPDATED_AT = "updated_at";
     private static final String FIELD_CHECKED_AT = "checked_at";
-    private static final String FIELD_TYPE = "type";
+    private static final String FIELD_TYPE = "link_type";
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -34,16 +35,29 @@ public class JdbcLinkRepository implements LinkRepository {
             jdbcTemplate.update(
                 "insert into links (uri, type, updated_at, checked_at) values (?, ?, ?, ?)",
                 link.getUri().toString(),
-                link.getType().toString(),
+                link.getLinkType().toString(),
                 link.getUpdatedAt(),
                 link.getCheckedAt()
             );
             linkId = findIdByUri(link.getUri());
+            if (link.getLinkType() == LinkType.STACKOVERFLOW) {
+                jdbcTemplate.update("insert into stackOverflow_links(link_id, answer_count) values (?, ?)", linkId, 0L);
+            }
         }
         return jdbcTemplate.update(
             "insert into tg_chat_links(tg_chat_id, link_id) values (?, ?)",
             tgChatId,
             linkId.get()
+        );
+    }
+
+    @Override
+    public Long findStackOverflowAnswerCountByLinkId(Long id) {
+        return jdbcTemplate.queryForObject(
+            "select answer_count from stackOverflow_links where link_id = ?",
+            new BeanPropertyRowMapper<>(
+                Long.class),
+            id
         );
     }
 
@@ -122,12 +136,19 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     public int update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
-
         return jdbcTemplate.update(
             "update links set updated_at = ?, checked_at = ? where id = ?",
             updatedAt,
             checkedAt,
             linkId
+        );
+    }
+
+    @Override
+    public int updateAnswerCountByLinkId(Long answerCount, Long linkId) {
+        return jdbcTemplate.update(
+            "update stackOverflow_links set answer_count = ? where link_id = ?",
+            answerCount, linkId
         );
     }
 }

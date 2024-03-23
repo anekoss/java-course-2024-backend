@@ -4,8 +4,12 @@ import edu.java.client.StackOverflowClient;
 import edu.java.client.dto.StackOverflowResponse;
 import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
+import edu.java.domain.UpdateType;
+import edu.java.repository.LinkRepository;
 import edu.java.service.UpdateChecker;
 import java.time.OffsetDateTime;
+import java.util.AbstractMap;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,20 +19,29 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class StackOverflowUpdateChecker implements UpdateChecker {
     private static final int PART_QUESTION = 4;
+    private final LinkRepository linkRepository;
     private final StackOverflowClient stackOverflowClient;
 
-    public Link check(Link link) {
+    public Map.Entry<Link, UpdateType> check(Link link) {
+        UpdateType updateType = UpdateType.NO_UPDATE;
         Long question = getQuestion(link.getUri().toString());
         if (question != -1) {
             try {
                 StackOverflowResponse response = stackOverflowClient.fetchQuestion(question);
                 if (response != null) {
+                    Long countAnswer = linkRepository.findStackOverflowAnswerCountByLinkId(link.getId());
                     OffsetDateTime updatedAt = link.getUpdatedAt();
                     for (StackOverflowResponse.StackOverflowItem item : response.items()) {
                         if (item.updatedAt().isAfter(updatedAt)) {
                             updatedAt = item.updatedAt();
+                            updateType = UpdateType.UPDATE;
+                            if (item.countAnswer() > countAnswer) {
+                                countAnswer = item.countAnswer();
+                                updateType = UpdateType.NEW_ANSWER;
+                            }
                         }
                     }
+                    linkRepository.updateAnswerCountByLinkId(countAnswer, link.getId());
                     link.setUpdatedAt(updatedAt);
                     link.setCheckedAt(OffsetDateTime.now());
                 }
@@ -36,7 +49,7 @@ public class StackOverflowUpdateChecker implements UpdateChecker {
                 log.error(e.getMessage());
             }
         }
-        return link;
+        return new AbstractMap.SimpleEntry<>(link, updateType);
     }
 
     private Long getQuestion(String uri) {

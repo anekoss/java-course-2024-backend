@@ -44,7 +44,7 @@ public class JdbcTgChatRepository implements TgChatRepository {
     @Override
     @Transactional
     public List<TgChat> findAll() {
-        List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from tg_chats");
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from tg_chats join ");
         List<TgChat> chats = new ArrayList<>();
         list.forEach(m -> {
             TgChat chat = new TgChat((Long) m.get("chat_id"));
@@ -67,6 +67,8 @@ public class JdbcTgChatRepository implements TgChatRepository {
             return Optional.empty();
         }
     }
+
+
 
     @Override
     public List<Long> findChatIdsByLinkId(Long linkId) {

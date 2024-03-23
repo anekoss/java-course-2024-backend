@@ -56,7 +56,7 @@ public class StackOverflowClientTest extends IntegrationTest {
         StackOverflowResponse stackOverflowResponse =
                 new StackOverflowResponse(List.of(new StackOverflowResponse.StackOverflowItem(78056352L,
                         "React Leaflet map not Re-rendering",
-                        "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",
+                        "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",0L,
                         OffsetDateTime.parse("2024-02-25T14:38:10Z"), OffsetDateTime.parse("2024-02-25T14:38:10Z")
                 )));
         assertThat(stackOverflowClient.fetchQuestion(78056352L)).isEqualTo(stackOverflowResponse);
