@@ -4,14 +4,15 @@ import edu.java.client.BotClient;
 import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
+import edu.java.domain.TgChat;
 import edu.java.repository.LinkRepository;
-import edu.java.repository.TgChatRepository;
 import edu.java.service.UpdateChecker;
 import edu.java.service.jdbc.JdbcLinkUpdaterService;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,13 +26,13 @@ import static org.mockito.ArgumentMatchers.anyLong;
 public class JdbcLinkUpdaterServiceTest {
     private final LinkRepository linkRepository = Mockito.mock(LinkRepository.class);
     private final BotClient botClient = Mockito.mock(BotClient.class);
-    private final TgChatRepository tgChatRepository = Mockito.mock(TgChatRepository.class);
     private final Map<LinkType, UpdateChecker> updateCheckerMap = Mockito.mock(Map.class);
     private final UpdateChecker updateChecker = Mockito.mock(UpdateChecker.class);
     private final JdbcLinkUpdaterService linkService =
-        new JdbcLinkUpdaterService(linkRepository, updateCheckerMap, botClient, tgChatRepository, 2L);
+        new JdbcLinkUpdaterService(linkRepository, updateCheckerMap, botClient, 2L);
 
     static Stream<Arguments> provideDataForTest() {
+        TgChat tgChat = new TgChat(123L);
         OffsetDateTime updated = OffsetDateTime.now();
         return Stream.of(
             Arguments.of(List.of(
@@ -40,21 +41,21 @@ public class JdbcLinkUpdaterServiceTest {
                         URI.create("https://github.com/anekoss/tinkoff-project"),
                         LinkType.GITHUB,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
-                        OffsetDateTime.parse("2023-02-11T11:13:57Z")
+                        OffsetDateTime.parse("2023-02-11T11:13:57Z"), Set.of(tgChat)
                     ),
                     new Link(
                         1L,
                         URI.create("https://github.com/anekoss/tinkoff"),
                         LinkType.GITHUB,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
-                        OffsetDateTime.parse("2023-03-11T11:13:57Z")
+                        OffsetDateTime.parse("2023-03-11T11:13:57Z"), Set.of(tgChat)
                     ),
                     new Link(
                         1L,
                         URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
                         LinkType.STACKOVERFLOW,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
-                        OffsetDateTime.parse("2023-01-11T11:13:57Z")
+                        OffsetDateTime.parse("2023-01-11T11:13:57Z"), Set.of(tgChat)
                     )
                 ), List.of(
                     new Link(
@@ -132,7 +133,6 @@ public class JdbcLinkUpdaterServiceTest {
     @MethodSource("provideDataForTest")
     void sendUpdatesHaveUpdates(List<Link> staleLinks)
         throws BadResponseBodyException {
-        Mockito.when(tgChatRepository.findChatIdsByLinkId(anyLong())).thenReturn(List.of(1L, 2L, 3L));
         Mockito.when(botClient.linkUpdates(any())).thenReturn("ok");
         assertThat(linkService.sendUpdates(staleLinks)).isEqualTo(3);
     }
@@ -146,7 +146,7 @@ public class JdbcLinkUpdaterServiceTest {
     @MethodSource("provideDataForTest")
     void sendUpdatesHaveClientException(List<Link> staleLinks)
         throws BadResponseBodyException {
-        Mockito.when(tgChatRepository.findChatIdsByLinkId(anyLong())).thenReturn(List.of(1L, 2L, 3L));
+//        Mockito.when(tgChatRepository.findChatIdsByLinkId(anyLong())).thenReturn(List.of(1L, 2L, 3L));
         Mockito.when(botClient.linkUpdates(any())).thenThrow(BadResponseBodyException.class);
         assertThat(linkService.sendUpdates(staleLinks)).isEqualTo(0);
     }

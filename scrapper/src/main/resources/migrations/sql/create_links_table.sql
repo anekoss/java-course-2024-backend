@@ -6,7 +6,7 @@ create table if not exists links
 (
     id         bigint generated always as identity primary key,
     uri   text                     not null unique,
-    type text not null,
+    link_type text not null,
     updated_at timestamp not null,
     checked_at timestamp not null
 );

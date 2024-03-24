@@ -45,14 +45,14 @@ public class JdbcLinkServiceTest extends IntegrationTest {
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values (?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values (?, ?, ?, ?)",
             "https://stackoverflow.com/",
             STACKOVERFLOW.toString(),
             OffsetDateTime.now(),
             OffsetDateTime.now()
         );
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://github.com/anekoss/tinkoff-project",
             GITHUB.toString(),
             OffsetDateTime.now(),

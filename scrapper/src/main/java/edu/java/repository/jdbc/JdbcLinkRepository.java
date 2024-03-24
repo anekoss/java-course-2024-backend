@@ -1,29 +1,25 @@
 package edu.java.repository.jdbc;
 
 import edu.java.domain.Link;
-import edu.java.domain.LinkType;
+import edu.java.domain.TgChat;
 import edu.java.repository.LinkRepository;
 import jakarta.transaction.Transactional;
 import java.net.URI;
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import static edu.java.repository.jdbc.JdbcMapper.listMapToSetLink;
+import static edu.java.repository.jdbc.JdbcMapper.listMapToSetTgChat;
 
 @Repository
 @AllArgsConstructor
 public class JdbcLinkRepository implements LinkRepository {
-    private static final String FIELD_URI = "uri";
-    private static final String FIELD_UPDATED_AT = "updated_at";
-    private static final String FIELD_CHECKED_AT = "checked_at";
-    private static final String FIELD_TYPE = "type";
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -32,9 +28,9 @@ public class JdbcLinkRepository implements LinkRepository {
         Optional<Long> linkId = findIdByUri(link.getUri());
         if (linkId.isEmpty()) {
             jdbcTemplate.update(
-                "insert into links (uri, type, updated_at, checked_at) values (?, ?, ?, ?)",
+                "insert into links (uri, link_type, updated_at, checked_at) values (?, ?, ?, ?)",
                 link.getUri().toString(),
-                link.getType().toString(),
+                link.getLinkType().toString(),
                 link.getUpdatedAt(),
                 link.getCheckedAt()
             );
@@ -67,39 +63,25 @@ public class JdbcLinkRepository implements LinkRepository {
     @Transactional
     public List<Link> findAll() {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from links");
-        List<Link> links = new ArrayList<>();
-        list.forEach(m -> {
-            Link link = new Link(URI.create((String) m.get(FIELD_URI)), LinkType.valueOf((String) m.get(FIELD_TYPE)));
-            link.setUpdatedAt(((Timestamp) m.get(FIELD_UPDATED_AT)).toInstant().atOffset(ZoneOffset.UTC));
-            link.setCheckedAt(((Timestamp) m.get(FIELD_UPDATED_AT)).toInstant().atOffset(ZoneOffset.UTC));
-            link.setId((Long) m.get("id"));
-            links.add(link);
-        });
-        return links;
-    }
-
-    @Override
-    public List<Link> findByChatId(Long tgChatId) {
-        String query =
-            "select * from tg_chat_links join links on tg_chat_links.link_id = links.id "
-                + "where tg_chat_links.tg_chat_id = ?";
-        List<Map<String, Object>> list = jdbcTemplate.queryForList(query, tgChatId);
-        List<Link> links = new ArrayList<>();
-        list.forEach(m -> {
-            Link link = new Link(URI.create((String) m.get(FIELD_URI)), LinkType.valueOf((String) m.get(FIELD_TYPE)));
-            link.setUpdatedAt(((Timestamp) m.get(FIELD_UPDATED_AT)).toInstant().atOffset(ZoneOffset.UTC));
-            link.setCheckedAt(((Timestamp) m.get(FIELD_CHECKED_AT)).toInstant().atOffset(ZoneOffset.UTC));
-            link.setId((Long) m.get("id"));
-            links.add(link);
-        });
+        List<Link> links = listMapToSetLink(list).stream().toList();
+        for (Link link : links) {
+            List<Map<String, Object>> tgchatLinks = jdbcTemplate.queryForList(
+                "select tg_chats.id, tg_chats.chat_id from tg_chats join tg_chat_links"
+                    + " on tg_chats.id = tg_chat_links.tg_chat_id where link_id = ?",
+                link.getId()
+            );
+            Set<TgChat> tgChats = listMapToSetTgChat(tgchatLinks);
+            link.setTgChats(tgChats);
+        }
         return links;
     }
 
     public Optional<Long> findIdByUri(URI uri) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("select id from links where uri = ?", Long.class,
+            Long linkId = jdbcTemplate.queryForObject("select id from links where uri = ?", Long.class,
                 uri.toString()
-            ));
+            );
+            return Optional.of(linkId);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -109,15 +91,7 @@ public class JdbcLinkRepository implements LinkRepository {
     public List<Link> findStaleLinks(Long limit) {
         List<Map<String, Object>> list =
             jdbcTemplate.queryForList("select * from links order by checked_at asc limit ?", limit);
-        List<Link> links = new ArrayList<>();
-        list.forEach(m -> {
-            Link link = new Link(URI.create((String) m.get(FIELD_URI)), LinkType.valueOf((String) m.get(FIELD_TYPE)));
-            link.setUpdatedAt(((Timestamp) m.get(FIELD_UPDATED_AT)).toInstant().atOffset(ZoneOffset.UTC));
-            link.setCheckedAt(((Timestamp) m.get(FIELD_CHECKED_AT)).toInstant().atOffset(ZoneOffset.UTC));
-            link.setId((Long) m.get("id"));
-            links.add(link);
-        });
-        return links;
+        return listMapToSetLink(list).stream().toList();
     }
 
     @Override

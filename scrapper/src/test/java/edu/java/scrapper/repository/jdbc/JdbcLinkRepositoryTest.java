@@ -49,7 +49,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         assertThat(actualLink).isNotNull();
         assertThat(actualLink.getId()).isGreaterThan(0L);
         assertThat(actualLink.getUri()).isEqualTo(link.getUri());
-        assertThat(actualLink.getType()).isEqualTo(link.getType());
+        assertThat(actualLink.getLinkType()).isEqualTo(link.getLinkType());
         assertThat(actualLink.getCheckedAt()).isEqualToIgnoringNanos(link.getCheckedAt());
         assertThat(actualLink.getUpdatedAt()).isEqualToIgnoringNanos(link.getUpdatedAt());
         Long chatLinkId = jdbcTemplate.queryForObject(
@@ -87,14 +87,14 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values (?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values (?, ?, ?, ?)",
             "https://stackoverflow.com/",
             STACKOVERFLOW.toString(),
             OffsetDateTime.now(),
             OffsetDateTime.now()
         );
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://github.com/anekoss/tinkoff-project",
             GITHUB.toString(),
             OffsetDateTime.now(),
@@ -190,30 +190,6 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void testFindByChatIdHaveLinks() {
-        initChats();
-        initLink();
-        Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
-        List<Link> links = linkRepository.findByChatId(chatId2);
-        assertThat(links.size()).isEqualTo(2);
-        List<String> uris = links.stream().map(link -> link.getUri().toString()).toList();
-        assertThat(uris).contains("https://stackoverflow.com/");
-        assertThat(uris).contains("https://github.com/anekoss/tinkoff-project");
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    void testFindByChatIdWithoutLinks() {
-        initChats();
-        Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
-        List<Link> links = linkRepository.findByChatId(chatId1);
-        assertThat(links.size()).isEqualTo(0);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
     void testFindIdByUriExistLink() {
         initChats();
         initLink();
@@ -235,14 +211,14 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Rollback
     void testFindStaleLinks() {
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://github.com/anekoss/tinkoff-project",
             GITHUB.toString(),
             OffsetDateTime.now(),
             OffsetDateTime.MAX
         );
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://stackoverflow.com/",
             STACKOVERFLOW.toString(),
             OffsetDateTime.now(),
@@ -250,7 +226,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         );
         List<Link> links = linkRepository.findStaleLinks(1L);
         assertThat(links.size()).isEqualTo(1);
-        assertThat(links.getFirst().getType()).isEqualTo(STACKOVERFLOW);
+        assertThat(links.getFirst().getLinkType()).isEqualTo(STACKOVERFLOW);
     }
 
     @Test
@@ -274,7 +250,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     void updateTestExistLinks() {
         String uri = "https://github.com/anekoss/tinkoff-project";
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             uri,
             GITHUB.toString(),
             OffsetDateTime.now(),

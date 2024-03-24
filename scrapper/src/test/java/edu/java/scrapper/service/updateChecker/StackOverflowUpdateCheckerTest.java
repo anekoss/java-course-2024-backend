@@ -75,4 +75,5 @@ public class StackOverflowUpdateCheckerTest {
         assertThat(updatedLink.getCheckedAt()).isEqualTo(link.getCheckedAt());
     }
 
+
 }

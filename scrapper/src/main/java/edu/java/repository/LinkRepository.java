@@ -14,8 +14,6 @@ public interface LinkRepository {
 
     List<Link> findAll();
 
-    List<Link> findByChatId(Long tgChatId);
-
     Optional<Long> findIdByUri(URI uri);
 
     List<Link> findStaleLinks(Long limit);

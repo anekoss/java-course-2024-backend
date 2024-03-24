@@ -7,7 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.util.Set;
 import lombok.Getter;
@@ -26,8 +27,12 @@ public class TgChat {
     @Column(name = "chat_id")
     private Long chatId;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "tg_chat_id")
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+        name = "tg_chat_links",
+        joinColumns = { @JoinColumn(name = "tg_chat_id") },
+        inverseJoinColumns = { @JoinColumn(name = "link_id") }
+    )
     private Set<Link> links;
 
     public TgChat() {
