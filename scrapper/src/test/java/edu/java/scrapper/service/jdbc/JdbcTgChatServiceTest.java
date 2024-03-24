@@ -62,4 +62,7 @@ public class JdbcTgChatServiceTest extends IntegrationTest {
     void testUnRegisterNoExistChat() {
         assertThrows(ChatNotFoundException.class, () -> tgChatService.unregister(999L));
     }
+
+
+
 }

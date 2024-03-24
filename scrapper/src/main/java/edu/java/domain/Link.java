@@ -1,6 +1,5 @@
 package edu.java.domain;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,7 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -37,7 +36,7 @@ public class Link {
     @Column(name = "checked_at")
     private OffsetDateTime checkedAt;
 
-    @OneToMany(mappedBy = "links", cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "links")
     private Set<TgChat> tgChats;
 
     public Link() {
@@ -50,6 +49,22 @@ public class Link {
         this.linkType = linkType;
         this.checkedAt = updatedAt;
         this.updatedAt = checkedAt;
+    }
+
+    public Link(
+        Long id,
+        URI uri,
+        LinkType linkType,
+        OffsetDateTime updatedAt,
+        OffsetDateTime checkedAt,
+        Set<TgChat> tgChats
+    ) {
+        this.id = id;
+        this.uri = uri;
+        this.linkType = linkType;
+        this.checkedAt = updatedAt;
+        this.updatedAt = checkedAt;
+        this.tgChats = tgChats;
     }
 
     public Link(URI uri, LinkType linkType) {

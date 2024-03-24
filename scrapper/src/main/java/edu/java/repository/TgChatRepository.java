@@ -14,5 +14,4 @@ public interface TgChatRepository {
 
     Optional<TgChat> findByChatId(Long chatId);
 
-    List<Long> findChatIdsByLinkId(Long linkId);
 }

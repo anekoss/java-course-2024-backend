@@ -40,7 +40,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Rollback
     void testSaveNotExistLink() throws URISyntaxException {
         initChats();
-        Link link = new Link(new URI("https://stackoverflow.com/"), STACKOVERFLOW);
+        Link link = new Link(URI.create("https://stackoverflow.com/"), STACKOVERFLOW);
         Long chatId = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         assertEquals(linkRepository.save(chatId, link), 1);
         Link actualLink = jdbcTemplate.queryForObject("select * from links where uri = ?",
@@ -66,7 +66,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Rollback
     void testSaveExistLink() throws URISyntaxException {
         initChats();
-        Link link = new Link(new URI("https://stackoverflow.com/"), STACKOVERFLOW);
+        Link link = new Link(URI.create("https://stackoverflow.com/"), STACKOVERFLOW);
         Long chatId = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         assertThat(chatId).isNotNull().isGreaterThan(0L);
         linkRepository.save(chatId, link);
@@ -87,14 +87,14 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values (?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values (?, ?, ?, ?)",
             "https://stackoverflow.com/",
             STACKOVERFLOW.toString(),
             OffsetDateTime.now(),
             OffsetDateTime.now()
         );
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://github.com/anekoss/tinkoff-project",
             GITHUB.toString(),
             OffsetDateTime.now(),
@@ -127,7 +127,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         initChats();
         initLink();
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
-        linkRepository.delete(chatId1, new URI("https://stackoverflow.com/"));
+        linkRepository.delete(chatId1, URI.create("https://stackoverflow.com/"));
         Long chatLinkCount1 =
             jdbcTemplate.queryForObject("select count(*) from tg_chat_links where tg_chat_id = ?", Long.class, chatId1);
         assertEquals(chatLinkCount1, 0L);
@@ -151,8 +151,8 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         initLink();
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
-        linkRepository.delete(chatId1, new URI("https://stackoverflow.com/"));
-        linkRepository.delete(chatId2, new URI("https://stackoverflow.com/"));
+        linkRepository.delete(chatId1, URI.create("https://stackoverflow.com/"));
+        linkRepository.delete(chatId2, URI.create("https://stackoverflow.com/"));
         Long chatLinkCount1 =
             jdbcTemplate.queryForObject("select count(*) from tg_chat_links where tg_chat_id = ?", Long.class, chatId1);
         assertEquals(chatLinkCount1, 0L);
@@ -190,30 +190,6 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void testFindByChatIdHaveLinks() {
-        initChats();
-        initLink();
-        Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
-        List<Link> links = linkRepository.findByChatId(chatId2);
-        assertThat(links.size()).isEqualTo(2);
-        List<String> uris = links.stream().map(link -> link.getUri().toString()).toList();
-        assertThat(uris).contains("https://stackoverflow.com/");
-        assertThat(uris).contains("https://github.com/anekoss/tinkoff-project");
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    void testFindByChatIdWithoutLinks() {
-        initChats();
-        Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
-        List<Link> links = linkRepository.findByChatId(chatId1);
-        assertThat(links.size()).isEqualTo(0);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
     void testFindIdByUriExistLink() {
         initChats();
         initLink();
@@ -235,14 +211,14 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Rollback
     void testFindStaleLinks() {
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://github.com/anekoss/tinkoff-project",
             GITHUB.toString(),
             OffsetDateTime.now(),
             OffsetDateTime.MAX
         );
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             "https://stackoverflow.com/",
             STACKOVERFLOW.toString(),
             OffsetDateTime.now(),
@@ -274,7 +250,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     void updateTestExistLinks() {
         String uri = "https://github.com/anekoss/tinkoff-project";
         jdbcTemplate.update(
-            "insert into links(uri, type, updated_at, checked_at) values(?, ?, ?, ?)",
+            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
             uri,
             GITHUB.toString(),
             OffsetDateTime.now(),

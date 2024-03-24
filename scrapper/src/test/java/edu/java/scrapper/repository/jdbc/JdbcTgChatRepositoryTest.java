@@ -1,10 +1,10 @@
 package edu.java.scrapper.repository.jdbc;
 
 import edu.java.domain.TgChat;
-import edu.java.repository.JpaTgChatRepository;
 import edu.java.repository.jdbc.JdbcTgChatRepository;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.transaction.Transactional;
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +23,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-public class JdbcChatRepositoryTest extends IntegrationTest {
+public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Autowired
     private JdbcTgChatRepository tgChatRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private JpaTgChatRepository jpaTgChatRepository;
 
     @Test
     @Transactional
@@ -188,8 +186,38 @@ public class JdbcChatRepositoryTest extends IntegrationTest {
         initData();
         Optional<TgChat> tgChatOptional = tgChatRepository.findByChatId(210L);
         assertThat(tgChatOptional).isPresent();
-        assertThat(tgChatOptional.get().getId()).isNotNull().isGreaterThan(0L);
-        assertThat(tgChatOptional.get().getChatId()).isEqualTo(210L);
+        TgChat tgChat = tgChatOptional.get();
+        assertThat(tgChat.getId()).isNotNull().isGreaterThan(0L);
+        assertThat(tgChat.getChatId()).isEqualTo(210L);
+        assertThat(tgChat.getLinks().size()).isGreaterThan(0);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testFindByChatIdWithChatWithTwoLink() {
+        initData();
+        Optional<TgChat> tgChatOptional = tgChatRepository.findByChatId(210L);
+        assertThat(tgChatOptional).isPresent();
+        TgChat tgChat = tgChatOptional.get();
+        assertThat(tgChat.getId()).isNotNull().isGreaterThan(0L);
+        assertThat(tgChat.getChatId()).isEqualTo(210L);
+        assertThat(tgChat.getLinks().size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void testFindByChatIdWithChatWithOneLink() {
+        initData();
+        Optional<TgChat> tgChatOptional = tgChatRepository.findByChatId(153L);
+        assertThat(tgChatOptional).isPresent();
+        TgChat tgChat = tgChatOptional.get();
+        assertThat(tgChat.getId()).isNotNull().isGreaterThan(0L);
+        assertThat(tgChat.getChatId()).isEqualTo(153L);
+        assertThat(tgChat.getLinks().size()).isEqualTo(1);
+        assertThat(tgChat.getLinks().stream().findFirst().get().getUri()).isEqualTo(URI.create(
+            "https://stackoverflow.com/"));
     }
 
     @Test
@@ -200,58 +228,4 @@ public class JdbcChatRepositoryTest extends IntegrationTest {
         assertThat(tgChatOptional).isEmpty();
     }
 
-    @Test
-    @Transactional
-    @Rollback
-    void testFindChatIdsByLinkIdWithChatIdAndLinkId() {
-        initData();
-        Long linkId =
-            jdbcTemplate.queryForObject("select id from links where uri = ?", Long.class, "https://stackoverflow.com/");
-        List<Long> chatIds = tgChatRepository.findChatIdsByLinkId(linkId);
-        assertThat(chatIds.size()).isEqualTo(2);
-        assertThat(chatIds).contains(153L);
-        assertThat(chatIds).contains(210L);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    void testFindChatIdsByLinkIdWithChatIdAndWithoutLinkId() {
-        initData();
-        List<Long> chatIds = tgChatRepository.findChatIdsByLinkId(277L);
-        assertThat(chatIds.size()).isEqualTo(0L);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    void testFindChatIdsByLinkIdWithoutChatIdAndWithLinkId() {
-        jdbcTemplate.update(
-            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
-            "https://stackoverflow.com/",
-            STACKOVERFLOW.toString(),
-            OffsetDateTime.now(),
-            OffsetDateTime.now()
-        );
-        Long linkId =
-            jdbcTemplate.queryForObject("select id from links where uri = ?", Long.class, "https://stackoverflow.com/");
-        List<Long> chatIds = tgChatRepository.findChatIdsByLinkId(linkId);
-        assertThat(chatIds.size()).isEqualTo(0);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    void testFindChatIdsByLinkIdWithoutChatIdAndWithoutLinkId() {
-        List<Long> chatIds = tgChatRepository.findChatIdsByLinkId(177L);
-        assertThat(chatIds.size()).isEqualTo(0);
-    }
-
-    @Test
-    void test() {
-        initData();
-        Optional<TgChat> chat = jpaTgChatRepository.findByChatId(210L);
-        TgChat chat1 = chat.get();
-        System.out.println(chat1.getLinks());
-    }
 }
