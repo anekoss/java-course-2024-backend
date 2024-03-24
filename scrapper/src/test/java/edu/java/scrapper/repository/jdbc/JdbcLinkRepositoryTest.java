@@ -40,7 +40,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Rollback
     void testSaveNotExistLink() throws URISyntaxException {
         initChats();
-        Link link = new Link(new URI("https://stackoverflow.com/"), STACKOVERFLOW);
+        Link link = new Link(URI.create("https://stackoverflow.com/"), STACKOVERFLOW);
         Long chatId = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         assertEquals(linkRepository.save(chatId, link), 1);
         Link actualLink = jdbcTemplate.queryForObject("select * from links where uri = ?",
@@ -66,7 +66,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Rollback
     void testSaveExistLink() throws URISyntaxException {
         initChats();
-        Link link = new Link(new URI("https://stackoverflow.com/"), STACKOVERFLOW);
+        Link link = new Link(URI.create("https://stackoverflow.com/"), STACKOVERFLOW);
         Long chatId = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         assertThat(chatId).isNotNull().isGreaterThan(0L);
         linkRepository.save(chatId, link);
@@ -127,7 +127,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         initChats();
         initLink();
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
-        linkRepository.delete(chatId1, new URI("https://stackoverflow.com/"));
+        linkRepository.delete(chatId1, URI.create("https://stackoverflow.com/"));
         Long chatLinkCount1 =
             jdbcTemplate.queryForObject("select count(*) from tg_chat_links where tg_chat_id = ?", Long.class, chatId1);
         assertEquals(chatLinkCount1, 0L);
@@ -151,8 +151,8 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
         initLink();
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
         Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
-        linkRepository.delete(chatId1, new URI("https://stackoverflow.com/"));
-        linkRepository.delete(chatId2, new URI("https://stackoverflow.com/"));
+        linkRepository.delete(chatId1, URI.create("https://stackoverflow.com/"));
+        linkRepository.delete(chatId2, URI.create("https://stackoverflow.com/"));
         Long chatLinkCount1 =
             jdbcTemplate.queryForObject("select count(*) from tg_chat_links where tg_chat_id = ?", Long.class, chatId1);
         assertEquals(chatLinkCount1, 0L);

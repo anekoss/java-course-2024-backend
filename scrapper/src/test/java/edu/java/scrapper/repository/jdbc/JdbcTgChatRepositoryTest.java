@@ -4,6 +4,7 @@ import edu.java.domain.TgChat;
 import edu.java.repository.jdbc.JdbcTgChatRepository;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.transaction.Transactional;
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -207,7 +208,7 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void testFindByChatIdWithChatWithOneOneLink() {
+    void testFindByChatIdWithChatWithOneLink() {
         initData();
         Optional<TgChat> tgChatOptional = tgChatRepository.findByChatId(153L);
         assertThat(tgChatOptional).isPresent();
@@ -215,7 +216,8 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
         assertThat(tgChat.getId()).isNotNull().isGreaterThan(0L);
         assertThat(tgChat.getChatId()).isEqualTo(153L);
         assertThat(tgChat.getLinks().size()).isEqualTo(1);
-        assertThat(tgChat.getLinks().stream().findFirst().get().getUri()).isEqualTo("https://stackoverflow.com/");
+        assertThat(tgChat.getLinks().stream().findFirst().get().getUri()).isEqualTo(URI.create(
+            "https://stackoverflow.com/"));
     }
 
     @Test
