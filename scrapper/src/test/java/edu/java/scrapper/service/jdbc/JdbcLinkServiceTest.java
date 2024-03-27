@@ -7,7 +7,6 @@ import edu.java.scrapper.IntegrationTest;
 import edu.java.service.jdbc.JdbcLinkService;
 import jakarta.transaction.Transactional;
 import java.net.URI;
-import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
-import static edu.java.domain.LinkType.GITHUB;
-import static edu.java.domain.LinkType.STACKOVERFLOW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,53 +36,13 @@ public class JdbcLinkServiceTest extends IntegrationTest {
         );
     }
 
-    void initData() {
-        jdbcTemplate.update("insert into tg_chats(chat_id) values (?)", 210L);
-        jdbcTemplate.update("insert into tg_chats(chat_id) values (?)", 153L);
-        Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
-        Long chatId2 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 153L);
-        jdbcTemplate.update(
-            "insert into links(uri, link_type, updated_at, checked_at) values (?, ?, ?, ?)",
-            "https://stackoverflow.com/",
-            STACKOVERFLOW.toString(),
-            OffsetDateTime.now(),
-            OffsetDateTime.now()
-        );
-        jdbcTemplate.update(
-            "insert into links(uri, link_type, updated_at, checked_at) values(?, ?, ?, ?)",
-            "https://github.com/anekoss/tinkoff-project",
-            GITHUB.toString(),
-            OffsetDateTime.now(),
-            OffsetDateTime.now()
-        );
-        Long githubLinkId = jdbcTemplate.queryForObject(
-            "select id from links where uri = ?",
-            Long.class,
-            "https://github.com/anekoss/tinkoff-project"
-        );
-        Long stackOverflowLinkId =
-            jdbcTemplate.queryForObject("select id from links where uri = ?", Long.class, "https://stackoverflow.com/");
-        jdbcTemplate.update(
-            "insert into tg_chat_links(tg_chat_id, link_id) values (?, ?)",
-            chatId1,
-            stackOverflowLinkId
-        );
-        jdbcTemplate.update(
-            "insert into tg_chat_links(tg_chat_id, link_id) values (?, ?)",
-            chatId2,
-            stackOverflowLinkId
-        );
-        jdbcTemplate.update("insert into tg_chat_links(tg_chat_id, link_id) values (?, ?)", chatId2, githubLinkId);
-    }
-
     @Test
     @Rollback
     @Transactional
     void addAlreadyExistLink() {
-        initData();
         assertThrows(
             AlreadyExistException.class,
-            () -> linkService.add(210L, URI.create("https://stackoverflow.com/"))
+            () -> linkService.add(327034L, URI.create("https://github.com/anekoss/tinkoff"))
         );
     }
 
@@ -93,10 +50,9 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void addToChatKnownLink() throws ChatNotFoundException, AlreadyExistException {
-        initData();
         URI uri = URI.create("https://github.com/anekoss/tinkoff-project");
-        linkService.add(210L, uri);
-        Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
+        linkService.add(555555L, uri);
+        Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 555555L);
         Link link = jdbcTemplate.queryForObject(
             "select * from tg_chat_links join links on tg_chat_links.link_id = links.id where tg_chat_links.tg_chat_id = ? and links.uri =?",
             new BeanPropertyRowMapper<>(Link.class),
@@ -110,10 +66,9 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void addToChatUnknownLink() throws ChatNotFoundException, AlreadyExistException {
-        initData();
-        URI uri = URI.create("https://github.com/anekoss/tinkoff");
-        linkService.add(210L, uri);
-        Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);
+        URI uri = URI.create("https://github.com/anekoss/tinkoff325");
+        linkService.add(555555L, uri);
+        Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 555555L);
         Link link = jdbcTemplate.queryForObject(
             "select * from tg_chat_links join links on tg_chat_links.link_id = links.id where tg_chat_links.tg_chat_id = ? and links.uri =?",
             new BeanPropertyRowMapper<>(Link.class),
@@ -126,10 +81,10 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Test
     @Rollback
     @Transactional
-    void deleteToNoExistChat() {
+    void deleteNoExistChat() {
         assertThrows(
             ChatNotFoundException.class,
-            () -> linkService.remove(223L, URI.create("https://stackoverflow.com/"))
+            () -> linkService.remove(333L, URI.create("https://stackoverflow.com/"))
         );
     }
 
@@ -137,11 +92,10 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void deleteNoExistLink() {
-        initData();
         URI uri = URI.create("https://github.com");
         assertThrows(
             ResourceNotFoundException.class,
-            () -> linkService.remove(210L, uri)
+            () -> linkService.remove(555555L, uri)
         );
 
     }
@@ -150,9 +104,8 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void deleteLinkHaveOneChat() throws ChatNotFoundException {
-        initData();
-        URI uri = URI.create("https://github.com/anekoss/tinkoff-project");
-        linkService.remove(153L, uri);
+        URI uri = URI.create("https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh");
+        linkService.remove(124025L, uri);
         assertThrows(
             EmptyResultDataAccessException.class,
             () -> jdbcTemplate.queryForObject(
@@ -164,7 +117,7 @@ public class JdbcLinkServiceTest extends IntegrationTest {
         assertThat(jdbcTemplate.queryForObject(
             "select id from tg_chats where chat_id =?",
             Long.class,
-            153L
+            124025L
         )).isNotNull();
     }
 
@@ -172,9 +125,8 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void deleteLinkHaveManyChat() throws ChatNotFoundException {
-        initData();
-        URI uri = URI.create("https://stackoverflow.com/");
-        linkService.remove(153L, uri);
+        URI uri = URI.create("https://github.com/anekoss/tinkoff");
+        linkService.remove(444444L, uri);
         Link link = jdbcTemplate.queryForObject(
             "select * from links where uri = ?",
             new BeanPropertyRowMapper<>(Link.class),
@@ -186,23 +138,21 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Test
     @Rollback
     @Transactional
-    void testFindAllHaveLinks() {
-        initData();
-        List<Link> links = linkService.listAll(210L);
-        System.out.println(links.size());
+    void testFindAllHaveLinks() throws ChatNotFoundException {
+        List<Link> links = linkService.listAll(327034L);
         assertThat(links.size()).isEqualTo(2);
-        List<URI> uris = links.stream().map(Link::getUri).toList();
-        assertThat(uris).contains(URI.create("https://stackoverflow.com/"));
-        assertThat(uris).contains(URI.create("https://github.com/anekoss/tinkoff-project"));
+        List<String> uris = links.stream().map(link -> link.getUri().toString()).toList();
+        assertThat(uris).contains(
+            "https://stackoverflow.com/questions/59339862/retrieving-text-body-of-answers-and-comments-using-stackexchange-api",
+            "https://github.com/anekoss/tinkoff");
 
     }
 
     @Test
     @Rollback
     @Transactional
-    void testFindAllNoLinks() {
-        jdbcTemplate.update("insert into tg_chats(chat_id) values (?)", 210L);
-        List<Link> links = linkService.listAll(210L);
+    void testFindAllNoLinks() throws ChatNotFoundException {
+        List<Link> links = linkService.listAll(555555L);
         assertThat(links).isNotNull().isEmpty();
     }
 

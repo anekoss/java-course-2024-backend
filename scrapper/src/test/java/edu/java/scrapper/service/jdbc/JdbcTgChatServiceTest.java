@@ -28,7 +28,8 @@ public class JdbcTgChatServiceTest extends IntegrationTest {
     @Transactional
     void testRegisterNoExistChat() throws AlreadyRegisterException {
         tgChatService.register(444L);
-        TgChat chat = jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?",
+        TgChat chat = jdbcTemplate.queryForObject(
+            "select * from tg_chats where chat_id = ?",
             new BeanPropertyRowMapper<>(TgChat.class),
             444L
         );
@@ -40,19 +41,17 @@ public class JdbcTgChatServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testRegisterExistChat() {
-        jdbcTemplate.update("insert into tg_chats(chat_id) values(?)", 333L);
-        assertThrows(AlreadyRegisterException.class, () -> tgChatService.register(333L));
+        assertThrows(AlreadyRegisterException.class, () -> tgChatService.register(555555L));
     }
 
     @Test
     @Rollback
     @Transactional
     void testUnRegisterExistChat() throws ChatNotFoundException {
-        jdbcTemplate.update("insert into tg_chats(chat_id) values(?)", 7L);
-        tgChatService.unregister(7L);
+        tgChatService.unregister(555555L);
         assertThrows(
             EmptyResultDataAccessException.class,
-            () -> jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?", TgChat.class, 7L)
+            () -> jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?", TgChat.class, 555555L)
         );
     }
 
@@ -62,7 +61,5 @@ public class JdbcTgChatServiceTest extends IntegrationTest {
     void testUnRegisterNoExistChat() {
         assertThrows(ChatNotFoundException.class, () -> tgChatService.unregister(999L));
     }
-
-
 
 }

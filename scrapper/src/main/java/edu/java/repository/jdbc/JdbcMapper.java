@@ -6,6 +6,7 @@ import edu.java.domain.TgChat;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,12 +25,16 @@ public class JdbcMapper {
     }
 
     static Set<Link> listMapToSetLink(List<Map<String, Object>> linkList) {
-        return linkList.stream().map(m -> {
+        Set<Link> links = new HashSet<>();
+        linkList.forEach(m -> {
             Link link = new Link(URI.create((String) m.get("uri")), LinkType.valueOf((String) m.get("link_type")));
             link.setUpdatedAt(((Timestamp) m.get("updated_at")).toInstant().atOffset(ZoneOffset.UTC));
             link.setCheckedAt(((Timestamp) m.get("checked_at")).toInstant().atOffset(ZoneOffset.UTC));
             link.setId((Long) m.get("id"));
-            return link;
-        }).collect(Collectors.toSet());
+            link.setTgChats(Set.of());
+            links.add(link);
+        });
+        return links;
     }
+
 }

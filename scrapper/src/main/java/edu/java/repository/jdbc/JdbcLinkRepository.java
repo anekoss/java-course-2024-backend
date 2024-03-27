@@ -26,6 +26,17 @@ public class JdbcLinkRepository implements LinkRepository {
     @Transactional
     public int save(Long tgChatId, Link link) {
         Optional<Long> linkId = findIdByUri(link.getUri());
+        if (linkId.isPresent()) {
+            Long count = jdbcTemplate.queryForObject(
+                "select count(*) from tg_chat_links where tg_chat_id = ? and link_id = ?",
+                Long.class,
+                tgChatId,
+                linkId.get()
+            );
+            if (count != 0L) {
+                return 0;
+            }
+        }
         if (linkId.isEmpty()) {
             jdbcTemplate.update(
                 "insert into links (uri, link_type, updated_at, checked_at) values (?, ?, ?, ?)",

@@ -33,7 +33,7 @@ public class LinksController {
     @GetMapping(path = "/links", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ListLinksResponse> getLinks(
         @RequestHeader(value = "Tg-Chat-Id") Long tgChatId
-    ) {
+    ) throws ChatNotFoundException {
         List<Link> links = linkService.listAll(tgChatId);
         LinkResponse[] linkResponses = new LinkResponse[links.size()];
         for (int i = 0; i < linkResponses.length; i++) {

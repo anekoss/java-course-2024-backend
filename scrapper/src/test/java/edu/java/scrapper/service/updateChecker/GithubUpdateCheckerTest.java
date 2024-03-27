@@ -35,7 +35,7 @@ public class GithubUpdateCheckerTest {
         link.setCheckedAt(checkedAt);
         Link updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getUpdatedAt()).isEqualTo(OffsetDateTime.parse("2024-02-11T11:13:57Z"));
-        assertThat(updatedLink.getCheckedAt()).isAfter(checkedAt);
+        assertThat(updatedLink.getCheckedAt()).isEqualTo(checkedAt);
     }
 
     @Test

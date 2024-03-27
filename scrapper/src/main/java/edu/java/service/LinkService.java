@@ -12,6 +12,6 @@ public interface LinkService {
 
     Link remove(long tgChatId, URI url) throws ChatNotFoundException, ResourceNotFoundException;
 
-    List<Link> listAll(long tgChatId);
+    List<Link> listAll(long tgChatId) throws ChatNotFoundException;
 
 }
