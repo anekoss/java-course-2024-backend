@@ -2,8 +2,8 @@ package edu.java.configuration;
 
 import edu.java.domain.LinkType;
 import edu.java.service.UpdateChecker;
-import edu.java.service.updateChecker.GithubUpdateChecker;
-import edu.java.service.updateChecker.StackOverflowUpdateChecker;
+import edu.java.service.updateChecker.JdbcGithubUpdateChecker;
+import edu.java.service.updateChecker.JdbcStackOverflowUpdateChecker;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +17,8 @@ public class JdbcConfig {
 
     @Bean
     Map<LinkType, UpdateChecker> updateCheckerMap(
-        StackOverflowUpdateChecker stackOverflowUpdateChecker,
-        GithubUpdateChecker githubUpdateChecker
+        JdbcStackOverflowUpdateChecker stackOverflowUpdateChecker,
+        JdbcGithubUpdateChecker githubUpdateChecker
     ) {
         return Map.of(LinkType.STACKOVERFLOW, stackOverflowUpdateChecker, LinkType.GITHUB, githubUpdateChecker);
     }

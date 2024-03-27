@@ -1,28 +1,32 @@
 package edu.java.service.updateChecker;
 
 import edu.java.client.GitHubClient;
+import edu.java.client.dto.GitHubBranchResponse;
 import edu.java.client.dto.GitHubResponse;
 import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.UpdateType;
+import edu.java.repository.GithubLinkRepository;
 import edu.java.service.UpdateChecker;
-
 import java.time.OffsetDateTime;
 import java.util.AbstractMap;
 import java.util.Map;
-
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import static edu.java.domain.UpdateType.NEW_ANSWER;
+import static edu.java.domain.UpdateType.NO_UPDATE;
 
 @Slf4j
-@Component
+@Service
 @AllArgsConstructor
-public class GithubUpdateChecker implements UpdateChecker {
+public class JdbcGithubUpdateChecker implements UpdateChecker {
     private final GitHubClient gitHubClient;
+    private final GithubLinkRepository linkRepository;
 
     public Map.Entry<Link, UpdateType> check(Link link) {
-        UpdateType updateType = UpdateType.NO_UPDATE;
+        UpdateType updateType = NO_UPDATE;
         String[] githubValues = getOwnerAndReposGithub(link.getUri().toString());
         if (githubValues.length == 2) {
             try {
@@ -37,7 +41,32 @@ public class GithubUpdateChecker implements UpdateChecker {
                 log.error(e.getMessage());
             }
         }
+        if (updateType == UpdateType.UPDATE) {
+            updateType = checkBranches(githubValues, link, updateType);
+        }
         return new AbstractMap.SimpleEntry<>(link, updateType);
+    }
+
+    public UpdateType checkBranches(String[] githubValues, Link link, UpdateType type) {
+        Optional<Long> optionalCount = linkRepository.findGithubBranchCountByLinkId(link.getId());
+        Long count = optionalCount.orElse(0L);
+        try {
+            GitHubBranchResponse response = gitHubClient.fetchRepositoryBranches(githubValues[0], githubValues[1]);
+            if (response != null && response.name() != null) {
+                if (response.name().length != count) {
+                    count = (long) response.name().length;
+                }
+            }
+            if (optionalCount.isEmpty()) {
+                linkRepository.add(link.getId(), count);
+            } else if (!count.equals(optionalCount.get())) {
+                linkRepository.update(link.getId(), count);
+                type = NEW_ANSWER;
+            }
+        } catch (BadResponseBodyException e) {
+            log.info(e.getMessage());
+        }
+        return type;
     }
 
     private String[] getOwnerAndReposGithub(String uri) {

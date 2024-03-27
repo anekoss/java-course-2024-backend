@@ -7,5 +7,7 @@
         <sqlFile path="../sql/create_chats_table.sql" relativeToChangelogFile="true"/>
         <sqlFile path="../sql/create_links_table.sql" relativeToChangelogFile="true"/>
         <sqlFile path="../sql/create_chat_links_table.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="../sql/create_links_table.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="../sql/create_stackOverflow_links_table.sql" relativeToChangelogFile="true"/>
     </changeSet>
 </databaseChangeLog>

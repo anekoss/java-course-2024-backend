@@ -6,12 +6,14 @@ import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
 import edu.java.domain.UpdateType;
-import edu.java.repository.LinkRepository;
-import edu.java.service.updateChecker.StackOverflowUpdateChecker;
+import edu.java.repository.StackOverflowLinkRepository;
+import edu.java.service.updateChecker.JdbcStackOverflowUpdateChecker;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,26 +22,32 @@ import static org.mockito.Mockito.when;
 
 public class StackOverflowUpdateCheckerTest {
     private final StackOverflowClient stackOverflowClient = Mockito.mock(StackOverflowClient.class);
-    private final LinkRepository linkRepository = Mockito.mock(LinkRepository.class);
-    private final StackOverflowUpdateChecker updateChecker =
-        new StackOverflowUpdateChecker(linkRepository, stackOverflowClient);
+    private final StackOverflowLinkRepository stackOverflowLinkRepository =
+        Mockito.mock(StackOverflowLinkRepository.class);
+    private final JdbcStackOverflowUpdateChecker updateChecker =
+        new JdbcStackOverflowUpdateChecker(stackOverflowLinkRepository, stackOverflowClient);
+    private StackOverflowResponse stackOverflowResponse;
+    private Link link;
 
-    @Test
-    void testUpdateShouldUpdate() throws BadResponseBodyException {
-        StackOverflowResponse stackOverflowResponse =
+    @BeforeEach
+    void init() throws BadResponseBodyException {
+        stackOverflowResponse =
             new StackOverflowResponse(List.of(new StackOverflowResponse.StackOverflowItem(78056352L,
                 "React Leaflet map not Re-rendering",
                 "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",
                 0L,
                 OffsetDateTime.parse("2024-02-25T14:38:10Z"), OffsetDateTime.parse("2024-02-25T14:38:10Z")
             )));
-        when(linkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(0L);
-        when(linkRepository.updateAnswerCountByLinkId(anyLong(), anyLong())).thenReturn(0);
         when(stackOverflowClient.fetchQuestion(78056352L)).thenReturn(stackOverflowResponse);
-        Link link = new Link(
+        link = new Link(
             URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
             LinkType.STACKOVERFLOW
         );
+    }
+
+    @Test
+    void testUpdateShouldUpdate() {
+        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(0L));
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2023-02-25T14:38:10Z"));
         link.setCheckedAt(checkedAt);
@@ -50,21 +58,9 @@ public class StackOverflowUpdateCheckerTest {
     }
 
     @Test
-    void testUpdateShouldUpdateAnswer() throws BadResponseBodyException {
-        StackOverflowResponse stackOverflowResponse =
-            new StackOverflowResponse(List.of(new StackOverflowResponse.StackOverflowItem(78056352L,
-                "React Leaflet map not Re-rendering",
-                "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",
-                2L,
-                OffsetDateTime.parse("2024-02-25T14:38:10Z"), OffsetDateTime.parse("2024-02-25T14:38:10Z")
-            )));
-        when(linkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(0L);
-        when(linkRepository.updateAnswerCountByLinkId(anyLong(), anyLong())).thenReturn(0);
-        when(stackOverflowClient.fetchQuestion(78056352L)).thenReturn(stackOverflowResponse);
-        Link link = new Link(
-            URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
-            LinkType.STACKOVERFLOW
-        );
+    void testUpdateShouldUpdateAnswer() {
+        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(1L));
+        when(stackOverflowLinkRepository.update(anyLong(), anyLong())).thenReturn(1);
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2023-02-25T14:38:10Z"));
         link.setCheckedAt(checkedAt);
@@ -76,22 +72,10 @@ public class StackOverflowUpdateCheckerTest {
 
     @Test
     void testUpdateShouldNotUpdate() throws BadResponseBodyException {
-        StackOverflowResponse stackOverflowResponse =
-            new StackOverflowResponse(List.of(new StackOverflowResponse.StackOverflowItem(78056352L,
-                "React Leaflet map not Re-rendering",
-                "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",
-                0L,
-                OffsetDateTime.parse("2024-02-25T14:38:10Z"), OffsetDateTime.parse("2024-02-25T14:38:10Z")
-            )));
-        when(linkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(0L);
-        when(linkRepository.updateAnswerCountByLinkId(anyLong(), anyLong())).thenReturn(0);
+        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(0L));
+        when(stackOverflowLinkRepository.update(anyLong(), anyLong())).thenReturn(0);
         when(stackOverflowClient.fetchQuestion(78056352L)).thenReturn(stackOverflowResponse);
-        Link link = new Link(
-            URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
-            LinkType.STACKOVERFLOW
-        );
         OffsetDateTime checkedAt = OffsetDateTime.now();
-        link.setUpdatedAt(OffsetDateTime.parse("2024-02-25T14:38:10Z"));
         link.setCheckedAt(checkedAt);
         Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getValue()).isEqualTo(UpdateType.NO_UPDATE);
@@ -101,13 +85,9 @@ public class StackOverflowUpdateCheckerTest {
 
     @Test
     void testUpdateShouldReturnInputLink() throws BadResponseBodyException {
-        when(linkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(0L);
-        when(linkRepository.updateAnswerCountByLinkId(anyLong(), anyLong())).thenReturn(0);
+        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(0L));
+        when(stackOverflowLinkRepository.update(anyLong(), anyLong())).thenReturn(0);
         when(stackOverflowClient.fetchQuestion(78056352L)).thenThrow(BadResponseBodyException.class);
-        Link link = new Link(
-            URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
-            LinkType.STACKOVERFLOW
-        );
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2024-02-25T14:38:10Z"));
         link.setCheckedAt(checkedAt);
@@ -116,6 +96,5 @@ public class StackOverflowUpdateCheckerTest {
         assertThat(updatedLink.getKey().getUpdatedAt()).isEqualTo(link.getUpdatedAt());
         assertThat(updatedLink.getKey().getCheckedAt()).isEqualTo(link.getCheckedAt());
     }
-
 
 }

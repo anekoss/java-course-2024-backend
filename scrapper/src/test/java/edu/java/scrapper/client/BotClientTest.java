@@ -42,7 +42,7 @@ public class BotClientTest extends IntegrationTest {
 
     @BeforeAll
     static void initRequest() {
-        linkUpdateRequest = new LinkUpdateRequest(1L, "https://api.stackexchange.com", "description", new long[]{1L});
+        linkUpdateRequest = new LinkUpdateRequest(1L, "https://api.stackexchange.com", "description", new Long[]{1L});
         request = "{\"id\":1,\"url\":\"https://api.stackexchange.com\",\"description\":\"description\",\"tgChatIds\":[1]}";
     }
 

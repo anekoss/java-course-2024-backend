@@ -5,11 +5,12 @@ import edu.java.client.dto.StackOverflowResponse;
 import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.UpdateType;
-import edu.java.repository.LinkRepository;
+import edu.java.repository.StackOverflowLinkRepository;
 import edu.java.service.UpdateChecker;
 import java.time.OffsetDateTime;
 import java.util.AbstractMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class StackOverflowUpdateChecker implements UpdateChecker {
+public class JdbcStackOverflowUpdateChecker implements UpdateChecker {
     private static final int PART_QUESTION = 4;
-    private final LinkRepository linkRepository;
+    private final StackOverflowLinkRepository linkRepository;
     private final StackOverflowClient stackOverflowClient;
 
     public Map.Entry<Link, UpdateType> check(Link link) {
@@ -29,7 +30,8 @@ public class StackOverflowUpdateChecker implements UpdateChecker {
             try {
                 StackOverflowResponse response = stackOverflowClient.fetchQuestion(question);
                 if (response != null) {
-                    Long countAnswer = linkRepository.findStackOverflowAnswerCountByLinkId(link.getId());
+                    Optional<Long> optionalCount = linkRepository.findStackOverflowAnswerCountByLinkId(link.getId());
+                    Long countAnswer = optionalCount.orElse(0L);
                     OffsetDateTime updatedAt = link.getUpdatedAt();
                     for (StackOverflowResponse.StackOverflowItem item : response.items()) {
                         if (item.updatedAt().isAfter(updatedAt)) {
@@ -37,11 +39,13 @@ public class StackOverflowUpdateChecker implements UpdateChecker {
                             updateType = UpdateType.UPDATE;
                             if (item.countAnswer() > countAnswer) {
                                 countAnswer = item.countAnswer();
-                                updateType = UpdateType.NEW_ANSWER;
+                                if (optionalCount.isPresent()) {
+                                    updateType = UpdateType.NEW_ANSWER;
+                                }
                             }
                         }
                     }
-                    linkRepository.updateAnswerCountByLinkId(countAnswer, link.getId());
+                    linkRepository.update(link.getId(), countAnswer);
                     link.setUpdatedAt(updatedAt);
                     link.setCheckedAt(OffsetDateTime.now());
                 }

@@ -123,7 +123,7 @@ public class JdbcLinkRepositoryTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void testDeleteExistLinkHaveManyChats() throws URISyntaxException {
+    void testDeleteExistLinkHaveManyChats()  {
         initChats();
         initLink();
         Long chatId1 = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, 210L);

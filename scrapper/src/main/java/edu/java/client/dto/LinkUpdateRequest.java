@@ -10,7 +10,7 @@ public record LinkUpdateRequest(
     @Min(0) Long id,
     @NotBlank @URL String url,
     @NotBlank String description,
-    @NotNull @NotEmpty long[] tgChatIds
+    @NotNull @NotEmpty Long[] tgChatIds
 ) {
 
 }

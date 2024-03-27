@@ -104,4 +104,5 @@ public class JdbcLinkRepository implements LinkRepository {
             linkId
         );
     }
+
 }

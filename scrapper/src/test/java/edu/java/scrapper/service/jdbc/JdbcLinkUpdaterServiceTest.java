@@ -5,6 +5,7 @@ import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
 import edu.java.domain.TgChat;
+import edu.java.domain.UpdateType;
 import edu.java.repository.LinkRepository;
 import edu.java.service.UpdateChecker;
 import edu.java.service.jdbc.JdbcLinkUpdaterService;
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+import static edu.java.domain.UpdateType.NO_UPDATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -58,6 +60,36 @@ public class JdbcLinkUpdaterServiceTest {
                         OffsetDateTime.parse("2023-01-11T11:13:57Z"), Set.of(tgChat)
                     )
                 ), List.of(
+                    Map.entry(
+                        new Link(
+                            1L,
+                            URI.create("https://github.com/anekoss/tinkoff-project"),
+                            LinkType.GITHUB,
+                            updated,
+                            updated
+                        ),
+                        UpdateType.UPDATE
+                    ),
+                    Map.entry(
+                        new Link(
+                            1L,
+                            URI.create("https://github.com/anekoss/tinkoff"),
+                            LinkType.GITHUB,
+                            updated,
+                            updated
+                        ), UpdateType.UPDATE),
+                    Map.entry(
+                        new Link(
+                            1L,
+                            URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
+                            LinkType.STACKOVERFLOW,
+                            updated,
+                            OffsetDateTime.parse("2023-01-11T11:13:57Z")
+                        ),
+                        NO_UPDATE
+                    )
+                ),
+                Map.of(
                     new Link(
                         1L,
                         URI.create("https://github.com/anekoss/tinkoff-project"),
@@ -65,35 +97,15 @@ public class JdbcLinkUpdaterServiceTest {
                         updated,
                         updated
                     ),
+                    UpdateType.UPDATE
+                    ,
                     new Link(
                         1L,
                         URI.create("https://github.com/anekoss/tinkoff"),
                         LinkType.GITHUB,
                         updated,
                         updated
-                    ),
-                    new Link(
-                        1L,
-                        URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
-                        LinkType.STACKOVERFLOW,
-                        updated,
-                        OffsetDateTime.parse("2023-01-11T11:13:57Z")
-                    )
-                ), List.of(
-                    new Link(
-                        1L,
-                        URI.create("https://github.com/anekoss/tinkoff-project"),
-                        LinkType.GITHUB,
-                        updated,
-                        updated
-                    ),
-                    new Link(
-                        1L,
-                        URI.create("https://github.com/anekoss/tinkoff"),
-                        LinkType.GITHUB,
-                        updated,
-                        updated
-                    )
+                    ), UpdateType.UPDATE
                 )
             )
         );
@@ -102,18 +114,19 @@ public class JdbcLinkUpdaterServiceTest {
 
     @ParameterizedTest
     @MethodSource("provideDataForTest")
-    void updateTestHaveUpdates(List<Link> staleLinks, List<Link> updatedLinks, List<Link> excepted) {
+    void updateTestHaveUpdates(
+        List<Link> staleLinks,
+        List<Map.Entry<Link, UpdateType>> updatedLinks,
+        Map<Link, UpdateType> excepted
+    ) {
         Mockito.when(linkRepository.findStaleLinks(anyLong())).thenReturn(staleLinks);
         Mockito.when(updateCheckerMap.get(any())).thenReturn(updateChecker);
         Mockito.when(updateChecker.check(staleLinks.get(0))).thenReturn(updatedLinks.get(0));
         Mockito.when(updateChecker.check(staleLinks.get(1))).thenReturn(updatedLinks.get(1));
         Mockito.when(updateChecker.check(staleLinks.get(2))).thenReturn(updatedLinks.get(2));
         Mockito.when(linkRepository.update(anyLong(), any(), any())).thenReturn(1);
-        List<Link> actual = linkService.update();
-
-        assertThat(actual.size()).isEqualTo(2);
-        assertThat(actual.get(0).getUpdatedAt()).isEqualTo(excepted.get(0).getUpdatedAt());
-        assertThat(actual.get(1).getUpdatedAt()).isEqualTo(excepted.get(1).getUpdatedAt());
+        Map<Link, UpdateType> actual = linkService.update();
+        assertThat(actual).isEqualTo(excepted);
     }
 
     @ParameterizedTest
@@ -121,33 +134,34 @@ public class JdbcLinkUpdaterServiceTest {
     void updateTestHaveNotUpdates(List<Link> staleLinks) {
         Mockito.when(linkRepository.findStaleLinks(anyLong())).thenReturn(staleLinks);
         Mockito.when(updateCheckerMap.get(any())).thenReturn(updateChecker);
-        Mockito.when(updateChecker.check(staleLinks.get(0))).thenReturn(staleLinks.get(0));
-        Mockito.when(updateChecker.check(staleLinks.get(1))).thenReturn(staleLinks.get(1));
-        Mockito.when(updateChecker.check(staleLinks.get(2))).thenReturn(staleLinks.get(2));
+        Mockito.when(updateChecker.check(staleLinks.get(0))).thenReturn(Map.entry(staleLinks.get(0), NO_UPDATE));
+        Mockito.when(updateChecker.check(staleLinks.get(1))).thenReturn(Map.entry(staleLinks.get(2), NO_UPDATE));
+        Mockito.when(updateChecker.check(staleLinks.get(2))).thenReturn(Map.entry(staleLinks.get(3), NO_UPDATE));
         Mockito.when(linkRepository.update(anyLong(), any(), any())).thenReturn(1);
-        List<Link> actual = linkService.update();
+        Map<Link, UpdateType> actual = linkService.update();
         assertThat(actual.size()).isEqualTo(0);
     }
 
     @ParameterizedTest
     @MethodSource("provideDataForTest")
-    void sendUpdatesHaveUpdates(List<Link> staleLinks)
+    void sendUpdatesHaveUpdates(
+        List<Link> staleLinks, List<Map.Entry<Link, UpdateType>> updatedLinks,
+        Map<Link, UpdateType> excepted
+    )
         throws BadResponseBodyException {
         Mockito.when(botClient.linkUpdates(any())).thenReturn("ok");
-        assertThat(linkService.sendUpdates(staleLinks)).isEqualTo(3);
+        assertThat(linkService.sendUpdates(excepted)).isEqualTo(2);
     }
 
     @Test
     void sendUpdatesHaveNotUpdates() {
-        assertThat(linkService.sendUpdates(List.of())).isEqualTo(0);
+        assertThat(linkService.sendUpdates(Map.of())).isEqualTo(0);
     }
 
-    @ParameterizedTest
-    @MethodSource("provideDataForTest")
-    void sendUpdatesHaveClientException(List<Link> staleLinks)
+    @Test
+    void sendUpdatesHaveClientException()
         throws BadResponseBodyException {
-//        Mockito.when(tgChatRepository.findChatIdsByLinkId(anyLong())).thenReturn(List.of(1L, 2L, 3L));
         Mockito.when(botClient.linkUpdates(any())).thenThrow(BadResponseBodyException.class);
-        assertThat(linkService.sendUpdates(staleLinks)).isEqualTo(0);
+        assertThat(linkService.sendUpdates(Map.of())).isEqualTo(0);
     }
 }
