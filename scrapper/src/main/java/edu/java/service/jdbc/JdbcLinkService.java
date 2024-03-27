@@ -52,11 +52,11 @@ public class JdbcLinkService implements LinkService {
     }
 
     @Override
-    public List<Link> listAll(long tgChatId) {
-        List<Link> links = linkRepository.findAll();
-        if (links == null) {
-            return List.of();
+    public List<Link> listAll(long tgChatId) throws ChatNotFoundException {
+        Optional<TgChat> optionalChat = tgChatRepository.findByChatId(tgChatId);
+        if (optionalChat.isEmpty()) {
+            throw new ChatNotFoundException();
         }
-        return links;
+        return optionalChat.get().getLinks().stream().toList();
     }
 }

@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +38,7 @@ public class Link {
     private OffsetDateTime checkedAt;
 
     @ManyToMany(mappedBy = "links")
-    private Set<TgChat> tgChats;
+    private Set<TgChat> tgChats = new HashSet<>();
 
     public Link() {
 
@@ -47,8 +48,8 @@ public class Link {
         this.id = id;
         this.uri = uri;
         this.linkType = linkType;
-        this.checkedAt = updatedAt;
-        this.updatedAt = checkedAt;
+        this.checkedAt = checkedAt;
+        this.updatedAt = updatedAt;
     }
 
     public Link(

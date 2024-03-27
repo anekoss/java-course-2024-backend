@@ -35,7 +35,7 @@ public class JdbcTgChatRepository implements TgChatRepository {
                 + "join tg_chats on tg_chat_links.tg_chat_id = tg_chats.id where tg_chats.chat_id = ?) "
                 + "group by link_id having count(*) = 1";
         try {
-            List<Long> linkIds = jdbcTemplate.queryForList(query, Long.class, tgChat.getId());
+            List<Long> linkIds = jdbcTemplate.queryForList(query, Long.class, tgChat.getChatId());
             for (Long id : linkIds) {
                 count += jdbcTemplate.update("delete from links where id = ?", id);
             }
@@ -52,7 +52,8 @@ public class JdbcTgChatRepository implements TgChatRepository {
         for (TgChat chat : chats) {
             List<Map<String, Object>> linkList = jdbcTemplate.queryForList(
                 "select distinct links.id, links.uri, links.link_type, links.updated_at, links.checked_at from"
-                    + " links join tg_chat_links on links.id = tg_chat_links.link_id where tg_chat_id = ?",
+                    + " links join tg_chat_links on links.id = tg_chat_links.link_id"
+                    + " where tg_chat_id = ? order by links.id",
                 chat.getId()
             );
             Set<Link> chatLinks = listMapToSetLink(linkList);
