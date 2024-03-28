@@ -8,7 +8,7 @@ public enum UpdateType {
 
     private final String message;
 
-    UpdateType(String message){
+    UpdateType(String message) {
         this.message = message;
     }
 }

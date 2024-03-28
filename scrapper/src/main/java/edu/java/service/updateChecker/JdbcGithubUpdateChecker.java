@@ -52,7 +52,7 @@ public class JdbcGithubUpdateChecker implements UpdateChecker {
         Long count = optionalCount.orElse(0L);
         try {
             GitHubBranchResponse[] response = gitHubClient.fetchRepositoryBranches(githubValues[0], githubValues[1]);
-            if (response != null && response!= null) {
+            if (response != null && response != null) {
                 if (response.length != count) {
                     count = (long) response.length;
                 }
@@ -61,7 +61,7 @@ public class JdbcGithubUpdateChecker implements UpdateChecker {
                 linkRepository.add(link.getId(), count);
             } else if (!count.equals(optionalCount.get())) {
                 linkRepository.update(link.getId(), count);
-                type = NEW_BRANCH;
+                return NEW_BRANCH;
             }
         } catch (BadResponseBodyException e) {
             log.info(e.getMessage());

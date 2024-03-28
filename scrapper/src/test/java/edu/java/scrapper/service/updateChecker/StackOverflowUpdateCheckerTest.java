@@ -50,8 +50,8 @@ public class StackOverflowUpdateCheckerTest {
     @Test
     void testUpdateShouldUpdate() {
         when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(2L));
-        OffsetDateTime checkedAt = OffsetDateTime.now();
-        link.setUpdatedAt(OffsetDateTime.parse("2023-02-25T14:38:10Z"));
+        OffsetDateTime checkedAt = OffsetDateTime.parse("2023-02-25T14:38:10Z");
+        link.setUpdatedAt(checkedAt);
         link.setCheckedAt(checkedAt);
         Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getValue()).isEqualTo(UpdateType.UPDATE);

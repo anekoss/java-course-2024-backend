@@ -29,26 +29,24 @@ public class JdbcStackOverflowUpdateChecker implements UpdateChecker {
         if (question != -1) {
             try {
                 StackOverflowResponse response = stackOverflowClient.fetchQuestion(question);
-                if (response != null) {
-                    Optional<Long> optionalCount = linkRepository.findStackOverflowAnswerCountByLinkId(link.getId());
-                    Long countAnswer = optionalCount.orElse(0L);
-                    OffsetDateTime updatedAt = link.getUpdatedAt();
-                    for (StackOverflowResponse.StackOverflowItem item : response.items()) {
-                        if (item.updatedAt().isAfter(updatedAt)) {
-                            updatedAt = item.updatedAt();
-                            updateType = UpdateType.UPDATE;
-                            if (item.countAnswer() > countAnswer) {
-                                countAnswer = item.countAnswer();
-                                if (optionalCount.isPresent()) {
-                                    updateType = UpdateType.NEW_ANSWER;
-                                }
-                            }
-                        }
+                Optional<Long> optionalCount = linkRepository.findStackOverflowAnswerCountByLinkId(link.getId());
+                Long countAnswer = optionalCount.orElse(0L);
+                OffsetDateTime updatedAt = link.getUpdatedAt();
+                for (StackOverflowResponse.StackOverflowItem item : response.items()) {
+                    if (item.updatedAt().isAfter(updatedAt)) {
+                        updatedAt = item.updatedAt();
+                        updateType = UpdateType.UPDATE;
+                        countAnswer = item.countAnswer();
                     }
-                    linkRepository.update(link.getId(), countAnswer);
-                    link.setUpdatedAt(updatedAt);
-                    link.setCheckedAt(OffsetDateTime.now());
                 }
+                if (optionalCount.isPresent()) {
+                    if (countAnswer > optionalCount.get()) {
+                        updateType = UpdateType.NEW_ANSWER;
+                    }
+                }
+                linkRepository.update(link.getId(), countAnswer);
+                link.setUpdatedAt(updatedAt);
+                link.setCheckedAt(OffsetDateTime.now());
             } catch (BadResponseBodyException e) {
                 log.error(e.getMessage());
             }

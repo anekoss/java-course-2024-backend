@@ -25,7 +25,7 @@ public class JdbcStackOverflowLinkRepository implements StackOverflowLinkReposit
         }
     }
 
-    public int add(Long linkId, Long answer_count) {
+    public int add(Long linkId, Long answerCount) {
         Long count = jdbcTemplate.queryForObject(
             "select count(*) from stackoverflow_links where link_id = ?",
             Long.class,
@@ -37,11 +37,11 @@ public class JdbcStackOverflowLinkRepository implements StackOverflowLinkReposit
         return jdbcTemplate.update(
             "insert into stackoverflow_links(link_id, answer_count) values (?, ?)",
             linkId,
-            answer_count
+            answerCount
         );
     }
 
-    public int update(Long linkId, Long count) {
-        return jdbcTemplate.update("update stackoverflow_links set answer_count = ? where link_id = ?", count, linkId);
+    public int update(Long linkId, Long answerCount) {
+        return jdbcTemplate.update("update stackoverflow_links set answer_count = ? where link_id = ?", answerCount, linkId);
     }
 }

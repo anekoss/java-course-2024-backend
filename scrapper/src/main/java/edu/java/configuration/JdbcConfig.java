@@ -42,4 +42,5 @@ public class JdbcConfig {
         driverManagerDataSource.setDriverClassName(driverClassName);
         return driverManagerDataSource;
     }
+
 }
