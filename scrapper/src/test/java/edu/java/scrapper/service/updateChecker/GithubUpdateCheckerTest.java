@@ -18,7 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.annotation.Rollback;
-import static edu.java.domain.UpdateType.NEW_ANSWER;
+import static edu.java.domain.UpdateType.NEW_BRANCH;
 import static edu.java.domain.UpdateType.NO_UPDATE;
 import static edu.java.domain.UpdateType.UPDATE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ public class GithubUpdateCheckerTest {
     private final JdbcGithubUpdateChecker updateChecker =
         new JdbcGithubUpdateChecker(gitHubClient, githubLinkRepository);
 
-    private final GitHubBranchResponse branchResponse = new GitHubBranchResponse(new String[] {"hw", "hw1"});
+    private final GitHubBranchResponse[] branchResponse = new GitHubBranchResponse[]{new GitHubBranchResponse("hw"), new GitHubBranchResponse ("hw1")};
     private final Link link = new Link(URI.create("https://github.com/anekoss/tinkoff-project"), LinkType.GITHUB);
 
     @BeforeEach
@@ -55,7 +55,7 @@ public class GithubUpdateCheckerTest {
     @Rollback
     @Transactional
     void testCheckBranchesShouldAddBranchCount() {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.empty());
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.empty());
         assertThat(updateChecker.checkBranches(new String[] {"anekoss", "tinkoff-project"}, link, UPDATE)).isEqualTo(
             UPDATE);
     }
@@ -64,16 +64,16 @@ public class GithubUpdateCheckerTest {
     @Rollback
     @Transactional
     void testCheckBranchesShouldReturnNewAnswer() {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.of(0L));
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.of(0L));
         assertThat(updateChecker.checkBranches(new String[] {"anekoss", "tinkoff-project"}, link, UPDATE)).isEqualTo(
-            NEW_ANSWER);
+            NEW_BRANCH);
     }
 
     @Test
     @Rollback
     @Transactional
     void testCheckBranchesShouldReturnUpdate() {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.of(2L));
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.of(2L));
         assertThat(updateChecker.checkBranches(new String[] {"anekoss", "tinkoff-project"}, link, UPDATE)).isEqualTo(
             UPDATE);
     }
@@ -82,7 +82,7 @@ public class GithubUpdateCheckerTest {
     @Rollback
     @Transactional
     void testCheckBranchesShouldReturnNoUpdate() {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.of(2L));
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.of(2L));
         assertThat(updateChecker.checkBranches(new String[] {"anekoss", "tinkoff-project"}, link, NO_UPDATE)).isEqualTo(
             NO_UPDATE);
     }
@@ -91,42 +91,43 @@ public class GithubUpdateCheckerTest {
     @Rollback
     @Transactional
     void testCheckBranchesShouldThrowException() throws BadResponseBodyException {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.of(2L));
-        when(gitHubClient.fetchRepositoryBranches(anyString(), anyString())).thenThrow(BadResponseBodyException.class);
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.of(2L));
+        when(gitHubClient.fetchRepositoryBranches(
+            "anekoss",
+            "tinkoff-project"
+        )).thenThrow(BadResponseBodyException.class);
         assertThat(updateChecker.checkBranches(new String[] {"anekoss", "tinkoff-project"}, link, UPDATE)).isEqualTo(
             UPDATE);
     }
 
     @Test
     void testCheckShouldUpdate() {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.empty());
-        OffsetDateTime checkedAt = OffsetDateTime.now();
-        link.setUpdatedAt(OffsetDateTime.parse("2023-02-11T11:13:57Z"));
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.empty());
+        OffsetDateTime checkedAt = OffsetDateTime.parse("2023-02-11T11:13:57Z");
+        link.setUpdatedAt(checkedAt);
         link.setCheckedAt(checkedAt);
         Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getValue()).isEqualTo(UPDATE);
-        assertThat(updatedLink.getKey().getUpdatedAt()).isEqualTo(OffsetDateTime.parse("2024-02-11T11:13:57Z"));
+        assertThat(updatedLink.getKey().getUpdatedAt()).isEqualToIgnoringNanos(OffsetDateTime.parse("2024-02-11T11:13:57Z"));
         assertThat(updatedLink.getKey().getCheckedAt()).isAfter(checkedAt);
     }
 
     @Test
-    void testCheckShouldReturnNewAnswer() {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.of(0L));
-        OffsetDateTime checkedAt = OffsetDateTime.now();
-        link.setUpdatedAt(OffsetDateTime.parse("2023-02-11T11:13:57Z"));
+    void testCheckShouldReturnNewBranch() {
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.of(0L));
+        OffsetDateTime checkedAt = OffsetDateTime.parse("2023-02-11T11:13:57Z");
+        link.setUpdatedAt(checkedAt);
         link.setCheckedAt(checkedAt);
         Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
-        assertThat(updatedLink.getValue()).isEqualTo(NEW_ANSWER);
-        assertThat(updatedLink.getKey().getUpdatedAt()).isEqualTo(OffsetDateTime.parse("2024-02-11T11:13:57Z"));
+        assertThat(updatedLink.getValue()).isEqualTo(NEW_BRANCH);
+        assertThat(updatedLink.getKey().getUpdatedAt()).isEqualToIgnoringNanos(OffsetDateTime.parse("2024-02-11T11:13:57Z"));
         assertThat(updatedLink.getKey().getCheckedAt()).isAfter(checkedAt);
     }
 
     @Test
     void testCheckShouldNotUpdate() {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.empty());
-
-        OffsetDateTime checkedAt = OffsetDateTime.now();
-        link.setUpdatedAt(OffsetDateTime.parse("2023-02-11T11:13:57Z"));
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.empty());
+        OffsetDateTime checkedAt = OffsetDateTime.parse("2023-02-11T11:13:57Z");
         link.setCheckedAt(checkedAt);
         Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getValue()).isEqualTo(NO_UPDATE);
@@ -136,7 +137,7 @@ public class GithubUpdateCheckerTest {
 
     @Test
     void testCheckShouldReturnInputLink() throws BadResponseBodyException {
-        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(any()).thenReturn(Optional.empty());
+        when(githubLinkRepository.findGithubBranchCountByLinkId(any())).thenReturn(Optional.empty());
         when(gitHubClient.fetchRepository(anyString(), anyString())).thenThrow(BadResponseBodyException.class);
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2023-02-11T11:13:57Z"));

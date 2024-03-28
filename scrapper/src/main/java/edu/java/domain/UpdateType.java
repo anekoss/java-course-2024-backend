@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum UpdateType {
-    NEW_ANSWER("new answer"), NO_UPDATE(""), UPDATE("update");
+    NEW_ANSWER("new answer"), NO_UPDATE(""), UPDATE("update"), NEW_BRANCH("new branch");
 
     private final String message;
 

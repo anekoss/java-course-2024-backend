@@ -22,36 +22,34 @@ public class JdbcStackOverflowLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testAdd() {
-        assertThat(stackOverflowLinkRepository.add(333L, 2L)).isEqualTo(1);
-        Long count = jdbcTemplate.queryForObject("select answer_count from stackoverflow_links where link_id = ?", Long.class, 1L);
-        assertThat(count).isEqualTo(333L);
+        assertThat(stackOverflowLinkRepository.add(3L, 2L)).isEqualTo(1);
+        Long count = jdbcTemplate.queryForObject("select answer_count from stackoverflow_links where link_id = ?", Long.class, 3L);
+        assertThat(count).isEqualTo(2L);
     }
 
     @Test
     @Rollback
     @Transactional
     void testAddExist() {
-        jdbcTemplate.update("insert into github_links(link_id, branch_count) values (?, ?), 2L, 333L");
-        assertThat(stackOverflowLinkRepository.add(333L, 2L)).isEqualTo(1);
-        Long count = jdbcTemplate.queryForObject("select answer_count from stackoverflow_links where link_id = ?", Long.class, 1L);
-        assertThat(count).isEqualTo(333L);
+        assertThat(stackOverflowLinkRepository.add(2L, 5L)).isEqualTo(0);
+        Long count = jdbcTemplate.queryForObject("select answer_count from stackoverflow_links where link_id = ?", Long.class, 2L);
+        assertThat(count).isEqualTo(3L);
     }
 
     @Test
     @Rollback
     @Transactional
     void testFindGithubBranchCountByLinkId() {
-        jdbcTemplate.update("insert into stackoverflow_links(link_id, answer_count) values (?, ?), 2L, 333L");
         Optional<Long> count = stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(2L);
         assertThat(count).isPresent();
-        assertThat(count.get()).isEqualTo(333L);
+        assertThat(count.get()).isEqualTo(3L);
     }
 
     @Test
     @Rollback
     @Transactional
     void testFindGithubBranchCountByLinkIdNotFound() {
-        Optional<Long> count = stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(2L);
+        Optional<Long> count = stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(5L);
         assertThat(count).isEmpty();
     }
 
@@ -59,7 +57,6 @@ public class JdbcStackOverflowLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testUpdate() {
-        jdbcTemplate.update("insert into github_links(link_id, answer_count) values (?, ?), 2L, 333L");
         assertThat(stackOverflowLinkRepository.update(2L, 444L)).isEqualTo(1);
         Long count = jdbcTemplate.queryForObject("select answer_count from stackoverflow_links where link_id = ?", Long.class, 2L);
         assertThat(count).isEqualTo(444L);
@@ -69,7 +66,7 @@ public class JdbcStackOverflowLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testUpdateNotFound() {
-        assertThat(stackOverflowLinkRepository.update(2L, 444L)).isEqualTo(0);
+        assertThat(stackOverflowLinkRepository.update(4L, 444L)). isEqualTo(0);
     }
 
 }

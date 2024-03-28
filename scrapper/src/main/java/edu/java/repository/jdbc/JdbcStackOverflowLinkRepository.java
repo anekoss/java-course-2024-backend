@@ -25,11 +25,19 @@ public class JdbcStackOverflowLinkRepository implements StackOverflowLinkReposit
         }
     }
 
-    public int add(Long linkId, Long count) {
+    public int add(Long linkId, Long answer_count) {
+        Long count = jdbcTemplate.queryForObject(
+            "select count(*) from stackoverflow_links where link_id = ?",
+            Long.class,
+            linkId
+        );
+        if (count != 0L) {
+            return 0;
+        }
         return jdbcTemplate.update(
             "insert into stackoverflow_links(link_id, answer_count) values (?, ?)",
             linkId,
-            count
+            answer_count
         );
     }
 

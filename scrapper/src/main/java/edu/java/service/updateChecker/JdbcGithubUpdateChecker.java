@@ -15,7 +15,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import static edu.java.domain.UpdateType.NEW_ANSWER;
+import static edu.java.domain.UpdateType.NEW_BRANCH;
 import static edu.java.domain.UpdateType.NO_UPDATE;
 
 @Slf4j
@@ -51,17 +51,17 @@ public class JdbcGithubUpdateChecker implements UpdateChecker {
         Optional<Long> optionalCount = linkRepository.findGithubBranchCountByLinkId(link.getId());
         Long count = optionalCount.orElse(0L);
         try {
-            GitHubBranchResponse response = gitHubClient.fetchRepositoryBranches(githubValues[0], githubValues[1]);
-            if (response != null && response.name() != null) {
-                if (response.name().length != count) {
-                    count = (long) response.name().length;
+            GitHubBranchResponse[] response = gitHubClient.fetchRepositoryBranches(githubValues[0], githubValues[1]);
+            if (response != null && response!= null) {
+                if (response.length != count) {
+                    count = (long) response.length;
                 }
             }
             if (optionalCount.isEmpty()) {
                 linkRepository.add(link.getId(), count);
             } else if (!count.equals(optionalCount.get())) {
                 linkRepository.update(link.getId(), count);
-                type = NEW_ANSWER;
+                type = NEW_BRANCH;
             }
         } catch (BadResponseBodyException e) {
             log.info(e.getMessage());

@@ -24,7 +24,6 @@
             <scope>runtime</scope>
             <version>42.7.3</version>
         </dependency>
-
         <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -5,6 +5,7 @@ import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.client.exception.BadResponseBodyException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
+import edu.java.domain.TgChat;
 import edu.java.domain.UpdateType;
 import edu.java.repository.LinkRepository;
 import edu.java.service.LinkUpdaterService;
@@ -46,7 +47,7 @@ public class JdbcLinkUpdaterService implements LinkUpdaterService {
         long countUpdate = 0;
         for (Link link : links.keySet()) {
             try {
-                Long[] chatIds = link.getTgChats().toArray(Long[]::new);
+                Long[] chatIds = link.getTgChats().stream().map(TgChat::getChatId).toArray(Long[]::new);
                 if (chatIds != null && chatIds.length != 0) {
                     botClient.linkUpdates(new LinkUpdateRequest(
                         1L,

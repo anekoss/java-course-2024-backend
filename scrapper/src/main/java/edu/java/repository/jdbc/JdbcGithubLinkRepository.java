@@ -25,11 +25,19 @@ public class JdbcGithubLinkRepository implements GithubLinkRepository {
         }
     }
 
-    public int add(Long linkId, Long count) {
+    public int add(Long linkId, Long branchCount) {
+        Long count = jdbcTemplate.queryForObject(
+            "select count(*) from github_links where link_id = ?",
+            Long.class,
+            linkId
+        );
+        if (count != 0L) {
+            return 0;
+        }
         return jdbcTemplate.update(
             "insert into github_links (link_id, branch_count) values (?, ?)",
             linkId,
-            count
+            branchCount
         );
     }
 

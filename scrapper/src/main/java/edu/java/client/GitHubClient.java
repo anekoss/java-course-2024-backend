@@ -43,13 +43,13 @@ public class GitHubClient {
         }
     }
 
-    public GitHubBranchResponse fetchRepositoryBranches(String owner, String repo) throws BadResponseBodyException {
+    public GitHubBranchResponse[] fetchRepositoryBranches(String owner, String repo) throws BadResponseBodyException {
         try {
             return webCLient.get()
                 .uri("/repos/{owner}/{repo}/branches", owner, repo)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(GitHubBranchResponse.class)
+                .bodyToMono(GitHubBranchResponse[].class)
                 .block();
         } catch (HttpServerErrorException | HttpClientErrorException e) {
             throw e;

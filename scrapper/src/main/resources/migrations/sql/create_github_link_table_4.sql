@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset anekoss:5
+--changeset anekoss:4
 -- comment: create link table
 create table if not exists github_links
 (

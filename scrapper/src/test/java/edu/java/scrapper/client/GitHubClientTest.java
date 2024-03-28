@@ -70,8 +70,9 @@ public class GitHubClientTest extends IntegrationTest {
                 .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .withBody(response))
         );
-        GitHubBranchResponse excepted =
-            new GitHubBranchResponse(new String[]{"hw1", "hw2", "hw_2", "hw3"});
+        GitHubBranchResponse[] excepted =
+            new GitHubBranchResponse[] {new GitHubBranchResponse("hw1"), new GitHubBranchResponse("hw2"),
+                new GitHubBranchResponse("hw_2"), new GitHubBranchResponse("hw3")};
         assertThat(gitHubClient.fetchRepositoryBranches("anekoss", "tinkoff-project")).isEqualTo(excepted);
     }
 

@@ -10,6 +10,7 @@ import edu.java.repository.StackOverflowLinkRepository;
 import edu.java.service.updateChecker.JdbcStackOverflowUpdateChecker;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class StackOverflowUpdateCheckerTest {
             new StackOverflowResponse(List.of(new StackOverflowResponse.StackOverflowItem(78056352L,
                 "React Leaflet map not Re-rendering",
                 "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",
-                0L,
+                2L,
                 OffsetDateTime.parse("2024-02-25T14:38:10Z"), OffsetDateTime.parse("2024-02-25T14:38:10Z")
             )));
         when(stackOverflowClient.fetchQuestion(78056352L)).thenReturn(stackOverflowResponse);
@@ -43,11 +44,12 @@ public class StackOverflowUpdateCheckerTest {
             URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
             LinkType.STACKOVERFLOW
         );
+        link.setId(1L);
     }
 
     @Test
     void testUpdateShouldUpdate() {
-        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(0L));
+        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(2L));
         OffsetDateTime checkedAt = OffsetDateTime.now();
         link.setUpdatedAt(OffsetDateTime.parse("2023-02-25T14:38:10Z"));
         link.setCheckedAt(checkedAt);
@@ -72,10 +74,10 @@ public class StackOverflowUpdateCheckerTest {
 
     @Test
     void testUpdateShouldNotUpdate() throws BadResponseBodyException {
-        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(0L));
+        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(2L));
         when(stackOverflowLinkRepository.update(anyLong(), anyLong())).thenReturn(0);
         when(stackOverflowClient.fetchQuestion(78056352L)).thenReturn(stackOverflowResponse);
-        OffsetDateTime checkedAt = OffsetDateTime.now();
+        OffsetDateTime checkedAt = OffsetDateTime.of(2003, 2, 25, 3, 45, 2, 0, ZoneOffset.UTC);
         link.setCheckedAt(checkedAt);
         Map.Entry<Link, UpdateType> updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getValue()).isEqualTo(UpdateType.NO_UPDATE);
@@ -85,7 +87,7 @@ public class StackOverflowUpdateCheckerTest {
 
     @Test
     void testUpdateShouldReturnInputLink() throws BadResponseBodyException {
-        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(0L));
+        when(stackOverflowLinkRepository.findStackOverflowAnswerCountByLinkId(anyLong())).thenReturn(Optional.of(2L));
         when(stackOverflowLinkRepository.update(anyLong(), anyLong())).thenReturn(0);
         when(stackOverflowClient.fetchQuestion(78056352L)).thenThrow(BadResponseBodyException.class);
         OffsetDateTime checkedAt = OffsetDateTime.now();

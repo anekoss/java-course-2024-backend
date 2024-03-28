@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset anekoss:4
+--changeset anekoss:5
 -- comment: create link table
 create table if not exists stackoverflow_links
 (
