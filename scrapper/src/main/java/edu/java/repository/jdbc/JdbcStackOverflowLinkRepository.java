@@ -42,6 +42,7 @@ public class JdbcStackOverflowLinkRepository implements StackOverflowLinkReposit
     }
 
     public int update(Long linkId, Long answerCount) {
-        return jdbcTemplate.update("update stackoverflow_links set answer_count = ? where link_id = ?", answerCount, linkId);
+        return jdbcTemplate.update("update stackoverflow_links set answer_count = ? where link_id = ?",
+                answerCount, linkId);
     }
 }
