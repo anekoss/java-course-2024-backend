@@ -8,7 +8,7 @@ import edu.java.bot.client.dto.AddLinkRequest;
 import edu.java.bot.client.dto.LinkResponse;
 import edu.java.bot.client.dto.ListLinksResponse;
 import edu.java.bot.client.dto.RemoveLinkRequest;
-import edu.java.bot.client.exception.BadResponseBodyException;
+import edu.java.bot.client.exception.BadResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -40,7 +40,7 @@ public class LinksClientTest {
     }
 
     @Test
-    void testGetLinksShouldReturnCorrectResponse() throws URISyntaxException, BadResponseBodyException {
+    void testGetLinks_shouldReturnCorrectResponse() throws URISyntaxException, BadResponseException {
         ListLinksResponse excepted = new ListLinksResponse(new LinkResponse[]{new LinkResponse(1L, new URI("https://example.com/link1"))}, 1L);
         wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
@@ -53,20 +53,20 @@ public class LinksClientTest {
     }
 
     @Test
-    void testGetLinksShouldReturnClientError() {
+    void testGetLinks_shouldReturnBadResponseExceptionIfClientError() {
         wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .willReturn(WireMock.jsonResponse(response, 404)));
-        HttpClientErrorException exception = assertThrows(
-                HttpClientErrorException.class,
+        BadResponseException exception = assertThrows(
+                BadResponseException.class,
                 () -> linksClient.getLinks(1L)
         );
-        assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
+        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
     }
 
     @Test
-    void testGetLinksShouldReturnServerError() {
+    void testGetLinks_shouldReturnServerError() {
         wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
@@ -80,7 +80,7 @@ public class LinksClientTest {
 
 
     @Test
-    void testDeleteLinkShouldReturnCorrectResponse() throws URISyntaxException, BadResponseBodyException {
+    void testDeleteLink_shouldReturnCorrectResponse() throws URISyntaxException, BadResponseException {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));
@@ -93,7 +93,7 @@ public class LinksClientTest {
     }
 
     @Test
-    void testDeleteLinkShouldReturnClientError() {
+    void testDelete_linkShouldReturnBadResponseExceptionIfClientError() {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
@@ -101,15 +101,15 @@ public class LinksClientTest {
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .withRequestBody(WireMock.equalToJson(request))
                                        .willReturn(WireMock.jsonResponse(response, 404)));
-        HttpClientErrorException exception = assertThrows(
-                HttpClientErrorException.class,
+        BadResponseException exception = assertThrows(
+                BadResponseException.class,
                 () -> linksClient.deleteLink(1L, new RemoveLinkRequest("https://example.com/link1"))
         );
-        assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
+        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
     }
 
     @Test
-    void testDeleteLinkShouldReturnServerError() {
+    void testDeleteLink_shouldReturnServerError() {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
@@ -126,7 +126,7 @@ public class LinksClientTest {
 
 
     @Test
-    void testAddLinkShouldReturnCorrectResponse() throws URISyntaxException, BadResponseBodyException {
+    void testAddLink_shouldReturnCorrectResponse() throws URISyntaxException, BadResponseException {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));
@@ -139,7 +139,7 @@ public class LinksClientTest {
     }
 
     @Test
-    void testAddLinkShouldReturnClientError() {
+    void testAddLink_shouldReturnBadResponseExceptionIfClientError() {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
@@ -147,15 +147,15 @@ public class LinksClientTest {
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .withRequestBody(WireMock.equalToJson(request))
                                        .willReturn(WireMock.jsonResponse(response, 404)));
-        HttpClientErrorException exception = assertThrows(
-                HttpClientErrorException.class,
+        BadResponseException exception = assertThrows(
+                BadResponseException.class,
                 () -> linksClient.addLink(1L, new AddLinkRequest("https://example.com/link1"))
         );
-        assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
+        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
     }
 
     @Test
-    void testAddLinkShouldReturnServerError() {
+    void testAddLink_shouldReturnServerError() {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
