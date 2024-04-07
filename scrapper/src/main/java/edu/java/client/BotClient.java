@@ -1,19 +1,18 @@
 package edu.java.client;
 
 import edu.java.client.dto.LinkUpdateRequest;
-import edu.java.client.exception.BadResponseBodyException;
+import edu.java.client.exception.BadResponseException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.codec.CodecException;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import static edu.java.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
-
 
 @Slf4j
 @Component
@@ -23,11 +22,12 @@ public class BotClient {
 
     public BotClient(
             @Value("${app.client.botClient.base-url}")
-            @NotBlank @URL String url) {
+            @NotBlank @URL String url
+    ) {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
-    public String linkUpdates(LinkUpdateRequest request) throws BadResponseBodyException {
+    public String linkUpdates(LinkUpdateRequest request) throws BadResponseException {
         try {
             return webCLient
                     .post()
@@ -38,11 +38,9 @@ public class BotClient {
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-        } catch (HttpServerErrorException | HttpClientErrorException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (WebClientResponseException | CodecException e) {
             log.error(e.getMessage());
-            throw new BadResponseBodyException();
+            throw new BadResponseException();
         }
     }
 }

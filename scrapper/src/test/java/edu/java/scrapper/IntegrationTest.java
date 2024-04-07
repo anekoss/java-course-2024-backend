@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 public abstract class IntegrationTest {
     public static PostgreSQLContainer<?> POSTGRES;
-    public static String CHANGE_LOG = "migrations/master.xml";
+    public static String CHANGE_LOG = "./migrations/master.xml";
 
     static {
         POSTGRES = new PostgreSQLContainer<>("postgres:16")
@@ -36,7 +36,6 @@ public abstract class IntegrationTest {
             log.error("Error running liquibase container");
             throw new RuntimeException(e);
         }
-
     }
 
     private static void runMigrations(JdbcDatabaseContainer<?> container) throws SQLException, LiquibaseException {
