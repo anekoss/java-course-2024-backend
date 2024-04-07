@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 public abstract class IntegrationTest {
     public static PostgreSQLContainer<?> POSTGRES;
-    public static String CHANGE_LOG = "src/main/resources/migrations/master.xml";
+    public static String CHANGE_LOG = "./migrations/master.xml";
 
     static {
         POSTGRES = new PostgreSQLContainer<>("postgres:16")
