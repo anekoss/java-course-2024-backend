@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-
 import static edu.java.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 @Slf4j
