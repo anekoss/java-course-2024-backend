@@ -1,16 +1,14 @@
 package edu.java.bot.client;
 
-
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import edu.java.bot.client.exception.BadResponseBodyException;
+import edu.java.bot.client.exception.BadResponseException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -34,7 +32,7 @@ public class TgChatClientTest {
     }
 
     @Test
-    void testRegisterChatShouldReturnCorrectResponse() throws BadResponseBodyException {
+    void testRegisterChat_shouldReturnCorrectResponse() throws BadResponseException {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(200))
         );
@@ -42,30 +40,30 @@ public class TgChatClientTest {
     }
 
     @Test
-    void testRegisterChatShouldReturnClientError() {
+    void testRegisterChat_shouldReturnBadResponseExceptionIfClientError() {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(404))
         );
-        HttpClientErrorException exception = assertThrows(
-                HttpClientErrorException.class,
+        BadResponseException exception = assertThrows(
+                BadResponseException.class,
                 () -> tgChatClient.registerChat(1L)
         );
-        assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
+        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
     }
 
     @Test
-    void testRegisterChatSShouldReturnServerError() {
+    void testRegisterChatS_shouldReturnServerError() {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(500)));
         HttpServerErrorException exception = assertThrows(
                 HttpServerErrorException.class,
-                () -> tgChatClient.registerChat(1L));
+                () -> tgChatClient.registerChat(1L)
+        );
         assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
     }
 
-
     @Test
-    void testDeleteChatShouldReturnCorrectResponse() throws BadResponseBodyException {
+    void testDeleteChat_shouldReturnCorrectResponse() throws BadResponseException {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(200))
         );
@@ -73,24 +71,25 @@ public class TgChatClientTest {
     }
 
     @Test
-    void testDeleteChatShouldReturnClientError() {
+    void testDeleteChat_shouldReturnBadResponseExceptionIfClientError() {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(404))
         );
-        HttpClientErrorException exception = assertThrows(
-                HttpClientErrorException.class,
+        BadResponseException exception = assertThrows(
+                BadResponseException.class,
                 () -> tgChatClient.deleteChat(1L)
         );
-        assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
+        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
     }
 
     @Test
-    void testDeleteChatSShouldReturnServerError() {
+    void testDeleteChat_shouldReturnServerError() {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(500)));
         HttpServerErrorException exception = assertThrows(
                 HttpServerErrorException.class,
-                () -> tgChatClient.deleteChat(1L));
+                () -> tgChatClient.deleteChat(1L)
+        );
         assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
     }
 }

@@ -1,7 +1,6 @@
 package edu.java.client;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -20,10 +19,6 @@ public class ClientStatusCodeHandler {
         if (response.statusCode().is5xxServerError()) {
             log.error(response.statusCode() + " SERVER_ERROR");
             return Mono.error(new HttpServerErrorException(response.statusCode()));
-        }
-        if (response.statusCode().is4xxClientError()) {
-            log.error(response.statusCode() + " CLIENT_ERROR");
-            return Mono.error(new HttpClientErrorException(response.statusCode()));
         }
         return Mono.just(response);
     }
