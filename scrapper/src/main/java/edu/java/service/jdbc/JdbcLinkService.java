@@ -45,8 +45,7 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     @Transactional
-    public LinkResponse remove(long chatId, URI url)
-        throws ChatNotFoundException, LinkNotFoundException {
+    public LinkResponse remove(long chatId, URI url) throws ChatNotFoundException, LinkNotFoundException {
         long tgChatId = tgChatRepository.findByChatId(chatId).getId();
         Optional<Link> link = linkRepository.findByUri(url);
         if (link.isEmpty()) {
@@ -67,9 +66,9 @@ public class JdbcLinkService implements LinkService {
         long tgChatId = tgChatRepository.findByChatId(chatId).getId();
         LinkResponse[] linkResponses = chatLinkRepository.findByTgChatId(tgChatId)
             .stream()
-            .map(chatLink -> linkRepository.findById(chatLink.linkId())
-                .get())
-            .map(link -> new LinkResponse(link.getId(), link.getUri()))
+            .map(chatLink -> linkRepository.findById(chatLink.linkId()))
+            .filter(Optional::isPresent)
+            .map(link -> new LinkResponse(link.get().getId(), link.get().getUri()))
             .toArray(LinkResponse[]::new);
         return new ListLinksResponse(linkResponses, (long) linkResponses.length);
     }

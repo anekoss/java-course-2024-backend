@@ -56,7 +56,7 @@ public class JdbcTgChatRepository implements TgChatRepository {
             ps.setLong(1, tgChat.getChatId());
             return ps;
         }, keyHolder);
-        if (update == 0) {
+        if (update == 0 || keyHolder.getKey() == null) {
             throw new ChatNotFoundException();
         }
         return keyHolder.getKey().longValue();
@@ -81,6 +81,7 @@ public class JdbcTgChatRepository implements TgChatRepository {
     }
 
     @Override
+    @Transactional
     public Optional<TgChat> findById(Long id) {
         try {
             Long chatId = jdbcTemplate.queryForObject("select chat_id from tg_chats where id = ?", Long.class, id);

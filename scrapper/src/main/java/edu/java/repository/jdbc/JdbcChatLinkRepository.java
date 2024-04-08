@@ -4,6 +4,7 @@ import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.ChatLink;
 import edu.java.repository.ChatLinkRepository;
+import jakarta.transaction.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -22,6 +23,7 @@ public class JdbcChatLinkRepository implements ChatLinkRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
+    @Transactional
     public long add(ChatLink chatLink) throws LinkAlreadyExistException {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -41,6 +43,7 @@ public class JdbcChatLinkRepository implements ChatLinkRepository {
     }
 
     @Override
+    @Transactional
     public long remove(ChatLink chatLink) throws LinkNotFoundException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int update = jdbcTemplate.update(connection -> {
@@ -52,13 +55,14 @@ public class JdbcChatLinkRepository implements ChatLinkRepository {
             ps.setLong(2, chatLink.linkId());
             return ps;
         }, keyHolder);
-        if (update == 0) {
+        if (update == 0 || keyHolder.getKey() == null) {
             throw new LinkNotFoundException();
         }
         return keyHolder.getKey().longValue();
     }
 
     @Override
+    @Transactional
     public List<ChatLink> findByTgChatId(long tgChatId) {
         List<Map<String, Object>> list = jdbcTemplate.queryForList(
             "select * from tg_chat_links where tg_chat_id = ?", tgChatId);
@@ -67,6 +71,7 @@ public class JdbcChatLinkRepository implements ChatLinkRepository {
     }
 
     @Override
+    @Transactional
     public List<ChatLink> findByLinkId(long linkId) {
         List<Map<String, Object>> list = jdbcTemplate.queryForList(
             "select * from tg_chat_links where link_id = ?", linkId);

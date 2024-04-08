@@ -62,7 +62,7 @@ public class JdbcLinkRepository implements LinkRepository {
             ps.setString(1, uri.toString());
             return ps;
         }, keyHolder);
-        if (update == 0) {
+        if (update == 0 || keyHolder.getKey() == null) {
             throw new LinkNotFoundException();
         }
         return keyHolder.getKey().longValue();
@@ -72,10 +72,12 @@ public class JdbcLinkRepository implements LinkRepository {
     @Transactional
     public List<Link> findAll() {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from links");
-        List<Link> links = listMapToLinkList(list);
-        return links;
+        return listMapToLinkList(list);
+
     }
 
+    @Override
+    @Transactional
     public Optional<Link> findByUri(URI uri) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
@@ -89,6 +91,7 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Override
+    @Transactional
     public Optional<Link> findById(long id) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
@@ -102,6 +105,7 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Override
+    @Transactional
     public List<Link> findStaleLinks(Long limit) {
         List<Map<String, Object>> list =
             jdbcTemplate.queryForList("select * from links order by checked_at asc limit ?", limit);
@@ -110,6 +114,7 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Override
+    @Transactional
     public long update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
         return jdbcTemplate.update(
             "update links set updated_at = ?, checked_at = ? where id = ?",

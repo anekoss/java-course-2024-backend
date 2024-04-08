@@ -5,6 +5,7 @@ import edu.java.client.exception.CustomWebClientException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
 import edu.java.service.LinkService;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public class LinkUpdaterService {
     private final LinkService linkService;
     private final Map<LinkType, UpdateChecker> updateCheckerMap;
 
+    @Transactional
     public List<LinkUpdateRequest> getUpdates(long limit) {
         List<Link> links = linkService.getStaleLinks(limit);
         List<LinkUpdateRequest> updates = new ArrayList<>();
