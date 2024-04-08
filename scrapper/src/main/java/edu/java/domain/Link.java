@@ -8,41 +8,36 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
 import java.net.URI;
 import java.time.OffsetDateTime;
-import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
-@Table(name = "links")
-@Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@Entity(name = "links")
+@Accessors(chain = true)
 public class Link {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "uri")
+    @Column(unique = true)
     private URI uri;
 
-    @Column(name = "link_type")
     @Enumerated(EnumType.STRING)
     private LinkType linkType;
 
-    @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
-    @Column(name = "checked_at")
+
     private OffsetDateTime checkedAt;
 
     @ManyToMany(mappedBy = "links")
-    private Set<TgChat> tgChats = new HashSet<>();
-
-    public Link() {
-
-    }
+    private Set<TgChat> tgChats;
 
     public Link(Long id, URI uri, LinkType linkType, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
         this.id = id;
@@ -52,27 +47,13 @@ public class Link {
         this.updatedAt = updatedAt;
     }
 
-    public Link(
-        Long id,
-        URI uri,
-        LinkType linkType,
-        OffsetDateTime updatedAt,
-        OffsetDateTime checkedAt,
-        Set<TgChat> tgChats
-    ) {
-        this.id = id;
-        this.uri = uri;
-        this.linkType = linkType;
-        this.checkedAt = updatedAt;
-        this.updatedAt = checkedAt;
-        this.tgChats = tgChats;
+    public void addTgChat(TgChat tgChat) {
+        this.getTgChats().add(tgChat);
+        tgChat.addLink(this);
     }
 
-    public Link(URI uri, LinkType linkType) {
-        this.uri = uri;
-        this.linkType = linkType;
-        this.checkedAt = OffsetDateTime.now();
-        this.updatedAt = OffsetDateTime.now();
+    public void removeTgChat(TgChat tgChat) {
+        this.getTgChats().remove(tgChat);
+        tgChat.removeLink(this);
     }
-
 }

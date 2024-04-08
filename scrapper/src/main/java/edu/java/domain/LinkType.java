@@ -1,5 +1,8 @@
 package edu.java.domain;
 
+import lombok.Getter;
+
+@Getter
 public enum LinkType {
     STACKOVERFLOW("stackoverflow.com"), GITHUB("github.com");
 
@@ -9,7 +12,4 @@ public enum LinkType {
         this.host = host;
     }
 
-    public String getHost() {
-        return host;
-    }
 }

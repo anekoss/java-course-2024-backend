@@ -1,113 +1,121 @@
 package edu.java.repository.jdbc;
 
+import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.Link;
-import edu.java.domain.TgChat;
 import edu.java.repository.LinkRepository;
 import jakarta.transaction.Transactional;
 import java.net.URI;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import static edu.java.repository.jdbc.JdbcMapper.listMapToSetLink;
-import static edu.java.repository.jdbc.JdbcMapper.listMapToSetTgChat;
+import static edu.java.repository.jdbc.JdbcMapper.listMapToLinkList;
 
 @Repository
 @AllArgsConstructor
 public class JdbcLinkRepository implements LinkRepository {
+    private final static int LINK_TYPE_ADD_PARAMETER_INDEX = 1;
+    private final static int URI_ADD_PARAMETER_INDEX = 2;
+    private final static int UPDATED_AT_ADD_PARAMETER_INDEX = 3;
+    private final static int CHECKED_AT_ADD_PARAMETER_INDEX = 4;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional
-    public int save(Long tgChatId, Link link) {
-        Optional<Long> linkId = findIdByUri(link.getUri());
-        if (linkId.isPresent()) {
-            Long count = jdbcTemplate.queryForObject(
-                "select count(*) from tg_chat_links where tg_chat_id = ? and link_id = ?",
-                Long.class,
-                tgChatId,
-                linkId.get()
+    public long add(Link link) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                "insert into links (uri, link_type, updated_at, checked_at) values (?, ?, ?, ?) on conflict(uri)"
+                    + " do update set updated_at = EXCLUDED.updated_at, checked_at = EXCLUDED.checked_at returning id",
+                PreparedStatement.RETURN_GENERATED_KEYS
             );
-            if (count != 0L) {
-                return 0;
-            }
-        }
-        if (linkId.isEmpty()) {
-            jdbcTemplate.update(
-                "insert into links (uri, link_type, updated_at, checked_at) values (?, ?, ?, ?)",
-                link.getUri().toString(),
-                link.getLinkType().toString(),
-                link.getUpdatedAt(),
-                link.getCheckedAt()
-            );
-            linkId = findIdByUri(link.getUri());
-        }
-        return jdbcTemplate.update(
-            "insert into tg_chat_links(tg_chat_id, link_id) values (?, ?)",
-            tgChatId,
-            linkId.get()
-        );
+            ps.setString(LINK_TYPE_ADD_PARAMETER_INDEX, link.getUri().toString());
+            ps.setString(URI_ADD_PARAMETER_INDEX, link.getLinkType().toString());
+            ps.setTimestamp(UPDATED_AT_ADD_PARAMETER_INDEX, Timestamp.from(link.getUpdatedAt().toInstant()));
+            ps.setTimestamp(CHECKED_AT_ADD_PARAMETER_INDEX, Timestamp.from(link.getCheckedAt().toInstant()));
+            return ps;
+        }, keyHolder);
+        return keyHolder.getKey().longValue();
     }
 
     @Override
     @Transactional
-    public int delete(Long tgChatId, URI uri) {
-        Optional<Long> linkId = findIdByUri(uri);
-        if (linkId.isPresent()) {
-            String countLinksQuery = "select count(*) from tg_chat_links where link_id = ?";
-            Long countLinks = jdbcTemplate.queryForObject(countLinksQuery, Long.class, linkId.get());
-            if (countLinks == 1L) {
-                return jdbcTemplate.update("delete from links where id = ?", linkId.get());
-            }
-            String deleteQuery = "delete from tg_chat_links where tg_chat_id = ? and link_id = ?";
-            return jdbcTemplate.update(deleteQuery, tgChatId, linkId.get());
+    public long remove(URI uri) throws LinkNotFoundException {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        int update = jdbcTemplate.update(connection -> {
+            PreparedStatement ps =
+                connection.prepareStatement(
+                    "delete from links where uri = ? returning id",
+                    Statement.RETURN_GENERATED_KEYS
+                );
+            ps.setString(1, uri.toString());
+            return ps;
+        }, keyHolder);
+        if (update == 0 || keyHolder.getKey() == null) {
+            throw new LinkNotFoundException();
         }
-        return 0;
+        return keyHolder.getKey().longValue();
     }
 
     @Override
     @Transactional
     public List<Link> findAll() {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from links");
-        List<Link> links = listMapToSetLink(list).stream().toList();
-        for (Link link : links) {
-            List<Map<String, Object>> tgchatLinks = jdbcTemplate.queryForList(
-                "select tg_chats.id, tg_chats.chat_id from tg_chats join tg_chat_links"
-                    + " on tg_chats.id = tg_chat_links.tg_chat_id where link_id = ?",
-                link.getId()
-            );
-            Set<TgChat> tgChats = listMapToSetTgChat(tgchatLinks);
-            link.setTgChats(tgChats);
-        }
-        return links;
+        return listMapToLinkList(list);
+
     }
 
-    public Optional<Long> findIdByUri(URI uri) {
+    @Override
+    @Transactional
+    public Optional<Link> findByUri(URI uri) {
         try {
-            Long linkId = jdbcTemplate.queryForObject("select id from links where uri = ?", Long.class,
+            return Optional.ofNullable(jdbcTemplate.queryForObject(
+                "select * from links where uri = ?",
+                new BeanPropertyRowMapper<>(Link.class),
                 uri.toString()
-            );
-            return Optional.of(linkId);
-        } catch (EmptyResultDataAccessException e) {
+            ));
+        } catch (DataAccessException e) {
             return Optional.empty();
         }
     }
 
     @Override
-    public List<Link> findStaleLinks(Long limit) {
-        List<Map<String, Object>> list =
-            jdbcTemplate.queryForList("select * from links order by checked_at asc limit ?", limit);
-        return listMapToSetLink(list).stream().toList();
+    @Transactional
+    public Optional<Link> findById(long id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(
+                "select * from links where id = ?",
+                new BeanPropertyRowMapper<>(Link.class),
+                id
+            ));
+        } catch (DataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public int update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
+    @Transactional
+    public List<Link> findStaleLinks(Long limit) {
+        List<Map<String, Object>> list =
+            jdbcTemplate.queryForList("select * from links order by checked_at asc limit ?", limit);
+        return listMapToLinkList(list).stream()
+            .toList();
+    }
 
+    @Override
+    @Transactional
+    public long update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
         return jdbcTemplate.update(
             "update links set updated_at = ?, checked_at = ? where id = ?",
             updatedAt,

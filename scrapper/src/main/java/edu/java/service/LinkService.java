@@ -1,17 +1,26 @@
 package edu.java.service;
 
-import edu.java.controller.exception.AlreadyExistException;
+import edu.java.controller.dto.LinkResponse;
+import edu.java.controller.dto.ListLinksResponse;
 import edu.java.controller.exception.ChatNotFoundException;
+import edu.java.controller.exception.LinkAlreadyExistException;
+import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.Link;
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 
 public interface LinkService {
-    Link add(long tgChatId, URI url) throws ChatNotFoundException, AlreadyExistException;
+    LinkResponse add(long tgChatId, URI url) throws ChatNotFoundException, LinkAlreadyExistException;
 
-    Link remove(long tgChatId, URI url) throws ChatNotFoundException, ResourceNotFoundException;
+    LinkResponse remove(long tgChatId, URI url) throws ChatNotFoundException, LinkNotFoundException;
 
-    List<Link> listAll(long tgChatId) throws ChatNotFoundException;
+    ListLinksResponse listAll(long tgChatId) throws ChatNotFoundException;
+
+    long[] getChatIdsByLinkId(long linkId);
+
+    long update(long id, OffsetDateTime updatedAt, OffsetDateTime checkedAt);
+
+    List<Link> getStaleLinks(long limit);
 
 }

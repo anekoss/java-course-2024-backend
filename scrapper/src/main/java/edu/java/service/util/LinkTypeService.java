@@ -1,4 +1,4 @@
-package edu.java.service;
+package edu.java.service.util;
 
 import edu.java.domain.LinkType;
 import jakarta.validation.constraints.NotBlank;

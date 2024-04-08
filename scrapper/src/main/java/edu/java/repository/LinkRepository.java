@@ -1,5 +1,6 @@
 package edu.java.repository;
 
+import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.Link;
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -8,16 +9,18 @@ import java.util.Optional;
 
 public interface LinkRepository {
 
-    int save(Long tgChatId, Link link);
+    long add(Link link);
 
-    int delete(Long tgChatId, URI uri);
+    long remove(URI uri) throws LinkNotFoundException;
 
     List<Link> findAll();
 
-    Optional<Long> findIdByUri(URI uri);
+    Optional<Link> findByUri(URI uri);
+
+    Optional<Link> findById(long id);
 
     List<Link> findStaleLinks(Long limit);
 
-    int update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt);
+    long update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt);
 
 }

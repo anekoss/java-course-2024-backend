@@ -1,7 +1,7 @@
 package edu.java.scrapper.service;
 
 import edu.java.domain.LinkType;
-import edu.java.service.LinkTypeService;
+import edu.java.service.util.LinkTypeService;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import static edu.java.domain.LinkType.GITHUB;

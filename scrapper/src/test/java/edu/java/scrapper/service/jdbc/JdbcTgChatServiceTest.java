@@ -1,6 +1,6 @@
 package edu.java.scrapper.service.jdbc;
 
-import edu.java.controller.exception.AlreadyRegisterException;
+import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.domain.TgChat;
 import edu.java.scrapper.IntegrationTest;
@@ -13,7 +13,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
-import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -26,39 +26,40 @@ public class JdbcTgChatServiceTest extends IntegrationTest {
     @Test
     @Rollback
     @Transactional
-    void testRegisterNoExistChat() throws AlreadyRegisterException {
+    void testRegister_shouldCorrectlyRegisterNoExistChat() throws ChatAlreadyExistException {
         tgChatService.register(444L);
         TgChat chat = jdbcTemplate.queryForObject(
-            "select * from tg_chats where chat_id = ?",
-            new BeanPropertyRowMapper<>(TgChat.class),
-            444L
+                "select * from tg_chats where chat_id = ?",
+                new BeanPropertyRowMapper<>(TgChat.class),
+                444L
         );
-        assertThat(chat.getId()).isGreaterThan(0);
-        assertThat(chat.getChatId()).isEqualTo(444L);
+        assert chat != null;
+        assert chat.getId() > 0L;
+        assert chat.getChatId() == 444L;
     }
 
     @Test
     @Rollback
     @Transactional
-    void testRegisterExistChat() {
-        assertThrows(AlreadyRegisterException.class, () -> tgChatService.register(555555L));
+    void testRegister_shouldThrowExceptionIfChatExist() {
+        assertThrows(ChatAlreadyExistException.class, () -> tgChatService.register(555555L));
     }
 
     @Test
     @Rollback
     @Transactional
-    void testUnRegisterExistChat() throws ChatNotFoundException {
+    void testUnregister_shouldCorrectlyUnregisterExistChat() throws ChatNotFoundException {
         tgChatService.unregister(555555L);
         assertThrows(
-            EmptyResultDataAccessException.class,
-            () -> jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?", TgChat.class, 555555L)
+                EmptyResultDataAccessException.class,
+                () -> jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?", TgChat.class, 555555L)
         );
     }
 
     @Test
     @Rollback
     @Transactional
-    void testUnRegisterNoExistChat() {
+    void testUnregister_shouldThrowExceptionIfChatNoExist() {
         assertThrows(ChatNotFoundException.class, () -> tgChatService.unregister(999L));
     }
 

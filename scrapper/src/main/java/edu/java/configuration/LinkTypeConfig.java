@@ -1,7 +1,7 @@
 package edu.java.configuration;
 
 import edu.java.domain.LinkType;
-import edu.java.service.LinkTypeService;
+import edu.java.service.util.LinkTypeService;
 import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
