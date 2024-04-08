@@ -1,8 +1,5 @@
 package edu.java.scrapper;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -16,19 +13,25 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @Testcontainers
 public abstract class IntegrationTest {
     public static PostgreSQLContainer<?> POSTGRES;
-    public static String CHANGE_LOG = "./migrations/master.xml";
+    public static String CHANGE_LOG = "migrations/master.xml";
 
     static {
         POSTGRES = new PostgreSQLContainer<>("postgres:16")
-            .withDatabaseName("scrapper")
-            .withUsername("postgres")
-            .withPassword("postgres");
+                .withDatabaseName("scrapper")
+                .withUsername("postgres")
+                .withPassword("postgres");
         POSTGRES.start();
         try {
             runMigrations(POSTGRES);
@@ -40,13 +43,13 @@ public abstract class IntegrationTest {
 
     private static void runMigrations(JdbcDatabaseContainer<?> container) throws SQLException, LiquibaseException {
         Connection connection =
-            DriverManager.getConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword());
+                DriverManager.getConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword());
         Liquibase liquibase =
-            new liquibase.Liquibase(
-                CHANGE_LOG,
-                new ClassLoaderResourceAccessor(),
-                new JdbcConnection(connection)
-            );
+                new liquibase.Liquibase(
+                        CHANGE_LOG,
+                        new ClassLoaderResourceAccessor(),
+                        new JdbcConnection(connection)
+                );
         liquibase.update(new Contexts(), new LabelExpression());
     }
 

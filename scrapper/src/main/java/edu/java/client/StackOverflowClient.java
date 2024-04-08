@@ -1,7 +1,7 @@
 package edu.java.client;
 
 import edu.java.client.dto.StackOverflowResponse;
-import edu.java.client.exception.BadResponseException;
+import edu.java.client.exception.CustomWebClientException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -10,8 +10,8 @@ import org.springframework.core.codec.CodecException;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import static edu.java.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 @Slf4j
 @Component
@@ -22,10 +22,10 @@ public class StackOverflowClient {
             @Value("${app.client.stackOverflow.base-url}")
             @NotBlank @URL String url
     ) {
-        this.webClient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.webClient = WebClient.builder().baseUrl(url).build();
     }
 
-    public StackOverflowResponse fetchQuestion(Long id) throws BadResponseException {
+    public StackOverflowResponse fetchQuestion(Long id) throws CustomWebClientException {
         try {
             return webClient.get()
                             .uri(uriBuilder -> uriBuilder.path("2.3/questions/{id}")
@@ -35,9 +35,9 @@ public class StackOverflowClient {
                             .retrieve()
                             .bodyToMono(StackOverflowResponse.class)
                             .block();
-        } catch (WebClientResponseException | CodecException e) {
-            log.error(e.getMessage());
-            throw new BadResponseException();
+        } catch (WebClientRequestException | WebClientResponseException | CodecException e) {
+            log.warn(e.getMessage());
+            throw new CustomWebClientException();
         }
     }
 

@@ -1,6 +1,6 @@
 package edu.java.controller.exception;
 
-public class AlreadyRegisterException extends Exception {
+public class ChatAlreadyExistException extends Exception {
 
     @Override
     public String getMessage() {

@@ -1,9 +1,9 @@
 package edu.java.configuration;
 
 import edu.java.domain.LinkType;
-import edu.java.service.UpdateChecker;
-import edu.java.service.updateChecker.GithubUpdateChecker;
-import edu.java.service.updateChecker.StackOverflowUpdateChecker;
+import edu.java.scheduler.UpdateChecker;
+import edu.java.scheduler.updateChecker.GithubUpdateChecker;
+import edu.java.scheduler.updateChecker.StackOverflowUpdateChecker;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;

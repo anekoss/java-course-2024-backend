@@ -1,6 +1,6 @@
 package edu.java.controller;
 
-import edu.java.controller.exception.AlreadyRegisterException;
+import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.service.TgChatService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class TgChatController {
     private final TgChatService chatService;
 
     @PostMapping(path = "/tg-chat/{id}")
-    public ResponseEntity<Void> registerChat(@PathVariable("id") Long id) throws AlreadyRegisterException {
+    public ResponseEntity<Void> registerChat(@PathVariable("id") Long id) throws ChatAlreadyExistException {
         chatService.register(id);
         return ResponseEntity.ok().build();
     }

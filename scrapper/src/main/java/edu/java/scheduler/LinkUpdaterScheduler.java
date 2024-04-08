@@ -1,7 +1,8 @@
 package edu.java.scheduler;
 
-import edu.java.domain.Link;
-import edu.java.service.LinkUpdaterService;
+import edu.java.client.BotClient;
+import edu.java.client.dto.LinkUpdateRequest;
+import edu.java.client.exception.CustomWebClientException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +14,19 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class LinkUpdaterScheduler {
     private final LinkUpdaterService linkUpdaterService;
+    private final BotClient botClient;
+    private final long limit;
 
     @Scheduled(fixedDelayString = "#{@scheduler.forceCheckDelay}")
     public void update() {
-        List<Link> updatedLink = linkUpdaterService.update();
-        long cntUpdate = linkUpdaterService.sendUpdates(updatedLink);
-        log.info("update {} links", cntUpdate);
+        List<LinkUpdateRequest> updatedLink = linkUpdaterService.getUpdates(limit);
+        updatedLink.forEach(linkUpdateRequest -> {
+            try {
+                botClient.linkUpdates(linkUpdateRequest);
+            } catch (CustomWebClientException e) {
+                log.warn(e.getMessage());
+            }
+        });
+        log.info("update {} links", updatedLink.size());
     }
 }

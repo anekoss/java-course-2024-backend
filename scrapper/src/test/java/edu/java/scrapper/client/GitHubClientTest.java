@@ -4,7 +4,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubResponse;
-import edu.java.client.exception.BadResponseException;
+import edu.java.client.exception.CustomWebClientException;
+import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class GitHubClientTest {
+public class GitHubClientTest extends IntegrationTest {
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())
@@ -42,7 +41,7 @@ public class GitHubClientTest {
     }
 
     @Test
-    void testGetRepository_shouldReturnCorrectResponse() throws IOException, BadResponseException {
+    void testGetRepository_shouldReturnCorrectResponse() throws IOException, CustomWebClientException {
         String response = String.join("", Files.readAllLines(okResponsePath));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(200)
@@ -61,7 +60,7 @@ public class GitHubClientTest {
     }
 
     @Test
-    void testGetRepository_shouldReturnBadResponseExceptionIfClientError() throws IOException {
+    void testGetRepository_shouldReturnWebClientExceptionIfClientError() throws IOException {
         String response = String.join("", Files.readAllLines(badResponsePath));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(404)
@@ -71,15 +70,11 @@ public class GitHubClientTest {
                                                               )
                                                               .withBody(response))
         );
-        BadResponseException exception = assertThrows(
-                BadResponseException.class,
-                () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project")
-        );
-        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
+        assertThrows(CustomWebClientException.class, () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project"));
     }
 
     @Test
-    void testGetRepository_shouldReturnServerException() throws IOException {
+    void testGetRepository_shouldReturnWebClientExceptionIfServerError() throws IOException {
         String response = String.join("", Files.readAllLines(badResponsePath));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(500)
@@ -89,15 +84,11 @@ public class GitHubClientTest {
                                                               )
                                                               .withBody(response))
         );
-        HttpServerErrorException exception = assertThrows(
-                HttpServerErrorException.class,
-                () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project")
-        );
-        assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
+        assertThrows(CustomWebClientException.class, () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project"));
     }
 
     @Test
-    void testGetRepository_shouldReturnBadResponseExceptionIfBadBody() {
+    void testGetRepository_shouldReturnWebClientExceptionIfBadBody() {
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(200)
                                                               .withHeader(
@@ -105,8 +96,7 @@ public class GitHubClientTest {
                                                                       MediaType.APPLICATION_JSON_VALUE
                                                               )
                                                               .withBody("{id:mewmew}")));
-        BadResponseException exception = assertThrows(BadResponseException.class, () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project"));
-        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
+        assertThrows(CustomWebClientException.class, () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project"));
     }
 
 
