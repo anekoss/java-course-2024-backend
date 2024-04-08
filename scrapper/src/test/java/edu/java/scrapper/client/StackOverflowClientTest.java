@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.StackOverflowClient;
 import edu.java.client.dto.StackOverflowResponse;
-import edu.java.client.exception.CustomWebClientException;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -18,10 +17,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StackOverflowClientTest extends IntegrationTest {
@@ -41,7 +40,7 @@ public class StackOverflowClientTest extends IntegrationTest {
     }
 
     @Test
-    void testFetchQuestion_shouldReturnCorrectResponse() throws IOException, CustomWebClientException {
+    void testFetchQuestion_shouldReturnCorrectResponse() throws IOException {
         String response =
                 String.join("", Files.readAllLines(okResponsePath));
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
@@ -58,31 +57,35 @@ public class StackOverflowClientTest extends IntegrationTest {
                         "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering",
                         OffsetDateTime.parse("2024-02-25T14:38:10Z"), OffsetDateTime.parse("2024-02-25T14:38:10Z")
                 )));
-        assertThat(stackOverflowClient.fetchQuestion(78056352L)).isEqualTo(stackOverflowResponse);
+        Optional<StackOverflowResponse> actual = stackOverflowClient.fetchQuestion(78056352L);
+        assert actual.isPresent();
+        assertEquals(actual.get(), stackOverflowResponse);
     }
 
     @Test
-    void testFetchQuestion_shouldReturnWebClientExceptionIfClientError() {
+    void testFetchQuestion_shouldReturnEmptyOptionalIfClientError() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
                                        .withPathParam("id", WireMock.equalTo("78056352"))
                                        .withQueryParam("sort", WireMock.equalTo("activity"))
                                        .withQueryParam("site", WireMock.equalTo("stackoverflow"))
                                        .willReturn(WireMock.aResponse().withStatus(404)));
-        assertThrows(CustomWebClientException.class, () -> stackOverflowClient.fetchQuestion(78056353L));
+        Optional<StackOverflowResponse> actual = stackOverflowClient.fetchQuestion(78056352L);
+        assert actual.isEmpty();
     }
 
     @Test
-    void testFetchQuestionShouldReturnWebClientExceptionIfServerError() {
+    void testFetchQuestionShouldReturnEmptyOptionalIfServerError() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
                                        .withPathParam("id", WireMock.equalTo("78056352"))
                                        .withQueryParam("sort", WireMock.equalTo("activity"))
                                        .withQueryParam("site", WireMock.equalTo("stackoverflow"))
                                        .willReturn(WireMock.aResponse().withStatus(500)));
-        assertThrows(CustomWebClientException.class, () -> stackOverflowClient.fetchQuestion(78056352L));
+        Optional<StackOverflowResponse> actual = stackOverflowClient.fetchQuestion(78056352L);
+        assert actual.isEmpty();
     }
 
     @Test
-    void testFetchQuestion_shouldReturnBadResponseExceptionIfBadBody() {
+    void testFetchQuestion_shouldReturnEmptyOptionalIfBadBody() {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/2.3/questions/{id}"))
                                        .withPathParam("id", WireMock.equalTo("78056352"))
                                        .withQueryParam("sort", WireMock.equalTo("activity"))
@@ -91,7 +94,8 @@ public class StackOverflowClientTest extends IntegrationTest {
                                                            .withStatus(200)
                                                            .withHeader("Content-Type", "application/json")
                                                            .withBody("{id:mew}")));
-        assertThrows(CustomWebClientException.class, () -> stackOverflowClient.fetchQuestion(78056352L));
+        Optional<StackOverflowResponse> actual = stackOverflowClient.fetchQuestion(78056352L);
+        assert actual.isEmpty();
     }
 
 }
