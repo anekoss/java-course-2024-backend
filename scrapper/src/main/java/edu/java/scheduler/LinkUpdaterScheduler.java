@@ -2,7 +2,6 @@ package edu.java.scheduler;
 
 import edu.java.client.BotClient;
 import edu.java.client.dto.LinkUpdateRequest;
-import edu.java.client.exception.CustomWebClientException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +19,7 @@ public class LinkUpdaterScheduler {
     @Scheduled(fixedDelayString = "#{@scheduler.forceCheckDelay}")
     public void update() {
         List<LinkUpdateRequest> updatedLink = linkUpdaterService.getUpdates(limit);
-        updatedLink.forEach(linkUpdateRequest -> {
-            try {
-                botClient.linkUpdates(linkUpdateRequest);
-            } catch (CustomWebClientException e) {
-                log.warn(e.getMessage());
-            }
-        });
+        updatedLink.forEach(botClient::linkUpdates);
         log.info("update {} links", updatedLink.size());
     }
 }
