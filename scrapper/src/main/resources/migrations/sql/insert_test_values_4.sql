@@ -16,7 +16,7 @@ insert into links(uri, link_type, updated_at, checked_at) values ('https://stack
 insert into links(uri, link_type, updated_at, checked_at) values ('https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh', 'STACKOVERFLOW', '2024-03-27 13:00:54+00', '2024-03-26 13:00:00+00');
 
 
---changeset users:5
+--changeset users:6
 -- comment: insert tg_chat_links table values
 insert into tg_chat_links(tg_chat_id, link_id) values (1, 1);
 insert into tg_chat_links(tg_chat_id, link_id) values (1, 2);

@@ -7,8 +7,11 @@
         <sqlFile path="../sql/create_chats_table_1.sql" relativeToChangelogFile="true"/>
         <sqlFile path="../sql/create_links_table_2.sql" relativeToChangelogFile="true"/>
         <sqlFile path="../sql/create_chat_links_table_3.sql" relativeToChangelogFile="true"/>
-        <sqlFile path="../sql/create_github_link_table_4.sql" relativeToChangelogFile="true"/>
-        <sqlFile path="../sql/create_stackOverflow_links_table_5.sql" relativeToChangelogFile="true"/>
-        <sqlFile path="../sql/insert_test_values_6.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="../sql/insert_test_values_4.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    <changeSet id="add_optional_table" author="anekoss">
+        <sqlFile path="../sql/create_stackoverflow_links_table_5.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="../sql/create_github_link_table_6.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="../sql/insert_test_values_7.sql" relativeToChangelogFile="true"/>
     </changeSet>
 </databaseChangeLog>
