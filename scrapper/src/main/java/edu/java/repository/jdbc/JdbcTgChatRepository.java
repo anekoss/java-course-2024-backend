@@ -1,19 +1,23 @@
 package edu.java.repository.jdbc;
 
-import edu.java.domain.Link;
+import edu.java.controller.exception.ChatAlreadyExistException;
+import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.domain.TgChat;
 import edu.java.repository.TgChatRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import static edu.java.repository.jdbc.JdbcMapper.listMapToSetLink;
-import static edu.java.repository.jdbc.JdbcMapper.listMapToSetTgChat;
+import static edu.java.repository.jdbc.JdbcMapper.listMapToTgChatList;
 
 @Repository
 @AllArgsConstructor
@@ -22,62 +26,67 @@ public class JdbcTgChatRepository implements TgChatRepository {
 
     @Override
     @Transactional
-    public int save(TgChat tgChat) {
-        return jdbcTemplate.update("insert into tg_chats(chat_id) values (?)", tgChat.getChatId());
+    public long add(@NotNull TgChat tgChat) throws ChatAlreadyExistException {
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                    "insert into tg_chats (chat_id) values (?) returning id",
+                    Statement.RETURN_GENERATED_KEYS
+                );
+                ps.setLong(1, tgChat.getChatId());
+                return ps;
+            }, keyHolder);
+            return keyHolder.getKey().longValue();
+        } catch (DataAccessException e) {
+            throw new ChatAlreadyExistException();
+        }
     }
 
     @Override
     @Transactional
-    public int delete(TgChat tgChat) {
-        int count = 0;
-        String query =
-            "select link_id from tg_chat_links where link_id in (select link_id from tg_chat_links "
-                + "join tg_chats on tg_chat_links.tg_chat_id = tg_chats.id where tg_chats.chat_id = ?) "
-                + "group by link_id having count(*) = 1";
-        try {
-            List<Long> linkIds = jdbcTemplate.queryForList(query, Long.class, tgChat.getId());
-            for (Long id : linkIds) {
-                count += jdbcTemplate.update("delete from links where id = ?", id);
-            }
-        } catch (EmptyResultDataAccessException ignored) {
+    public long remove(@NotNull TgChat tgChat) throws ChatNotFoundException {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        int update = jdbcTemplate.update(connection -> {
+            PreparedStatement ps =
+                connection.prepareStatement(
+                    "delete from tg_chats where chat_id = ? returning id",
+                    Statement.RETURN_GENERATED_KEYS
+                );
+            ps.setLong(1, tgChat.getChatId());
+            return ps;
+        }, keyHolder);
+        if (update == 0 || keyHolder.getKey() == null) {
+            throw new ChatNotFoundException();
         }
-        return count + jdbcTemplate.update("delete from tg_chats where id = ?", tgChat.getId());
+        return keyHolder.getKey().longValue();
     }
 
     @Override
     @Transactional
     public List<TgChat> findAll() {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from tg_chats");
-        List<TgChat> chats = listMapToSetTgChat(list).stream().toList();
-        for (TgChat chat : chats) {
-            List<Map<String, Object>> linkList = jdbcTemplate.queryForList(
-                "select distinct links.id, links.uri, links.link_type, links.updated_at, links.checked_at from"
-                    + " links join tg_chat_links on links.id = tg_chat_links.link_id where tg_chat_id = ?",
-                chat.getId()
-            );
-            Set<Link> chatLinks = listMapToSetLink(linkList);
-            chat.setLinks(chatLinks);
-        }
-        return chats;
+        return listMapToTgChatList(list);
     }
 
     @Override
     @Transactional
-    public Optional<TgChat> findByChatId(Long chatId) {
+    public TgChat findByChatId(Long chatId) throws ChatNotFoundException {
         try {
-            Long tgChatId =
-                jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, chatId);
-            TgChat tgChat = new TgChat(chatId);
-            tgChat.setId(tgChatId);
-            List<Map<String, Object>> list = jdbcTemplate.queryForList(
-                "select links.id, links.uri, links.link_type, links.updated_at, links.checked_at from links "
-                    + "join tg_chat_links on links.id = tg_chat_links.link_id where tg_chat_id = ?",
-                tgChatId
-            );
-            Set<Link> links = listMapToSetLink(list);
-            tgChat.setLinks(links);
-            return Optional.of(tgChat);
-        } catch (EmptyResultDataAccessException e) {
+            Long id = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, chatId);
+            return new TgChat().setId(id).setChatId(chatId);
+        } catch (DataAccessException e) {
+            throw new ChatNotFoundException();
+        }
+    }
+
+    @Override
+    @Transactional
+    public Optional<TgChat> findById(Long id) {
+        try {
+            Long chatId = jdbcTemplate.queryForObject("select chat_id from tg_chats where id = ?", Long.class, id);
+            return Optional.of(new TgChat().setId(id).setChatId(chatId));
+        } catch (DataAccessException e) {
             return Optional.empty();
         }
     }
