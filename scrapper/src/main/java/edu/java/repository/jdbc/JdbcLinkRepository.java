@@ -1,7 +1,7 @@
 package edu.java.repository.jdbc;
 
 import edu.java.controller.exception.LinkNotFoundException;
-import edu.java.domain.LinkEntity;
+import edu.java.domain.Link;
 import edu.java.repository.LinkRepository;
 import jakarta.transaction.Transactional;
 import java.net.URI;
@@ -32,7 +32,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public long add(LinkEntity linkEntity) {
+    public long add(Link link) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
@@ -40,10 +40,10 @@ public class JdbcLinkRepository implements LinkRepository {
                     + " do update set updated_at = EXCLUDED.updated_at, checked_at = EXCLUDED.checked_at returning id",
                 PreparedStatement.RETURN_GENERATED_KEYS
             );
-            ps.setString(LINK_TYPE_ADD_PARAMETER_INDEX, linkEntity.getUri().toString());
-            ps.setString(URI_ADD_PARAMETER_INDEX, linkEntity.getLinkType().toString());
-            ps.setTimestamp(UPDATED_AT_ADD_PARAMETER_INDEX, Timestamp.from(linkEntity.getUpdatedAt().toInstant()));
-            ps.setTimestamp(CHECKED_AT_ADD_PARAMETER_INDEX, Timestamp.from(linkEntity.getCheckedAt().toInstant()));
+            ps.setString(LINK_TYPE_ADD_PARAMETER_INDEX, link.getUri().toString());
+            ps.setString(URI_ADD_PARAMETER_INDEX, link.getLinkType().toString());
+            ps.setTimestamp(UPDATED_AT_ADD_PARAMETER_INDEX, Timestamp.from(link.getUpdatedAt().toInstant()));
+            ps.setTimestamp(CHECKED_AT_ADD_PARAMETER_INDEX, Timestamp.from(link.getCheckedAt().toInstant()));
             return ps;
         }, keyHolder);
         return keyHolder.getKey().longValue();
@@ -70,7 +70,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public List<LinkEntity> findAll() {
+    public List<Link> findAll() {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from links");
         return listMapToLinkList(list);
 
@@ -78,11 +78,11 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public Optional<LinkEntity> findByUri(URI uri) {
+    public Optional<Link> findByUri(URI uri) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "select * from links where uri = ?",
-                new BeanPropertyRowMapper<>(LinkEntity.class),
+                new BeanPropertyRowMapper<>(Link.class),
                 uri.toString()
             ));
         } catch (DataAccessException e) {
@@ -92,11 +92,11 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public Optional<LinkEntity> findById(long id) {
+    public Optional<Link> findById(long id) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "select * from links where id = ?",
-                new BeanPropertyRowMapper<>(LinkEntity.class),
+                new BeanPropertyRowMapper<>(Link.class),
                 id
             ));
         } catch (DataAccessException e) {
@@ -106,7 +106,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public List<LinkEntity> findStaleLinks(Long limit) {
+    public List<Link> findStaleLinks(Long limit) {
         List<Map<String, Object>> list =
             jdbcTemplate.queryForList("select * from links order by checked_at asc limit ?", limit);
         return listMapToLinkList(list).stream()

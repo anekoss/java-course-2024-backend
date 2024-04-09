@@ -2,20 +2,20 @@ package edu.java.repository;
 
 import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
-import edu.java.domain.TgChatEntity;
+import edu.java.domain.TgChat;
 import java.util.List;
 import java.util.Optional;
 
 public interface TgChatRepository {
 
-    long add(TgChatEntity tgChat) throws ChatAlreadyExistException;
+    long add(TgChat tgChat) throws ChatAlreadyExistException;
 
-    long remove(TgChatEntity tgChat) throws ChatNotFoundException;
+    long remove(TgChat tgChat) throws ChatNotFoundException;
 
-    List<TgChatEntity> findAll();
+    List<TgChat> findAll();
 
-    TgChatEntity findByChatId(Long chatId) throws ChatNotFoundException;
+    TgChat findByChatId(Long chatId) throws ChatNotFoundException;
 
-    Optional<TgChatEntity> findById(Long id);
+    Optional<TgChat> findById(Long id);
 
 }

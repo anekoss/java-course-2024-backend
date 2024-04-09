@@ -2,7 +2,7 @@ package edu.java.scheduler.updateChecker;
 
 import edu.java.client.StackOverflowClient;
 import edu.java.client.dto.StackOverflowResponse;
-import edu.java.domain.LinkEntity;
+import edu.java.domain.Link;
 import edu.java.scheduler.UpdateChecker;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -17,22 +17,22 @@ public class StackOverflowUpdateChecker implements UpdateChecker {
     private static final int PART_QUESTION = 4;
     private final StackOverflowClient stackOverflowClient;
 
-    public LinkEntity check(LinkEntity linkEntity) {
-        Long question = getQuestion(linkEntity.getUri().toString());
+    public Link check(Link link) {
+        Long question = getQuestion(link.getUri().toString());
         if (question != -1) {
             Optional<StackOverflowResponse> response = stackOverflowClient.fetchQuestion(question);
             if (response.isPresent()) {
-                OffsetDateTime updatedAt = linkEntity.getUpdatedAt();
+                OffsetDateTime updatedAt = link.getUpdatedAt();
                 for (StackOverflowResponse.StackOverflowItem item : response.get().items()) {
                     if (item != null && item.updatedAt() != null && item.updatedAt().isAfter(updatedAt)) {
                         updatedAt = item.updatedAt();
                     }
                 }
-                linkEntity.setUpdatedAt(updatedAt);
-                linkEntity.setCheckedAt(OffsetDateTime.now());
+                link.setUpdatedAt(updatedAt);
+                link.setCheckedAt(OffsetDateTime.now());
             }
         }
-        return linkEntity;
+        return link;
     }
 
     private Long getQuestion(String uri) {

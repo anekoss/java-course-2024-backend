@@ -1,8 +1,7 @@
 package edu.java.repository;
 
 import edu.java.controller.exception.LinkNotFoundException;
-import edu.java.domain.LinkEntity;
-
+import edu.java.domain.Link;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -10,17 +9,17 @@ import java.util.Optional;
 
 public interface LinkRepository {
 
-    long add(LinkEntity linkEntity);
+    long add(Link link);
 
     long remove(URI uri) throws LinkNotFoundException;
 
-    List<LinkEntity> findAll();
+    List<Link> findAll();
 
-    Optional<LinkEntity> findByUri(URI uri);
+    Optional<Link> findByUri(URI uri);
 
-    Optional<LinkEntity> findById(long id);
+    Optional<Link> findById(long id);
 
-    List<LinkEntity> findStaleLinks(Long limit);
+    List<Link> findStaleLinks(Long limit);
 
     long update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt);
 

@@ -5,7 +5,7 @@ import edu.java.controller.dto.ListLinksResponse;
 import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
-import edu.java.domain.LinkEntity;
+import edu.java.domain.Link;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -21,6 +21,6 @@ public interface LinkService {
 
     long update(long id, OffsetDateTime updatedAt, OffsetDateTime checkedAt);
 
-    List<LinkEntity> getStaleLinks(long limit);
+    List<Link> getStaleLinks(long limit);
 
 }

@@ -2,7 +2,7 @@ package edu.java.repository.jdbc;
 
 import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
-import edu.java.domain.TgChatEntity;
+import edu.java.domain.TgChat;
 import edu.java.repository.TgChatRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +26,7 @@ public class JdbcTgChatRepository implements TgChatRepository {
 
     @Override
     @Transactional
-    public long add(@NotNull TgChatEntity tgChat) throws ChatAlreadyExistException {
+    public long add(@NotNull TgChat tgChat) throws ChatAlreadyExistException {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
@@ -45,7 +45,7 @@ public class JdbcTgChatRepository implements TgChatRepository {
 
     @Override
     @Transactional
-    public long remove(@NotNull TgChatEntity tgChat) throws ChatNotFoundException {
+    public long remove(@NotNull TgChat tgChat) throws ChatNotFoundException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int update = jdbcTemplate.update(connection -> {
             PreparedStatement ps =
@@ -64,17 +64,17 @@ public class JdbcTgChatRepository implements TgChatRepository {
 
     @Override
     @Transactional
-    public List<TgChatEntity> findAll() {
+    public List<TgChat> findAll() {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from tg_chats");
         return listMapToTgChatList(list);
     }
 
     @Override
     @Transactional
-    public TgChatEntity findByChatId(Long chatId) throws ChatNotFoundException {
+    public TgChat findByChatId(Long chatId) throws ChatNotFoundException {
         try {
             Long id = jdbcTemplate.queryForObject("select id from tg_chats where chat_id = ?", Long.class, chatId);
-            return new TgChatEntity().setId(id).setChatId(chatId);
+            return new TgChat().setId(id).setChatId(chatId);
         } catch (DataAccessException e) {
             throw new ChatNotFoundException();
         }
@@ -82,10 +82,10 @@ public class JdbcTgChatRepository implements TgChatRepository {
 
     @Override
     @Transactional
-    public Optional<TgChatEntity> findById(Long id) {
+    public Optional<TgChat> findById(Long id) {
         try {
             Long chatId = jdbcTemplate.queryForObject("select chat_id from tg_chats where id = ?", Long.class, id);
-            return Optional.of(new TgChatEntity().setId(id).setChatId(chatId));
+            return Optional.of(new TgChat().setId(id).setChatId(chatId));
         } catch (DataAccessException e) {
             return Optional.empty();
         }

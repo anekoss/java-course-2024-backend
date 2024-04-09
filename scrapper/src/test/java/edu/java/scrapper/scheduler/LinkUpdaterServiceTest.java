@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import edu.java.domain.LinkEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -20,13 +19,14 @@ import org.mockito.Mockito;
 
 import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.client.exception.CustomWebClientException;
+import edu.java.domain.Link;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.LinkUpdaterService;
 import edu.java.scheduler.UpdateChecker;
 import edu.java.service.LinkService;
 
 
-public class LinkEntityUpdaterServiceTest {
+public class LinkUpdaterServiceTest {
     private static final LinkService linkService = Mockito.mock(LinkService.class);
     private static final Map<LinkType, UpdateChecker> updateCheckerMap = Mockito.mock(Map.class);
     private static final UpdateChecker updateChecker = Mockito.mock(UpdateChecker.class);
@@ -40,44 +40,44 @@ public class LinkEntityUpdaterServiceTest {
 
     static Stream<Arguments> provideDataForTest() throws CustomWebClientException {
         OffsetDateTime updated = OffsetDateTime.now();
-        List<LinkEntity> staleLinkEntities = List.of(
-                new LinkEntity(
+        List<Link> staleLinks = List.of(
+                new Link(
                         1L,
                         URI.create("https://github.com/anekoss/tinkoff-project"),
                         LinkType.GITHUB,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
                         OffsetDateTime.parse("2023-02-11T11:13:57Z")
                 ),
-                new LinkEntity(
+                new Link(
                         2L,
                         URI.create("https://github.com/anekoss/tinkoff"),
                         LinkType.GITHUB,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
                         OffsetDateTime.parse("2023-03-11T11:13:57Z")
                 ),
-                new LinkEntity(
+                new Link(
                         3L,
                         URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
                         LinkType.STACKOVERFLOW,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
                         OffsetDateTime.parse("2023-01-11T11:13:57Z")
                 ));
-        List<LinkEntity> updatedLinkEntities = List.of(
-                new LinkEntity(
+        List<Link> updatedLinks = List.of(
+                new Link(
                         1L,
                         URI.create("https://github.com/anekoss/tinkoff-project"),
                         LinkType.GITHUB,
                         updated,
                         updated
                 ),
-                new LinkEntity(
+                new Link(
                         2L,
                         URI.create("https://github.com/anekoss/tinkoff"),
                         LinkType.GITHUB,
                         updated,
                         updated
                 ),
-                new LinkEntity(
+                new Link(
                         3L,
                         URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
                         LinkType.STACKOVERFLOW,
@@ -85,11 +85,11 @@ public class LinkEntityUpdaterServiceTest {
                         OffsetDateTime.parse("2023-01-11T11:13:57Z")
                 )
         );
-        when(linkService.getStaleLinks(3L)).thenReturn(staleLinkEntities);
-        when(updateChecker.check(staleLinkEntities.get(0))).thenReturn(updatedLinkEntities.get(0));
-        when(updateChecker.check(staleLinkEntities.get(1))).thenReturn(updatedLinkEntities.get(1));
-        when(updateChecker.check(staleLinkEntities.get(2))).thenReturn(updatedLinkEntities.get(2));
-        return Stream.of(Arguments.of(staleLinkEntities, updatedLinkEntities));
+        when(linkService.getStaleLinks(3L)).thenReturn(staleLinks);
+        when(updateChecker.check(staleLinks.get(0))).thenReturn(updatedLinks.get(0));
+        when(updateChecker.check(staleLinks.get(1))).thenReturn(updatedLinks.get(1));
+        when(updateChecker.check(staleLinks.get(2))).thenReturn(updatedLinks.get(2));
+        return Stream.of(Arguments.of(staleLinks, updatedLinks));
     }
 
     @ParameterizedTest
@@ -110,10 +110,10 @@ public class LinkEntityUpdaterServiceTest {
 
     @ParameterizedTest
     @MethodSource("provideDataForTest")
-    void updateGetUpdates_shouldReturnEmptyListIfNoUpdates(List<LinkEntity> staleLinkEntities) throws CustomWebClientException {
-        when(updateChecker.check(staleLinkEntities.get(0))).thenReturn(staleLinkEntities.get(0));
-        when(updateChecker.check(staleLinkEntities.get(1))).thenReturn(staleLinkEntities.get(1));
-        when(updateChecker.check(staleLinkEntities.get(2))).thenReturn(staleLinkEntities.get(2));
+    void updateGetUpdates_shouldReturnEmptyListIfNoUpdates(List<Link> staleLinks) throws CustomWebClientException {
+        when(updateChecker.check(staleLinks.get(0))).thenReturn(staleLinks.get(0));
+        when(updateChecker.check(staleLinks.get(1))).thenReturn(staleLinks.get(1));
+        when(updateChecker.check(staleLinks.get(2))).thenReturn(staleLinks.get(2));
         assert linkUpdaterService.getUpdates(3L).isEmpty();
     }
 

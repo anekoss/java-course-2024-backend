@@ -6,7 +6,7 @@ import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.ChatLink;
-import edu.java.domain.LinkEntity;
+import edu.java.domain.Link;
 import edu.java.repository.ChatLinkRepository;
 import edu.java.repository.LinkRepository;
 import edu.java.repository.TgChatRepository;
@@ -33,11 +33,11 @@ public class JdbcLinkService implements LinkService {
     @Override
     @Transactional
     public LinkResponse add(long chatId, URI url) throws ChatNotFoundException, LinkAlreadyExistException {
-        LinkEntity linkEntity = new LinkEntity().setUri(url)
-                                                .setLinkType(linkTypeService.getType(url.getHost()))
-                                                .setCheckedAt(OffsetDateTime.now())
-                                                .setUpdatedAt(OffsetDateTime.now());
-        long linkId = linkRepository.add(linkEntity);
+        Link link = new Link().setUri(url)
+            .setLinkType(linkTypeService.getType(url.getHost()))
+            .setCheckedAt(OffsetDateTime.now())
+            .setUpdatedAt(OffsetDateTime.now());
+        long linkId = linkRepository.add(link);
         long tgChatId = tgChatRepository.findByChatId(chatId).getId();
         chatLinkRepository.add(new ChatLink(tgChatId, linkId));
         return new LinkResponse(linkId, url);
@@ -47,7 +47,7 @@ public class JdbcLinkService implements LinkService {
     @Transactional
     public LinkResponse remove(long chatId, URI url) throws ChatNotFoundException, LinkNotFoundException {
         long tgChatId = tgChatRepository.findByChatId(chatId).getId();
-        Optional<LinkEntity> link = linkRepository.findByUri(url);
+        Optional<Link> link = linkRepository.findByUri(url);
         if (link.isEmpty()) {
             throw new LinkNotFoundException();
         }
@@ -91,7 +91,7 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     @Transactional
-    public List<LinkEntity> getStaleLinks(long limit) {
+    public List<Link> getStaleLinks(long limit) {
         return linkRepository.findStaleLinks(limit);
     }
 

@@ -1,8 +1,8 @@
 --liquibase formatted sql
 
 --changeset anekoss:2
--- comment: create linkEntity table
-create table if not exists linkEntities
+-- comment: create link table
+create table if not exists links
 (
     id         bigint generated always as identity primary key,
     uri   text                     not null unique,
@@ -10,4 +10,4 @@ create table if not exists linkEntities
     updated_at timestamp not null,
     checked_at timestamp not null
 );
--- rollback DROP TABLE linkEntity;
+-- rollback DROP TABLE link;

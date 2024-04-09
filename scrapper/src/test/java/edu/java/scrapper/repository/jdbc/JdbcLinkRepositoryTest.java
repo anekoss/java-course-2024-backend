@@ -1,7 +1,7 @@
 package edu.java.scrapper.repository.jdbc;
 
 import edu.java.controller.exception.LinkNotFoundException;
-import edu.java.domain.LinkEntity;
+import edu.java.domain.Link;
 import edu.java.repository.jdbc.JdbcLinkRepository;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.transaction.Transactional;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
+public class JdbcLinkRepositoryTest extends IntegrationTest {
 
     @Autowired
     private JdbcLinkRepository linkRepository;
@@ -35,38 +35,38 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Transactional
     @Rollback
     void testAdd_shouldCorrectlyAddNoExistLink() {
-        LinkEntity linkEntity = new LinkEntity().setUri(URI.create("https://stackoverflow.com/"))
-                                                .setLinkType(STACKOVERFLOW)
-                                                .setUpdatedAt(OffsetDateTime.now())
-                                                .setCheckedAt(OffsetDateTime.now());
-        long linkId = linkRepository.add(linkEntity);
+        Link link = new Link().setUri(URI.create("https://stackoverflow.com/"))
+                              .setLinkType(STACKOVERFLOW)
+                              .setUpdatedAt(OffsetDateTime.now())
+                              .setCheckedAt(OffsetDateTime.now());
+        long linkId = linkRepository.add(link);
         assert linkId > 0;
-        LinkEntity actualLinkEntity = jdbcTemplate.queryForObject("select * from links where uri = ?",
-                new BeanPropertyRowMapper<>(LinkEntity.class), "https://stackoverflow.com/"
+        Link actualLink = jdbcTemplate.queryForObject("select * from links where uri = ?",
+                new BeanPropertyRowMapper<>(Link.class), "https://stackoverflow.com/"
         );
-        assert actualLinkEntity != null;
-        assert actualLinkEntity.getId() == linkId;
-        assertEquals(actualLinkEntity.getUri(), linkEntity.getUri());
-        assertEquals(actualLinkEntity.getLinkType(), linkEntity.getLinkType());
-        assertThat(actualLinkEntity.getUpdatedAt()).isEqualToIgnoringNanos(linkEntity.getUpdatedAt());
-        assertThat(actualLinkEntity.getCheckedAt()).isEqualToIgnoringNanos(linkEntity.getCheckedAt());
+        assert actualLink != null;
+        assert actualLink.getId() == linkId;
+        assertEquals(actualLink.getUri(), link.getUri());
+        assertEquals(actualLink.getLinkType(), link.getLinkType());
+        assertThat(actualLink.getUpdatedAt()).isEqualToIgnoringNanos(link.getUpdatedAt());
+        assertThat(actualLink.getCheckedAt()).isEqualToIgnoringNanos(link.getCheckedAt());
     }
 
     @Test
     @Transactional
     @Rollback
     void testAdd_shouldReturnIdExistLinkIfAddLinkExist() {
-        LinkEntity linkEntity = new LinkEntity().setUri(URI.create("https://github.com/anekoss/tinkoff"))
-                                                .setLinkType(GITHUB)
-                                                .setUpdatedAt(OffsetDateTime.now())
-                                                .setCheckedAt(OffsetDateTime.now());
-        long linkId = linkRepository.add(linkEntity);
+        Link link = new Link().setUri(URI.create("https://github.com/anekoss/tinkoff"))
+                              .setLinkType(GITHUB)
+                              .setUpdatedAt(OffsetDateTime.now())
+                              .setCheckedAt(OffsetDateTime.now());
+        long linkId = linkRepository.add(link);
         assert linkId > 0;
-        LinkEntity actualLinkEntity = jdbcTemplate.queryForObject("select * from links where id = ?",
-                new BeanPropertyRowMapper<>(LinkEntity.class), linkId
+        Link actualLink = jdbcTemplate.queryForObject("select * from links where id = ?",
+                new BeanPropertyRowMapper<>(Link.class), linkId
         );
-        assert actualLinkEntity != null;
-        assertEquals(actualLinkEntity.getUri(), linkEntity.getUri());
+        assert actualLink != null;
+        assertEquals(actualLink.getUri(), link.getUri());
     }
 
     @Test
@@ -98,11 +98,11 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Transactional
     @Rollback
     void testFindAll_shouldCorrectlyFindAllLink() {
-        List<LinkEntity> linkEntities = linkRepository.findAll();
-        assert linkEntities.size() == 3;
-        assertEquals(linkEntities.getFirst().getUri().toString(), "https://github.com/anekoss/tinkoff");
+        List<Link> links = linkRepository.findAll();
+        assert links.size() == 3;
+        assertEquals(links.getFirst().getUri().toString(), "https://github.com/anekoss/tinkoff");
         assertEquals(
-                linkEntities.getLast().getUri().toString(),
+                links.getLast().getUri().toString(),
                 "https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh"
         );
     }
@@ -112,8 +112,8 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Rollback
     void testFindAll_shouldReturnEmptyListIfNoLinks() {
         jdbcTemplate.update("delete from links");
-        List<LinkEntity> linkEntities = linkRepository.findAll();
-        assert linkEntities.isEmpty();
+        List<Link> links = linkRepository.findAll();
+        assert links.isEmpty();
     }
 
     @Test
@@ -121,7 +121,7 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Rollback
     void testFindByUri_shouldCorrectlyFindExistLink() {
         URI uri = URI.create("https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh");
-        Optional<LinkEntity> link = linkRepository.findByUri(uri);
+        Optional<Link> link = linkRepository.findByUri(uri);
         assert link.isPresent();
         assert link.get().getId() > 0L;
         assertEquals(link.get().getUri(), uri);
@@ -131,7 +131,7 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Transactional
     @Rollback
     void testFindByUri_shouldReturnOptionalEmptyIfNoLink() {
-        Optional<LinkEntity> id = linkRepository.findByUri(URI.create("https://stackoverflow.com/"));
+        Optional<Link> id = linkRepository.findByUri(URI.create("https://stackoverflow.com/"));
         assertThat(id).isEmpty();
     }
 
@@ -140,7 +140,7 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Rollback
     void testFindById_shouldCorrectlyFindExistLink() {
         URI uri = URI.create("https://github.com/anekoss/tinkoff");
-        Optional<LinkEntity> link = linkRepository.findById(1L);
+        Optional<Link> link = linkRepository.findById(1L);
         assert link.isPresent();
         assert link.get().getId() == 1L;
         assertEquals(link.get().getUri(), uri);
@@ -150,7 +150,7 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Transactional
     @Rollback
     void testFindById_shouldReturnOptionalEmptyIfNoLink() {
-        Optional<LinkEntity> id = linkRepository.findById(1139L);
+        Optional<Link> id = linkRepository.findById(1139L);
         assertThat(id).isEmpty();
     }
 
@@ -165,9 +165,9 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
                 OffsetDateTime.now(),
                 OffsetDateTime.MIN
         );
-        List<LinkEntity> linkEntities = linkRepository.findStaleLinks(1L);
-        assert linkEntities.size() == 1;
-        assertEquals(linkEntities.getFirst().getUri().toString(), "https://stackoverflow.com/");
+        List<Link> links = linkRepository.findStaleLinks(1L);
+        assert links.size() == 1;
+        assertEquals(links.getFirst().getUri().toString(), "https://stackoverflow.com/");
     }
 
     @Test
@@ -175,8 +175,8 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
     @Rollback
     void testFindStaleLinks_shouldReturnEmptyListIfNoList() {
         jdbcTemplate.update("delete from links");
-        List<LinkEntity> linkEntities = linkRepository.findStaleLinks(1L);
-        assert linkEntities.isEmpty();
+        List<Link> links = linkRepository.findStaleLinks(1L);
+        assert links.isEmpty();
     }
 
     @Test
@@ -196,9 +196,9 @@ public class JdbcLinkRepositoryTestEntity extends IntegrationTest {
                 checked,
                 checked
         )).isEqualTo(1);
-        LinkEntity actual = jdbcTemplate.queryForObject(
+        Link actual = jdbcTemplate.queryForObject(
                 "select * from links where id = ?",
-                new BeanPropertyRowMapper<>(LinkEntity.class),
+                new BeanPropertyRowMapper<>(Link.class),
                 1L
         );
         assertThat(actual.getUpdatedAt()).isEqualToIgnoringNanos(checked);
