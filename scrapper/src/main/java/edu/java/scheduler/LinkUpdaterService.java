@@ -2,7 +2,7 @@ package edu.java.scheduler;
 
 import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.client.exception.CustomWebClientException;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.service.LinkService;
 import jakarta.transaction.Transactional;
@@ -22,15 +22,15 @@ public class LinkUpdaterService {
 
     @Transactional
     public List<LinkUpdateRequest> getUpdates(long limit) {
-        List<Link> links = linkService.getStaleLinks(limit);
+        List<LinkEntity> linkEntities = linkService.getStaleLinks(limit);
         List<LinkUpdateRequest> updates = new ArrayList<>();
-        links.forEach(link -> {
+        linkEntities.forEach(link -> {
             try {
-                Link updatedLink = updateCheckerMap.get(link.getLinkType()).check(link);
-                if (updatedLink.getCheckedAt().isAfter(link.getCheckedAt())) {
-                    linkService.update(link.getId(), updatedLink.getUpdatedAt(), updatedLink.getCheckedAt());
-                    if (updatedLink.getUpdatedAt().isAfter(link.getUpdatedAt())) {
-                        long[] chatIds = linkService.getChatIdsByLinkId(updatedLink.getId());
+                LinkEntity updatedLinkEntity = updateCheckerMap.get(link.getLinkType()).check(link);
+                if (updatedLinkEntity.getCheckedAt().isAfter(link.getCheckedAt())) {
+                    linkService.update(link.getId(), updatedLinkEntity.getUpdatedAt(), updatedLinkEntity.getCheckedAt());
+                    if (updatedLinkEntity.getUpdatedAt().isAfter(link.getUpdatedAt())) {
+                        long[] chatIds = linkService.getChatIdsByLinkId(updatedLinkEntity.getId());
                         updates.add(new LinkUpdateRequest(link.getId(), link.getUri().toString(), "updates", chatIds));
                     }
                 }

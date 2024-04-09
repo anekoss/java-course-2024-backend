@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Entity(name = "links")
 @Accessors(chain = true)
-public class Link {
+public class LinkEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,9 +37,9 @@ public class Link {
     private OffsetDateTime checkedAt;
 
     @ManyToMany(mappedBy = "links")
-    private Set<TgChat> tgChats;
+    private Set<TgChatEntity> tgChats;
 
-    public Link(Long id, URI uri, LinkType linkType, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
+    public LinkEntity(Long id, URI uri, LinkType linkType, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
         this.id = id;
         this.uri = uri;
         this.linkType = linkType;
@@ -47,12 +47,12 @@ public class Link {
         this.updatedAt = updatedAt;
     }
 
-    public void addTgChat(TgChat tgChat) {
+    public void addTgChat(TgChatEntity tgChat) {
         this.getTgChats().add(tgChat);
         tgChat.addLink(this);
     }
 
-    public void removeTgChat(TgChat tgChat) {
+    public void removeTgChat(TgChatEntity tgChat) {
         this.getTgChats().remove(tgChat);
         tgChat.removeLink(this);
     }

@@ -10,10 +10,10 @@ insert into tg_chats(chat_id) values (555555);
 
 
 --changeset users:5
--- comment: insert links table values
-insert into links(uri, link_type, updated_at, checked_at) values ('https://github.com/anekoss/tinkoff','GITHUB', '2024-01-01 10:00:00+00', '2024-01-01 13:00:00+00');
-insert into links(uri, link_type, updated_at, checked_at) values ('https://stackoverflow.com/questions/59339862/retrieving-text-body-of-answers-and-comments-using-stackexchange-api', 'STACKOVERFLOW', '2024-02-01 13:00:54+00', '2024-02-05 13:00:00+00');
-insert into links(uri, link_type, updated_at, checked_at) values ('https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh', 'STACKOVERFLOW', '2024-03-27 13:00:54+00', '2024-03-26 13:00:00+00');
+-- comment: insert linkEntities table values
+insert into linkEntities(uri, link_type, updated_at, checked_at) values ('https://github.com/anekoss/tinkoff','GITHUB', '2024-01-01 10:00:00+00', '2024-01-01 13:00:00+00');
+insert into linkEntities(uri, link_type, updated_at, checked_at) values ('https://stackoverflow.com/questions/59339862/retrieving-text-body-of-answers-and-comments-using-stackexchange-api', 'STACKOVERFLOW', '2024-02-01 13:00:54+00', '2024-02-05 13:00:00+00');
+insert into linkEntities(uri, link_type, updated_at, checked_at) values ('https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh', 'STACKOVERFLOW', '2024-03-27 13:00:54+00', '2024-03-26 13:00:00+00');
 
 
 --changeset users:5

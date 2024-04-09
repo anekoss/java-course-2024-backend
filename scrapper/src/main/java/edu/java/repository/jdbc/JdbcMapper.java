@@ -1,9 +1,9 @@
 package edu.java.repository.jdbc;
 
 import edu.java.domain.ChatLink;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
-import edu.java.domain.TgChat;
+import edu.java.domain.TgChatEntity;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
@@ -17,25 +17,25 @@ public class JdbcMapper {
     private JdbcMapper() {
     }
 
-    static List<TgChat> listMapToTgChatList(List<Map<String, Object>> tgChatList) {
+    static List<TgChatEntity> listMapToTgChatList(List<Map<String, Object>> tgChatList) {
         return tgChatList.stream()
-            .map(m -> new TgChat().setId((Long) m.get("id")).setChatId((Long) m.get("chat_id")))
+            .map(m -> new TgChatEntity().setId((Long) m.get("id")).setChatId((Long) m.get("chat_id")))
             .toList();
     }
 
-    static List<Link> listMapToLinkList(List<Map<String, Object>> linkList) {
-        List<Link> links = new ArrayList<>();
+    static List<LinkEntity> listMapToLinkList(List<Map<String, Object>> linkList) {
+        List<LinkEntity> linkEntities = new ArrayList<>();
         linkList.forEach(m -> {
-            Link link = new Link();
-            link.setId((Long) m.get("id"))
-                .setUri(URI.create((String) m.get("uri")))
-                .setLinkType(LinkType.valueOf((String) m.get("link_type")))
-                .setUpdatedAt(OffsetDateTime.ofInstant(((Timestamp) m.get("updated_at")).toInstant(), ZoneOffset.UTC))
-                .setCheckedAt(OffsetDateTime.ofInstant(((Timestamp) m.get("checked_at")).toInstant(), ZoneOffset.UTC))
-                .setTgChats(Set.of());
-            links.add(link);
+            LinkEntity linkEntity = new LinkEntity();
+            linkEntity.setId((Long) m.get("id"))
+                      .setUri(URI.create((String) m.get("uri")))
+                      .setLinkType(LinkType.valueOf((String) m.get("link_type")))
+                      .setUpdatedAt(OffsetDateTime.ofInstant(((Timestamp) m.get("updated_at")).toInstant(), ZoneOffset.UTC))
+                      .setCheckedAt(OffsetDateTime.ofInstant(((Timestamp) m.get("checked_at")).toInstant(), ZoneOffset.UTC))
+                      .setTgChats(Set.of());
+            linkEntities.add(linkEntity);
         });
-        return links;
+        return linkEntities;
     }
 
     static List<ChatLink> listMapToChatLinkList(List<Map<String, Object>> chatLinkList) {

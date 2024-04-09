@@ -2,7 +2,7 @@ package edu.java.scheduler.updateChecker;
 
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubResponse;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.scheduler.UpdateChecker;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -16,19 +16,19 @@ import org.springframework.stereotype.Component;
 public class GithubUpdateChecker implements UpdateChecker {
     private final GitHubClient gitHubClient;
 
-    public Link check(Link link) {
-        String[] githubValues = getOwnerAndReposGithub(link.getUri().toString());
+    public LinkEntity check(LinkEntity linkEntity) {
+        String[] githubValues = getOwnerAndReposGithub(linkEntity.getUri().toString());
         if (githubValues.length == 2) {
             Optional<GitHubResponse> gitHubResponse = gitHubClient.fetchRepository(githubValues[0], githubValues[1]);
             if (gitHubResponse.isPresent() && gitHubResponse.get().updatedAt() != null) {
                 OffsetDateTime updatedAt = gitHubResponse.get().updatedAt();
-                if (updatedAt.isAfter(link.getUpdatedAt())) {
-                    link.setUpdatedAt(updatedAt);
+                if (updatedAt.isAfter(linkEntity.getUpdatedAt())) {
+                    linkEntity.setUpdatedAt(updatedAt);
                 }
-                link.setCheckedAt(OffsetDateTime.now());
+                linkEntity.setCheckedAt(OffsetDateTime.now());
             }
         }
-        return link;
+        return linkEntity;
     }
 
     private String[] getOwnerAndReposGithub(String uri) {

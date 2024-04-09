@@ -9,7 +9,7 @@ import static edu.java.domain.LinkType.STACKOVERFLOW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-public class LinkTypeServiceTest {
+public class LinkEntityTypeServiceTest {
 
     private final LinkTypeService linkTypeService = new LinkTypeService(Map.of(
         LinkType.STACKOVERFLOW.getHost(),

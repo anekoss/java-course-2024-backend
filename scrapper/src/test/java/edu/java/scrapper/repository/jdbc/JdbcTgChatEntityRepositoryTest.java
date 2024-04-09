@@ -2,7 +2,7 @@ package edu.java.scrapper.repository.jdbc;
 
 import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
-import edu.java.domain.TgChat;
+import edu.java.domain.TgChatEntity;
 import edu.java.repository.jdbc.JdbcTgChatRepository;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.transaction.Transactional;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-public class JdbcTgChatRepositoryTest extends IntegrationTest {
+public class JdbcTgChatEntityRepositoryTest extends IntegrationTest {
     @Autowired
     private JdbcTgChatRepository tgChatRepository;
     @Autowired
@@ -31,12 +31,12 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void testAdd_shouldCorrectlyAddNoExistChat() throws ChatAlreadyExistException {
-        TgChat tgChat = new TgChat().setChatId(214L);
+        TgChatEntity tgChat = new TgChatEntity().setChatId(214L);
         long tgChatId = tgChatRepository.add(tgChat);
         assert tgChatId > 0;
         assertThat(tgChatId).isGreaterThan(0L);
-        TgChat actual = jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?",
-                new BeanPropertyRowMapper<>(TgChat.class), 214L
+        TgChatEntity actual = jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?",
+                new BeanPropertyRowMapper<>(TgChatEntity.class), 214L
         );
         assert tgChatId == actual.getId();
         assert 214L == actual.getChatId();
@@ -46,7 +46,7 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void testAdd_shouldThrowExceptionIfAddExistChat() {
-        TgChat tgChat = new TgChat().setChatId(555555L);
+        TgChatEntity tgChat = new TgChatEntity().setChatId(555555L);
         assertThrows(ChatAlreadyExistException.class, () -> tgChatRepository.add(tgChat));
     }
 
@@ -54,12 +54,12 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void testRemove_shouldCorrectlyRemoveExistChat() throws ChatNotFoundException {
-        TgChat tgChat = new TgChat(4L, 555555L);
+        TgChatEntity tgChat = new TgChatEntity(4L, 555555L);
         assertThat(tgChatRepository.remove(tgChat)).isEqualTo(4L);
         assertThrows(
                 EmptyResultDataAccessException.class,
                 () -> jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?",
-                        new BeanPropertyRowMapper<>(TgChat.class), 555555L
+                        new BeanPropertyRowMapper<>(TgChatEntity.class), 555555L
                 )
         );
     }
@@ -68,7 +68,7 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void testRemove_shouldThrowExceptionIfRemoveNoExistChat() {
-        TgChat tgChat = new TgChat(6L, 250L);
+        TgChatEntity tgChat = new TgChatEntity(6L, 250L);
         assertThrows(ChatNotFoundException.class, () -> tgChatRepository.remove(tgChat));
     }
 
@@ -76,7 +76,7 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Rollback
     @Test
     void testFindAll_shouldCorrectlyFindAllChats() {
-        List<TgChat> chats = tgChatRepository.findAll();
+        List<TgChatEntity> chats = tgChatRepository.findAll();
         assert chats.size() == 4;
         assert chats.getFirst().getChatId() == 124025L;
         assert chats.getLast().getChatId() == 555555L;
@@ -87,7 +87,7 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Rollback
     void testFindAll_shouldReturnEmptyListIfNoChats() {
         jdbcTemplate.update("delete from tg_chats");
-        List<TgChat> chats = tgChatRepository.findAll();
+        List<TgChatEntity> chats = tgChatRepository.findAll();
         assert chats.isEmpty();
     }
 
@@ -95,7 +95,7 @@ public class JdbcTgChatRepositoryTest extends IntegrationTest {
     @Transactional
     @Rollback
     void testFindByChatId_shouldCorrectlyFindChat() throws ChatNotFoundException {
-        TgChat actual = tgChatRepository.findByChatId(444444L);
+        TgChatEntity actual = tgChatRepository.findByChatId(444444L);
         assert actual.getId() == 3L;
         assert actual.getChatId() == 444444L;
     }

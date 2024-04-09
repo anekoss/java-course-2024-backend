@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-public class JdbcChatLinkRepositoryTest extends IntegrationTest {
+public class JdbcChatLinkRepositoryTestEntity extends IntegrationTest {
     @Autowired
     private JdbcChatLinkRepository chatLinkRepository;
     @Autowired
