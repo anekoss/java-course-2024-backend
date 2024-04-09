@@ -3,7 +3,7 @@ package edu.java.scheduler.github.handler;
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubBranchResponse;
 import edu.java.domain.GithubLink;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
 import edu.java.scheduler.github.GithubResponseHandler;
@@ -23,7 +23,7 @@ public class GithubBranchesResponseHandler extends GithubResponseHandler {
     }
 
     @Override
-    public LinkUpdate handle(String owner, String repos, Link link) {
+    public LinkUpdate handle(String owner, String repos, LinkEntity link) {
         Optional<GitHubBranchResponse[]> gitHubResponse = gitHubClient.fetchRepositoryBranches(owner, repos);
         if (gitHubResponse.isPresent()) {
             GithubLink githubLink = new GithubLink(link.getId(), gitHubResponse.get().length);

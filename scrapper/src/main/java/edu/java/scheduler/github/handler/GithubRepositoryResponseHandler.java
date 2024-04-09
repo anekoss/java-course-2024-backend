@@ -2,7 +2,7 @@ package edu.java.scheduler.github.handler;
 
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubResponse;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
 import edu.java.scheduler.github.GithubResponseHandler;
@@ -19,7 +19,7 @@ public class GithubRepositoryResponseHandler extends GithubResponseHandler {
     }
 
     @Override
-    public LinkUpdate handle(String owner, String repos, Link link) {
+    public LinkUpdate handle(String owner, String repos, LinkEntity link) {
         Optional<GitHubResponse> gitHubResponse = gitHubClient.fetchRepository(owner, repos);
         if (gitHubResponse.isPresent() && gitHubResponse.get().updatedAt() != null) {
             OffsetDateTime updatedAt = gitHubResponse.get().updatedAt();

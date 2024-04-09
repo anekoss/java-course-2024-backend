@@ -2,7 +2,7 @@ package edu.java.repository.jooq;
 
 import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
-import edu.java.domain.TgChat;
+import edu.java.domain.TgChatEntity;
 import edu.java.domain.jooq.tables.records.TgChatsRecord;
 import edu.java.repository.TgChatRepository;
 import jakarta.transaction.Transactional;
@@ -19,7 +19,7 @@ public class JooqTgChatRepository implements TgChatRepository {
     private final DSLContext dslContext;
 
     @Override
-    public long add(TgChat tgChat) throws ChatAlreadyExistException {
+    public long add(TgChatEntity tgChat) throws ChatAlreadyExistException {
         TgChatsRecord tgChatsRecord = dslContext.insertInto(TG_CHATS)
                                                 .set(TG_CHATS.CHAT_ID, tgChat.getChatId())
                                                 .onConflictDoNothing()
@@ -31,7 +31,7 @@ public class JooqTgChatRepository implements TgChatRepository {
     }
 
     @Override
-    public long remove(TgChat tgChat) throws ChatNotFoundException {
+    public long remove(TgChatEntity tgChat) throws ChatNotFoundException {
         TgChatsRecord tgChatsRecord = dslContext.deleteFrom(TG_CHATS)
                                                 .where(TG_CHATS.CHAT_ID.eq(tgChat.getChatId()))
                                                 .returning(TG_CHATS.ID)
@@ -44,31 +44,31 @@ public class JooqTgChatRepository implements TgChatRepository {
 
     @Override
     @Transactional
-    public List<TgChat> findAll() {
+    public List<TgChatEntity> findAll() {
         return dslContext.selectFrom(TG_CHATS)
                          .fetch()
-                         .map(chat -> new TgChat(chat.getId(), chat.getChatId()))
+                         .map(chat -> new TgChatEntity(chat.getId(), chat.getChatId()))
                          .stream()
                          .toList();
     }
 
     @Override
     @Transactional
-    public TgChat findByChatId(Long chatId) throws ChatNotFoundException {
+    public TgChatEntity findByChatId(Long chatId) throws ChatNotFoundException {
         TgChatsRecord tgChatsRecord = dslContext.selectFrom(TG_CHATS).where(TG_CHATS.CHAT_ID.eq(chatId)).fetchOne();
         if (tgChatsRecord == null) {
             throw new ChatNotFoundException();
         }
-        return new TgChat(tgChatsRecord.getId(), tgChatsRecord.getChatId());
+        return new TgChatEntity(tgChatsRecord.getId(), tgChatsRecord.getChatId());
     }
 
     @Override
     @Transactional
-    public Optional<TgChat> findById(Long id) {
+    public Optional<TgChatEntity> findById(Long id) {
         TgChatsRecord tgChatsRecord = dslContext.selectFrom(TG_CHATS).where(TG_CHATS.ID.eq(id)).fetchOne();
         if (tgChatsRecord == null) {
             return Optional.empty();
         }
-        return Optional.of(new TgChat(tgChatsRecord.getId(), tgChatsRecord.getChatId()));
+        return Optional.of(new TgChatEntity(tgChatsRecord.getId(), tgChatsRecord.getChatId()));
     }
 }

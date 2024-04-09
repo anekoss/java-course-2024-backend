@@ -7,14 +7,12 @@ import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.ChatLink;
 import edu.java.domain.GithubLink;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.domain.StackOverflowLink;
-import edu.java.domain.TgChat;
+import edu.java.domain.TgChatEntity;
 import edu.java.repository.ChatLinkRepository;
-import edu.java.repository.GithubLinkRepository;
 import edu.java.repository.LinkRepository;
-import edu.java.repository.StackOverflowLinkRepository;
 import edu.java.repository.TgChatRepository;
 import edu.java.scheduler.dto.UpdateType;
 import edu.java.scrapper.IntegrationTest;
@@ -66,9 +64,9 @@ public abstract class LinkServiceTest extends IntegrationTest {
     void testAdd_shouldCorrectlyAddLinkByChatIfTableHaveSame() throws ChatNotFoundException, LinkAlreadyExistException {
         URI uri = URI.create("https://github.com/anekoss/tinkoff-project");
         LinkResponse response = linkService.add(555555L, uri);
-        Link link = linkRepository.findByUri(uri).get();
+        LinkEntity link = linkRepository.findByUri(uri).get();
         assertEquals(response, new LinkResponse(link.getId(), uri));
-        TgChat tgChat = tgChatRepository.findByChatId(555555L);
+        TgChatEntity tgChat = tgChatRepository.findByChatId(555555L);
         assertThat(chatLinkRepository.findByTgChatId(tgChat.getId())).contains(new ChatLink(
             tgChat.getId(),
             link.getId()
@@ -82,9 +80,9 @@ public abstract class LinkServiceTest extends IntegrationTest {
         throws ChatNotFoundException, LinkAlreadyExistException {
         URI uri = URI.create("https://github.com/anekoss/tinkoff-project");
         LinkResponse response = linkService.add(555555L, uri);
-        Link link = linkRepository.findByUri(uri).get();
+        LinkEntity link = linkRepository.findByUri(uri).get();
         assertEquals(response, new LinkResponse(link.getId(), uri));
-        TgChat tgChat = tgChatRepository.findByChatId(555555L);
+        TgChatEntity tgChat = tgChatRepository.findByChatId(555555L);
         assertThat(chatLinkRepository.findByTgChatId(tgChat.getId())).contains(new ChatLink(
             tgChat.getId(),
             link.getId()
@@ -171,10 +169,10 @@ public abstract class LinkServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testGetChatIdsByLinkId_shouldReturnEmptyArrayIfNoChats() {
-        long linkId = linkRepository.add(new Link().setUri(URI.create("https://github.com/"))
-                                                   .setLinkType(LinkType.GITHUB)
-                                                   .setUpdatedAt(OffsetDateTime.now())
-                                                   .setCheckedAt(OffsetDateTime.now()));
+        long linkId = linkRepository.add(new LinkEntity().setUri(URI.create("https://github.com/"))
+                                                         .setLinkType(LinkType.GITHUB)
+                                                         .setUpdatedAt(OffsetDateTime.now())
+                                                         .setCheckedAt(OffsetDateTime.now()));
         long[] chatIds = linkService.getChatIdsByLinkId(linkId);
         assert chatIds.length == 0;
     }
@@ -204,7 +202,7 @@ public abstract class LinkServiceTest extends IntegrationTest {
             checked,
             checked
         )).isEqualTo(1);
-        Link actual = linkRepository.findById(1L).get();
+        LinkEntity actual = linkRepository.findById(1L).get();
         assertThat(actual.getUpdatedAt()).isEqualToIgnoringNanos(checked);
         assertThat(actual.getCheckedAt()).isEqualToIgnoringNanos(checked);
     }
@@ -213,13 +211,13 @@ public abstract class LinkServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void testGetStaleLinks_shouldCorrectlyReturnLinks() {
-        Link link = new Link().setUri(URI.create("https://stackoverflow.com/"))
-                              .setUpdatedAt(OffsetDateTime.now())
-                              .setLinkType(STACKOVERFLOW)
-                              .setCheckedAt(OffsetDateTime.of(1900, 12, 22, 13, 23, 34, 4, ZoneOffset.UTC));
+        LinkEntity link = new LinkEntity().setUri(URI.create("https://stackoverflow.com/"))
+                                          .setUpdatedAt(OffsetDateTime.now())
+                                          .setLinkType(STACKOVERFLOW)
+                                          .setCheckedAt(OffsetDateTime.of(1900, 12, 22, 13, 23, 34, 4, ZoneOffset.UTC));
         long linkId = linkRepository.add(link);
         link.setId(linkId);
-        List<Link> links = linkService.getStaleLinks(1L);
+        List<LinkEntity> links = linkService.getStaleLinks(1L);
         assert links.size() == 1;
         assertEquals(links.getFirst().getUri().toString(), link.getUri().toString());
     }
@@ -228,8 +226,8 @@ public abstract class LinkServiceTest extends IntegrationTest {
     @Transactional
     @Rollback
     void testGetStaleLinks_shouldReturnEmptyListIfNoList() throws LinkNotFoundException {
-        List<Link> links = linkRepository.findAll();
-        for (Link link : links) {
+        List<LinkEntity> links = linkRepository.findAll();
+        for (LinkEntity link : links) {
             linkRepository.remove(link.getUri());
         }
         assert linkRepository.findAll().isEmpty();

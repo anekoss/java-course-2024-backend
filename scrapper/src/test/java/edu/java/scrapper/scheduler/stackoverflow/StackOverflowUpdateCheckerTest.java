@@ -1,6 +1,6 @@
 package edu.java.scrapper.scheduler.stackoverflow;
 
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.UpdateChecker;
 import edu.java.scheduler.dto.LinkUpdate;
@@ -23,11 +23,11 @@ public class StackOverflowUpdateCheckerTest {
 
     private final UpdateChecker updateChecker = new StackOverflowUpdateChecker(responseHandler);
 
-    private final Link link =
-        new Link().setId(1L)
-                  .setUri(URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"))
-                  .setLinkType(LinkType.STACKOVERFLOW).setCheckedAt(OffsetDateTime.now())
-                  .setUpdatedAt(OffsetDateTime.now());
+    private final LinkEntity link =
+        new LinkEntity().setId(1L)
+                        .setUri(URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"))
+                        .setLinkType(LinkType.STACKOVERFLOW).setCheckedAt(OffsetDateTime.now())
+                        .setUpdatedAt(OffsetDateTime.now());
     private final long question = 78056352L;
 
     @Test

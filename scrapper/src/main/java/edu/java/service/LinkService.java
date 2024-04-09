@@ -6,7 +6,7 @@ import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.GithubLink;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.StackOverflowLink;
 import edu.java.scheduler.dto.UpdateType;
 import java.net.URI;
@@ -24,7 +24,7 @@ public interface LinkService {
 
     long update(long id, OffsetDateTime updatedAt, OffsetDateTime checkedAt);
 
-    List<Link> getStaleLinks(long limit);
+    List<LinkEntity> getStaleLinks(long limit);
 
     UpdateType updateStackOverflowAnswerCount(StackOverflowLink stackOverflowLink);
 

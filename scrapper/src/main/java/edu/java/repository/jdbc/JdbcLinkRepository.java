@@ -1,7 +1,7 @@
 package edu.java.repository.jdbc;
 
 import edu.java.controller.exception.LinkNotFoundException;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.repository.LinkRepository;
 import jakarta.transaction.Transactional;
 import java.net.URI;
@@ -32,7 +32,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public long add(Link link) {
+    public long add(LinkEntity link) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
@@ -70,7 +70,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public List<Link> findAll() {
+    public List<LinkEntity> findAll() {
         List<Map<String, Object>> list = jdbcTemplate.queryForList("select * from links");
         return listMapToLinkList(list);
 
@@ -78,11 +78,11 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public Optional<Link> findByUri(URI uri) {
+    public Optional<LinkEntity> findByUri(URI uri) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "select * from links where uri = ?",
-                new BeanPropertyRowMapper<>(Link.class),
+                new BeanPropertyRowMapper<>(LinkEntity.class),
                 uri.toString()
             ));
         } catch (DataAccessException e) {
@@ -92,11 +92,11 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public Optional<Link> findById(long id) {
+    public Optional<LinkEntity> findById(long id) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "select * from links where id = ?",
-                new BeanPropertyRowMapper<>(Link.class),
+                new BeanPropertyRowMapper<>(LinkEntity.class),
                 id
             ));
         } catch (DataAccessException e) {
@@ -106,7 +106,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public List<Link> findStaleLinks(Long limit) {
+    public List<LinkEntity> findStaleLinks(Long limit) {
         List<Map<String, Object>> list =
             jdbcTemplate.queryForList("select * from links order by checked_at asc limit ?", limit);
         return listMapToLinkList(list).stream().toList();

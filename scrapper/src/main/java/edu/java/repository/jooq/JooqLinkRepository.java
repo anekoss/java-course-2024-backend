@@ -1,7 +1,7 @@
 package edu.java.repository.jooq;
 
 import edu.java.controller.exception.LinkNotFoundException;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.domain.jooq.tables.records.LinksRecord;
 import edu.java.repository.LinkRepository;
@@ -24,7 +24,7 @@ public class JooqLinkRepository implements LinkRepository {
     private final DSLContext dslContext;
 
     @Override
-    public long add(Link link) {
+    public long add(LinkEntity link) {
         LinksRecord linksRecord =
             dslContext.insertInto(LINKS, LINKS.URI, LINKS.LINK_TYPE, LINKS.UPDATED_AT, LINKS.CHECKED_AT)
                       .values(
@@ -58,10 +58,10 @@ public class JooqLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public List<Link> findAll() {
+    public List<LinkEntity> findAll() {
         return dslContext.selectFrom(LINKS)
                          .fetch()
-                         .map(link -> new Link(
+                         .map(link -> new LinkEntity(
                              link.getId(),
                              URI.create(link.getUri()),
                              LinkType.valueOf(link.getLinkType()),
@@ -74,12 +74,12 @@ public class JooqLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public Optional<Link> findByUri(URI uri) {
+    public Optional<LinkEntity> findByUri(URI uri) {
         LinksRecord linksRecord = dslContext.selectFrom(LINKS).where(LINKS.URI.eq(uri.toString())).fetchOne();
         if (linksRecord == null) {
             return Optional.empty();
         }
-        return Optional.of(new Link(
+        return Optional.of(new LinkEntity(
                 linksRecord.getId(),
                 URI.create(linksRecord.getUri()),
                 LinkType.valueOf(linksRecord.getLinkType()),
@@ -90,12 +90,12 @@ public class JooqLinkRepository implements LinkRepository {
     }
 
     @Override
-    public Optional<Link> findById(long id) {
+    public Optional<LinkEntity> findById(long id) {
         LinksRecord linksRecord = dslContext.selectFrom(LINKS).where(LINKS.ID.eq(id)).fetchOne();
         if (linksRecord == null) {
             return Optional.empty();
         }
-        return Optional.of(new Link(
+        return Optional.of(new LinkEntity(
                 linksRecord.getId(),
                 URI.create(linksRecord.getUri()),
                 LinkType.valueOf(linksRecord.getLinkType()),
@@ -107,11 +107,11 @@ public class JooqLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public List<Link> findStaleLinks(Long limit) {
+    public List<LinkEntity> findStaleLinks(Long limit) {
         return dslContext.selectFrom(LINKS)
                          .orderBy(LINKS.CHECKED_AT.asc())
                          .limit(limit)
-                         .fetch().stream().map(link -> new Link(
+                         .fetch().stream().map(link -> new LinkEntity(
                 link.getId(),
                 URI.create(link.getUri()),
                 LinkType.valueOf(link.getLinkType()),

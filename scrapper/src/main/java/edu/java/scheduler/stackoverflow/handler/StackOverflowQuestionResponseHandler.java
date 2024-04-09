@@ -2,7 +2,7 @@ package edu.java.scheduler.stackoverflow.handler;
 
 import edu.java.client.StackOverflowClient;
 import edu.java.client.dto.StackOverflowResponse;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.StackOverflowLink;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
@@ -20,7 +20,7 @@ public class StackOverflowQuestionResponseHandler implements StackOverflowRespon
     private final LinkService linkService;
 
     @Override
-    public LinkUpdate handle(long question, Link link) {
+    public LinkUpdate handle(long question, LinkEntity link) {
         Optional<StackOverflowResponse> response = stackOverflowClient.fetchQuestion(question);
         if (response.isPresent()) {
             Optional<StackOverflowResponse.StackOverflowItem> opItem = response.get().items()

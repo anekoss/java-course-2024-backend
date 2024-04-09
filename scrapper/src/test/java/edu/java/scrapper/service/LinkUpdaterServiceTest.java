@@ -1,7 +1,7 @@
 package edu.java.scrapper.service;
 
 import edu.java.client.dto.LinkUpdateRequest;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.UpdateChecker;
 import edu.java.scheduler.dto.LinkUpdate;
@@ -23,11 +23,11 @@ public class LinkUpdaterServiceTest {
     private static final LinkService linkService = Mockito.mock(LinkService.class);
     private static final Map<LinkType, UpdateChecker> updateCheckerMap = Mockito.mock(Map.class);
     private static final UpdateChecker updateChecker = Mockito.mock(UpdateChecker.class);
-    private static final List<Link> staleLinks =
+    private static final List<LinkEntity> staleLinks =
         List.of(
-            new Link().setId(1L).setUri(URI.create("https://github.com/anekoss/tinkoff")),
-            new Link().setId(2L).setUri(URI.create("https://github.com/anekoss/tinkoff-project")),
-            new Link().setId(3L).setUri(URI.create(
+            new LinkEntity().setId(1L).setUri(URI.create("https://github.com/anekoss/tinkoff")),
+            new LinkEntity().setId(2L).setUri(URI.create("https://github.com/anekoss/tinkoff-project")),
+            new LinkEntity().setId(3L).setUri(URI.create(
                 "https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"))
         );
 

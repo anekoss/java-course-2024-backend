@@ -2,7 +2,7 @@ package edu.java.scrapper.scheduler.github.handler;
 
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubResponse;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class GithubRepositoryResponseHandlerTest {
@@ -31,9 +30,9 @@ public class GithubRepositoryResponseHandlerTest {
         OffsetDateTime.parse("2024-02-11T11:13:57Z")
     );
     private final OffsetDateTime checkedAt = OffsetDateTime.parse("2023-02-11T11:13:57Z");
-    private final Link link =
-        new Link().setUri(URI.create("https://github.com/anekoss/tinkoff-project")).setLinkType(LinkType.GITHUB)
-                  .setUpdatedAt(checkedAt).setCheckedAt(checkedAt);
+    private final LinkEntity link =
+        new LinkEntity().setUri(URI.create("https://github.com/anekoss/tinkoff-project")).setLinkType(LinkType.GITHUB)
+                        .setUpdatedAt(checkedAt).setCheckedAt(checkedAt);
     private final String owner = "anekoss";
     private final String repos = "tinkoff-project";
 
