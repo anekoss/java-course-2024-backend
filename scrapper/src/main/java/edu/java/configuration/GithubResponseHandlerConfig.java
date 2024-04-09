@@ -11,23 +11,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GithubResponseHandlerConfig {
     @Bean
-    GithubResponseHandler nextHandler() {
-        return null;
+    GithubResponseHandler responseHandler(GitHubClient gitHubClient, LinkService linkService) {
+        return new GithubRepositoryResponseHandler(
+            gitHubClient,
+            githubBranchesResponseHandler(gitHubClient, linkService)
+        );
     }
 
     @Bean
-    GithubBranchesResponseHandler githubBranchesResponseHandler(LinkService linkService, GitHubClient gitHubClient) {
+    GithubBranchesResponseHandler githubBranchesResponseHandler(GitHubClient gitHubClient, LinkService linkService) {
         return new GithubBranchesResponseHandler(gitHubClient, null, linkService);
-    }
-
-    @Bean GithubResponseHandler responseHandler(
-        LinkService linkService,
-        GitHubClient gitHubClient
-    ) {
-        return new GithubRepositoryResponseHandler(
-            gitHubClient,
-            githubBranchesResponseHandler(linkService, gitHubClient)
-        );
     }
 
 }

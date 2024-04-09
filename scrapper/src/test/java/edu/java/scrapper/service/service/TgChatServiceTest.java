@@ -5,22 +5,21 @@ import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.domain.TgChat;
 import edu.java.scrapper.IntegrationTest;
 import edu.java.service.TgChatService;
-import edu.java.service.jdbc.JdbcTgChatService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @AllArgsConstructor
 public abstract class TgChatServiceTest extends IntegrationTest {
 
-    protected TgChatService tgChatService;
-    @Autowired
-    protected JdbcTemplate jdbcTemplate;
+    private TgChatService tgChatService;
+
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     @Rollback

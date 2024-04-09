@@ -9,9 +9,7 @@ import edu.java.scheduler.dto.UpdateType;
 import edu.java.scheduler.github.GithubResponseHandler;
 import edu.java.service.LinkService;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
 
-@Service
 public class GithubBranchesResponseHandler extends GithubResponseHandler {
     private final LinkService linkService;
 

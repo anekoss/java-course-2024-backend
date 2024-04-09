@@ -56,7 +56,7 @@ public class GithubBranchesResponseHandlerTest {
     void testHandle_shouldCorrectlyReturnUpdateBranchIfHaveUpdateAndNextHandlerNoUpdate() {
         when(gitHubClient.fetchRepositoryBranches(owner, repos)).thenReturn(Optional.of(response));
         when(linkService.updateGithubBranchCount(any())).thenReturn(UpdateType.UPDATE_BRANCH);
-        when(nextHandler.handle(owner, repos, any())).thenReturn(new LinkUpdate(
+        when(nextHandler.handle(owner, repos, link)).thenReturn(new LinkUpdate(
             link,
             UpdateType.NO_UPDATE
         ));
@@ -68,7 +68,7 @@ public class GithubBranchesResponseHandlerTest {
     void testHandle_shouldReturnNextHandlerResponseIfNoUpdate() {
         when(gitHubClient.fetchRepositoryBranches(owner, repos)).thenReturn(Optional.of(response));
         when(linkService.updateGithubBranchCount(any())).thenReturn(UpdateType.NO_UPDATE);
-        when(nextHandler.handle(owner, repos, any())).thenReturn(new LinkUpdate(
+        when(nextHandler.handle(owner, repos, link)).thenReturn(new LinkUpdate(
             link,
             UpdateType.UPDATE
         ));
@@ -90,7 +90,7 @@ public class GithubBranchesResponseHandlerTest {
     @Test
     void testHandle_shouldReturnNextHandlerResponseIfFetchRepositoryEmpty() {
         when(gitHubClient.fetchRepository(owner, repos)).thenReturn(Optional.empty());
-        when(nextHandler.handle(owner, repos, any())).thenReturn(new LinkUpdate(
+        when(nextHandler.handle(owner, repos, link)).thenReturn(new LinkUpdate(
             link,
             UpdateType.UPDATE
         ));

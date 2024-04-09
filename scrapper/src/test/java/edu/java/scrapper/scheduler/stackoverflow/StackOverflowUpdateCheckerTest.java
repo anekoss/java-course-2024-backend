@@ -32,19 +32,19 @@ public class StackOverflowUpdateCheckerTest {
 
     @Test
     void testCheck_shouldReturnNoUpdateIfNoUpdate() {
-        when(responseHandler.handle(question, any())).thenReturn(new LinkUpdate(link, UpdateType.NO_UPDATE));
+        when(responseHandler.handle(question, link)).thenReturn(new LinkUpdate(link, UpdateType.NO_UPDATE));
         assert updateChecker.check(link).type() == UpdateType.NO_UPDATE;
     }
 
     @Test
     void testCheck_shouldReturnUpdateIfHaveUpdate() {
-        when(responseHandler.handle(question, any())).thenReturn(new LinkUpdate(link, UpdateType.UPDATE));
+        when(responseHandler.handle(question, link)).thenReturn(new LinkUpdate(link, UpdateType.UPDATE));
         assert updateChecker.check(link).type() == UpdateType.UPDATE;
     }
 
     @Test
     void testCheck_shouldReturnUpdateAnswerIfHaveNewAnswer() {
-        when(responseHandler.handle(question, any())).thenReturn(new LinkUpdate(link, UpdateType.UPDATE_ANSWER));
+        when(responseHandler.handle(question, link)).thenReturn(new LinkUpdate(link, UpdateType.UPDATE_ANSWER));
         assert updateChecker.check(link).type() == UpdateType.UPDATE_ANSWER;
     }
 
@@ -56,7 +56,7 @@ public class StackOverflowUpdateCheckerTest {
 
     @Test
     void testCheck_shouldCorrectlyReturnLongQuestion() {
-        when(responseHandler.handle(question, any())).thenReturn(new LinkUpdate(link, UpdateType.UPDATE_ANSWER));
+        when(responseHandler.handle(question, link)).thenReturn(new LinkUpdate(link, UpdateType.UPDATE_ANSWER));
         assert updateChecker.check(link).type() == UpdateType.UPDATE_ANSWER;
         verify(responseHandler, times(1)).handle(question, link);
     }

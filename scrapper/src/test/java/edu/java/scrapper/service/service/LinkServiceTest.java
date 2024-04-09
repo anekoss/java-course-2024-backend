@@ -35,12 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @AllArgsConstructor
 public abstract class LinkServiceTest extends IntegrationTest {
 
-    protected LinkRepository linkRepository;
-    protected ChatLinkRepository chatLinkRepository;
-    protected TgChatRepository tgChatRepository;
-    protected StackOverflowLinkRepository stackOverflowLinkRepository;
-    protected GithubLinkRepository githubLinkRepository;
-    protected LinkService linkService;
+    private LinkRepository linkRepository;
+    private ChatLinkRepository chatLinkRepository;
+    private TgChatRepository tgChatRepository;
+    private LinkService linkService;
 
     @Test
     @Rollback

@@ -143,7 +143,13 @@ public class GitHubClientTest extends IntegrationTest {
         GitHubBranchResponse[] excepted =
             new GitHubBranchResponse[] {new GitHubBranchResponse("hw1"), new GitHubBranchResponse("hw2"),
                 new GitHubBranchResponse("hw_2"), new GitHubBranchResponse("hw3")};
-        assertEquals(gitHubClient.fetchRepositoryBranches("anekoss", "tinkoff-project"), Optional.of(excepted));
+        GitHubBranchResponse[] actual = gitHubClient.fetchRepositoryBranches("anekoss", "tinkoff-project").get();
+        assert actual.length == 4;
+        assertEquals(actual[0], excepted[0]);
+        assertEquals(actual[1], excepted[1]);
+        assertEquals(actual[2], excepted[2]);
+        assertEquals(actual[3], excepted[3]);
+
     }
 
     @Test

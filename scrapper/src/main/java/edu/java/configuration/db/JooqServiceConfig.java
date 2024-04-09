@@ -1,8 +1,10 @@
 package edu.java.configuration.db;
 
+import edu.java.repository.jooq.JooqChatLinkRepository;
 import edu.java.repository.jooq.JooqGithubLinkRepository;
 import edu.java.repository.jooq.JooqLinkRepository;
 import edu.java.repository.jooq.JooqStackOverflowLinkRepository;
+import edu.java.repository.jooq.JooqTgChatRepository;
 import edu.java.service.LinkService;
 import edu.java.service.TgChatService;
 import edu.java.service.jooq.JooqLinkService;
@@ -21,7 +23,8 @@ public class JooqServiceConfig {
         return new JooqTgChatService(tgChatRepository);
     }
 
-    @Bean LinkService linkService(
+    @Bean
+    LinkService linkService(
         JooqTgChatRepository tgChatRepository,
         JooqLinkRepository linkRepository,
         LinkTypeService linkTypeService,

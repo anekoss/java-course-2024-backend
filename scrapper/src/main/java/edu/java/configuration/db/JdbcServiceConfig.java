@@ -9,7 +9,6 @@ import edu.java.service.LinkService;
 import edu.java.service.TgChatService;
 import edu.java.service.jdbc.JdbcLinkService;
 import edu.java.service.jdbc.JdbcTgChatService;
-import edu.java.service.jooq.JooqLinkService;
 import edu.java.service.util.LinkTypeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;

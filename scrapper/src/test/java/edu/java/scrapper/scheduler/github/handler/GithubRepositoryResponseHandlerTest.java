@@ -71,7 +71,7 @@ public class GithubRepositoryResponseHandlerTest {
     @Test
     void testHandleShouldReturnNextHandlerResponseIfHaveUpdate() {
         GithubBranchesResponseHandler githubBranchesResponseHandler = Mockito.mock(GithubBranchesResponseHandler.class);
-        when(githubBranchesResponseHandler.handle(owner, repos, any())).thenReturn(new LinkUpdate(
+        when(githubBranchesResponseHandler.handle(owner, repos, link)).thenReturn(new LinkUpdate(
             link,
             UpdateType.UPDATE_ANSWER
         ));
@@ -84,7 +84,7 @@ public class GithubRepositoryResponseHandlerTest {
     @Test
     void testHandleShouldReturnUpdateIfNextHandlerNoUpdate() {
         GithubBranchesResponseHandler githubBranchesResponseHandler = Mockito.mock(GithubBranchesResponseHandler.class);
-        when(githubBranchesResponseHandler.handle(owner, repos, any())).thenReturn(new LinkUpdate(
+        when(githubBranchesResponseHandler.handle(owner, repos, link)).thenReturn(new LinkUpdate(
             link,
             UpdateType.NO_UPDATE
         ));

@@ -1,8 +1,10 @@
 package edu.java.service.jooq;
 
+import edu.java.repository.jooq.JooqChatLinkRepository;
 import edu.java.repository.jooq.JooqGithubLinkRepository;
 import edu.java.repository.jooq.JooqLinkRepository;
 import edu.java.repository.jooq.JooqStackOverflowLinkRepository;
+import edu.java.repository.jooq.JooqTgChatRepository;
 import edu.java.service.service.AbstractLinkService;
 import edu.java.service.util.LinkTypeService;
 

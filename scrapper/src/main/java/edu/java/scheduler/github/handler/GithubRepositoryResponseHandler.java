@@ -8,9 +8,7 @@ import edu.java.scheduler.dto.UpdateType;
 import edu.java.scheduler.github.GithubResponseHandler;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
 
-@Service
 public class GithubRepositoryResponseHandler extends GithubResponseHandler {
 
     public GithubRepositoryResponseHandler(
