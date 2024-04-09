@@ -6,9 +6,9 @@ import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.ChatLink;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
-import edu.java.domain.TgChat;
+import edu.java.domain.TgChatEntity;
 import edu.java.repository.jdbc.JdbcChatLinkRepository;
 import edu.java.repository.jdbc.JdbcLinkRepository;
 import edu.java.repository.jdbc.JdbcTgChatRepository;
@@ -64,9 +64,9 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     void testAdd_shouldCorrectlyAddLinkByChatIfTableHaveSame() throws ChatNotFoundException, LinkAlreadyExistException {
         URI uri = URI.create("https://github.com/anekoss/tinkoff-project");
         LinkResponse response = linkService.add(555555L, uri);
-        Link link = linkRepository.findByUri(uri).get();
+        LinkEntity link = linkRepository.findByUri(uri).get();
         assertEquals(response, new LinkResponse(link.getId(), uri));
-        TgChat tgChat = tgChatRepository.findByChatId(555555L);
+        TgChatEntity tgChat = tgChatRepository.findByChatId(555555L);
         assertThat(chatLinkRepository.findByTgChatId(tgChat.getId())).contains(new ChatLink(tgChat.getId(), link.getId()));
     }
 
@@ -76,9 +76,9 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     void testAdd_shouldCorrectlyAddLinkToChatIfTableHaveNotSame() throws ChatNotFoundException, LinkAlreadyExistException {
         URI uri = URI.create("https://github.com/anekoss/tinkoff-project");
         LinkResponse response = linkService.add(555555L, uri);
-        Link link = linkRepository.findByUri(uri).get();
+        LinkEntity link = linkRepository.findByUri(uri).get();
         assertEquals(response, new LinkResponse(link.getId(), uri));
-        TgChat tgChat = tgChatRepository.findByChatId(555555L);
+        TgChatEntity tgChat = tgChatRepository.findByChatId(555555L);
         assertThat(chatLinkRepository.findByTgChatId(tgChat.getId())).contains(new ChatLink(tgChat.getId(), link.getId()));
     }
 
@@ -158,10 +158,10 @@ public class JdbcLinkServiceTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testGetChatIdsByLinkId_shouldReturnEmptyArrayIfNoChats() {
-        long linkId = linkRepository.add(new Link().setUri(URI.create("https://github.com/"))
-                                                   .setLinkType(LinkType.GITHUB)
-                                                   .setUpdatedAt(OffsetDateTime.now())
-                                                   .setCheckedAt(OffsetDateTime.now()));
+        long linkId = linkRepository.add(new LinkEntity().setUri(URI.create("https://github.com/"))
+                                                         .setLinkType(LinkType.GITHUB)
+                                                         .setUpdatedAt(OffsetDateTime.now())
+                                                         .setCheckedAt(OffsetDateTime.now()));
         long[] chatIds = linkService.getChatIdsByLinkId(linkId);
         assert chatIds.length == 0;
     }
@@ -191,7 +191,7 @@ public class JdbcLinkServiceTest extends IntegrationTest {
                 checked,
                 checked
         )).isEqualTo(1);
-        Link actual = linkRepository.findById(1L).get();
+        LinkEntity actual = linkRepository.findById(1L).get();
         assertThat(actual.getUpdatedAt()).isEqualToIgnoringNanos(checked);
         assertThat(actual.getCheckedAt()).isEqualToIgnoringNanos(checked);
     }

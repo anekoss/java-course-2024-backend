@@ -21,7 +21,7 @@ import org.hibernate.annotations.Cascade;
 @NoArgsConstructor
 @Entity(name = "tg_chats")
 @Accessors(chain = true)
-public class TgChat {
+public class TgChatEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,19 +37,19 @@ public class TgChat {
             inverseJoinColumns = {@JoinColumn(name = "link_id")}
     )
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private Set<Link> links;
+    private Set<LinkEntity> links;
 
-    public TgChat(Long id, Long chatId) {
+    public TgChatEntity(Long id, Long chatId) {
         this.id = id;
         this.chatId = chatId;
     }
 
-    public void addLink(Link link) {
+    public void addLink(LinkEntity link) {
         this.links.add(link);
         link.addTgChat(this);
     }
 
-    public void removeLink(Link link) {
+    public void removeLink(LinkEntity link) {
         this.links.remove(link);
         link.removeTgChat(this);
     }

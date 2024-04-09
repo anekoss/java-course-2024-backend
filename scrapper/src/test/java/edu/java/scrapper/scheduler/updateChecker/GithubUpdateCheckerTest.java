@@ -2,7 +2,7 @@ package edu.java.scrapper.scheduler.updateChecker;
 
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubResponse;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.updateChecker.GithubUpdateChecker;
 import java.net.URI;
@@ -26,15 +26,15 @@ public class GithubUpdateCheckerTest {
         OffsetDateTime.parse("2024-02-21T12:54:35Z"),
         OffsetDateTime.parse("2024-02-11T11:13:57Z")
     );
-    private final Link link = new Link().setUri(URI.create("https://github.com/anekoss/tinkoff-project"))
-        .setLinkType(LinkType.GITHUB);
+    private final LinkEntity link = new LinkEntity().setUri(URI.create("https://github.com/anekoss/tinkoff-project"))
+                                                    .setLinkType(LinkType.GITHUB);
 
     @Test
     void testCheck_shouldCorrectlyUpdateLink() {
         OffsetDateTime checkedAt = OffsetDateTime.parse("2023-02-11T11:13:57Z");
         when(gitHubClient.fetchRepository(anyString(), anyString())).thenReturn(Optional.of(response));
         link.setCheckedAt(checkedAt).setUpdatedAt(checkedAt);
-        Link updatedLink = updateChecker.check(link);
+        LinkEntity updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getUpdatedAt()).isEqualToIgnoringNanos(response.updatedAt());
         assertThat(updatedLink.getCheckedAt()).isAfter(checkedAt);
     }
@@ -45,7 +45,7 @@ public class GithubUpdateCheckerTest {
         OffsetDateTime checkedAt = OffsetDateTime.now().minusDays(1);
         OffsetDateTime updatedAt = response.updatedAt();
         link.setCheckedAt(checkedAt).setUpdatedAt(updatedAt);
-        Link updatedLink = updateChecker.check(link);
+        LinkEntity updatedLink = updateChecker.check(link);
         assertThat(updatedLink.getUpdatedAt()).isEqualToIgnoringNanos(updatedAt);
         assertThat(updatedLink.getCheckedAt()).isAfter(checkedAt);
     }

@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 
 import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.client.exception.CustomWebClientException;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.LinkUpdaterService;
 import edu.java.scheduler.UpdateChecker;
@@ -40,44 +40,44 @@ public class LinkUpdaterServiceTest {
 
     static Stream<Arguments> provideDataForTest() throws CustomWebClientException {
         OffsetDateTime updated = OffsetDateTime.now();
-        List<Link> staleLinks = List.of(
-                new Link(
+        List<LinkEntity> staleLinks = List.of(
+                new LinkEntity(
                         1L,
                         URI.create("https://github.com/anekoss/tinkoff-project"),
                         LinkType.GITHUB,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
                         OffsetDateTime.parse("2023-02-11T11:13:57Z")
                 ),
-                new Link(
+                new LinkEntity(
                         2L,
                         URI.create("https://github.com/anekoss/tinkoff"),
                         LinkType.GITHUB,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
                         OffsetDateTime.parse("2023-03-11T11:13:57Z")
                 ),
-                new Link(
+                new LinkEntity(
                         3L,
                         URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
                         LinkType.STACKOVERFLOW,
                         OffsetDateTime.parse("2023-02-11T11:13:57Z"),
                         OffsetDateTime.parse("2023-01-11T11:13:57Z")
                 ));
-        List<Link> updatedLinks = List.of(
-                new Link(
+        List<LinkEntity> updatedLinks = List.of(
+                new LinkEntity(
                         1L,
                         URI.create("https://github.com/anekoss/tinkoff-project"),
                         LinkType.GITHUB,
                         updated,
                         updated
                 ),
-                new Link(
+                new LinkEntity(
                         2L,
                         URI.create("https://github.com/anekoss/tinkoff"),
                         LinkType.GITHUB,
                         updated,
                         updated
                 ),
-                new Link(
+                new LinkEntity(
                         3L,
                         URI.create("https://stackoverflow.com/questions/78056352/react-leaflet-map-not-re-rendering"),
                         LinkType.STACKOVERFLOW,
@@ -110,7 +110,7 @@ public class LinkUpdaterServiceTest {
 
     @ParameterizedTest
     @MethodSource("provideDataForTest")
-    void updateGetUpdates_shouldReturnEmptyListIfNoUpdates(List<Link> staleLinks) throws CustomWebClientException {
+    void updateGetUpdates_shouldReturnEmptyListIfNoUpdates(List<LinkEntity> staleLinks) throws CustomWebClientException {
         when(updateChecker.check(staleLinks.get(0))).thenReturn(staleLinks.get(0));
         when(updateChecker.check(staleLinks.get(1))).thenReturn(staleLinks.get(1));
         when(updateChecker.check(staleLinks.get(2))).thenReturn(staleLinks.get(2));

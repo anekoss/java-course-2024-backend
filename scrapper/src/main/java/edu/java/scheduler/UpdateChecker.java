@@ -1,9 +1,9 @@
 package edu.java.scheduler;
 
 import edu.java.client.exception.CustomWebClientException;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 
 public interface UpdateChecker {
 
-    Link check(Link link) throws CustomWebClientException;
+    LinkEntity check(LinkEntity link) throws CustomWebClientException;
 }
