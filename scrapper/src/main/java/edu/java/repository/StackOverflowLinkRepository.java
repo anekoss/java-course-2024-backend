@@ -1,12 +1,9 @@
 package edu.java.repository;
 
-import java.util.Optional;
+import edu.java.domain.StackOverflowLink;
 
 public interface StackOverflowLinkRepository {
 
-    Optional<Long> findStackOverflowAnswerCountByLinkId(Long linkId);
+    long add(StackOverflowLink stackOverflowLink);
 
-    int add(Long linkId, Long count);
-
-    int update(Long linkId, Long count);
 }

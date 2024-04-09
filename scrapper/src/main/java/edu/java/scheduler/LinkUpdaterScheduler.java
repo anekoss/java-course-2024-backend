@@ -3,6 +3,7 @@ package edu.java.scheduler;
 import edu.java.client.BotClient;
 import edu.java.client.dto.LinkUpdateRequest;
 import java.util.List;
+import edu.java.service.LinkUpdaterService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

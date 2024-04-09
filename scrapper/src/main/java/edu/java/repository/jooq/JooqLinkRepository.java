@@ -1,25 +1,22 @@
 package edu.java.repository.jooq;
 
+import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
-import edu.java.domain.TgChat;
+import edu.java.domain.jooq.tables.records.LinksRecord;
 import edu.java.repository.LinkRepository;
 import jakarta.transaction.Transactional;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.jooq.DSLContext;
-import org.jooq.Record1;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import static edu.java.domain.jooq.Tables.LINKS;
-import static edu.java.domain.jooq.Tables.TG_CHAT_LINKS;
-import static edu.java.domain.jooq.tables.TgChats.TG_CHATS;
 
 @Primary
 @Repository
@@ -29,99 +26,94 @@ public class JooqLinkRepository implements LinkRepository {
     private final DSLContext dslContext;
 
     @Override
-    @Transactional
-    public int save(Long tgChatId, Link link) {
-        Optional<Long> linkId = findIdByUri(link.getUri());
-        if (linkId.isPresent()) {
-            Long count = dslContext.selectCount()
-                .from(TG_CHAT_LINKS)
-                .where(TG_CHAT_LINKS.TG_CHAT_ID.eq(tgChatId).and(TG_CHAT_LINKS.LINK_ID.eq(linkId.get())))
-                .fetchOne(0, Long.class);
-            if (count != null && count != 0L) {
-                return 0;
-            }
-        }
-        if (linkId.isEmpty()) {
+    public long add(Link link) {
+        LinksRecord linksRecord =
             dslContext.insertInto(LINKS, LINKS.URI, LINKS.LINK_TYPE, LINKS.UPDATED_AT, LINKS.CHECKED_AT)
-                .values(
-                    link.getUri().toString(),
-                    link.getLinkType().toString(),
-                    link.getUpdatedAt().toLocalDateTime(),
-                    link.getCheckedAt().toLocalDateTime()
-                )
-                .execute();
-            linkId = findIdByUri(link.getUri());
+                      .values(
+                          link.getUri().toString(),
+                          link.getLinkType().toString(),
+                          LocalDateTime.from(link.getUpdatedAt()),
+                          LocalDateTime.from(link.getCheckedAt())
+                      )
+                      .onConflict(LINKS.URI)
+                      .doUpdate()
+                      .setAllToExcluded()
+                      .returning(LINKS.ID)
+                      .fetchOne();
+        if (linksRecord == null || linksRecord.getId() == null) {
+            throw new IllegalArgumentException();
         }
-        return dslContext.insertInto(TG_CHAT_LINKS, TG_CHAT_LINKS.TG_CHAT_ID, TG_CHAT_LINKS.LINK_ID)
-            .values(tgChatId, linkId.get())
-            .execute();
+        return linksRecord.getId();
     }
 
     @Override
-    @Transactional
-    public int delete(Long tgChatId, URI uri) {
-        Optional<Long> linkId = findIdByUri(uri);
-        if (linkId.isPresent()) {
-            Long countLinks = dslContext.selectCount()
-                .from(TG_CHAT_LINKS)
-                .where(TG_CHAT_LINKS.LINK_ID.eq(linkId.get()))
-                .fetchOne(0, Long.class);
-            if (countLinks != null && countLinks == 1L) {
-                return dslContext.deleteFrom(LINKS)
-                    .where(LINKS.ID.eq(linkId.get()))
-                    .execute();
-            } else {
-                return dslContext.deleteFrom(TG_CHAT_LINKS)
-                    .where(TG_CHAT_LINKS.TG_CHAT_ID.eq(tgChatId).and(TG_CHAT_LINKS.LINK_ID.eq(linkId.get())))
-                    .execute();
-            }
+    public long remove(URI uri) throws LinkNotFoundException {
+        LinksRecord linksRecord = dslContext.delete(LINKS)
+                                            .where(LINKS.URI.eq(uri.toString()))
+                                            .returning(LINKS.ID)
+                                            .fetchOne();
+        if (linksRecord == null || linksRecord.getId() == null) {
+            throw new LinkNotFoundException();
         }
-        return 0;
+        return linksRecord.getId();
     }
 
     @Override
     @Transactional
     public List<Link> findAll() {
-        List<Link> links = dslContext.selectFrom(LINKS).fetch().map(link -> new Link(
-                link.getId(),
-                URI.create(link.getUri()),
-                LinkType.valueOf(link.getLinkType()),
-                OffsetDateTime.of(link.getUpdatedAt(), ZoneOffset.UTC),
-                OffsetDateTime.of(link.getCheckedAt(), ZoneOffset.UTC)
-            )
-        );
-        for (Link link : links) {
-            Set<TgChat> tgChats = dslContext.select(TG_CHATS.ID, TG_CHATS.CHAT_ID)
-                .from(TG_CHATS)
-                .join(TG_CHAT_LINKS).on(TG_CHATS.ID.eq(TG_CHAT_LINKS.TG_CHAT_ID))
-                .where(TG_CHAT_LINKS.LINK_ID.eq(link.getId()))
-                .fetch()
-                .stream()
-                .map(tgChatRecord -> new TgChat(tgChatRecord.get(TG_CHATS.ID), tgChatRecord.get(TG_CHATS.CHAT_ID)))
-                .collect(
-                    Collectors.toSet());
-            link.setTgChats(tgChats);
-        }
-        return links;
+        return dslContext.selectFrom(LINKS)
+                         .fetch()
+                         .map(link -> new Link(
+                             link.getId(),
+                             URI.create(link.getUri()),
+                             LinkType.valueOf(link.getLinkType()),
+                             OffsetDateTime.of(link.getUpdatedAt(), ZoneOffset.UTC),
+                             OffsetDateTime.of(link.getCheckedAt(), ZoneOffset.UTC)
+                         ))
+                         .stream()
+                         .toList();
     }
 
     @Override
     @Transactional
-    public Optional<Long> findIdByUri(URI uri) {
-        Record1<Long> result = dslContext.select(LINKS.ID)
-            .from(LINKS)
-            .where(LINKS.URI.eq(uri.toString()))
-            .fetchOne();
-        return Optional.ofNullable(result).map(id -> id.get(LINKS.ID));
+    public Optional<Link> findByUri(URI uri) {
+        LinksRecord linksRecord = dslContext.selectFrom(LINKS).where(LINKS.URI.eq(uri.toString())).fetchOne();
+        if (linksRecord == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new Link(
+                linksRecord.getId(),
+                URI.create(linksRecord.getUri()),
+                LinkType.valueOf(linksRecord.getLinkType()),
+                OffsetDateTime.of(linksRecord.getUpdatedAt(), ZoneOffset.UTC),
+                OffsetDateTime.of(linksRecord.getCheckedAt(), ZoneOffset.UTC)
+            )
+        );
+    }
+
+    @Override
+    public Optional<Link> findById(long id) {
+        LinksRecord linksRecord = dslContext.selectFrom(LINKS).where(LINKS.ID.eq(id)).fetchOne();
+        if (linksRecord == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new Link(
+                linksRecord.getId(),
+                URI.create(linksRecord.getUri()),
+                LinkType.valueOf(linksRecord.getLinkType()),
+                OffsetDateTime.of(linksRecord.getUpdatedAt(), ZoneOffset.UTC),
+                OffsetDateTime.of(linksRecord.getCheckedAt(), ZoneOffset.UTC)
+            )
+        );
     }
 
     @Override
     @Transactional
     public List<Link> findStaleLinks(Long limit) {
         return dslContext.selectFrom(LINKS)
-            .orderBy(LINKS.CHECKED_AT.asc())
-            .limit(limit.intValue())
-            .fetch().stream().map(link -> new Link(
+                         .orderBy(LINKS.CHECKED_AT.asc())
+                         .limit(limit)
+                         .fetch().stream().map(link -> new Link(
                 link.getId(),
                 URI.create(link.getUri()),
                 LinkType.valueOf(link.getLinkType()),
@@ -132,11 +124,11 @@ public class JooqLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public int update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
+    public long update(Long linkId, OffsetDateTime updatedAt, OffsetDateTime checkedAt) {
         return dslContext.update(LINKS)
-            .set(LINKS.UPDATED_AT, updatedAt.toLocalDateTime())
-            .set(LINKS.CHECKED_AT, checkedAt.toLocalDateTime())
-            .where(LINKS.ID.eq(linkId))
-            .execute();
+                         .set(LINKS.UPDATED_AT, updatedAt.toLocalDateTime())
+                         .set(LINKS.CHECKED_AT, checkedAt.toLocalDateTime())
+                         .where(LINKS.ID.eq(linkId))
+                         .execute();
     }
 }

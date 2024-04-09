@@ -1,9 +1,10 @@
 package edu.java.repository.jdbc;
 
+import edu.java.domain.GithubLink;
 import edu.java.repository.GithubLinkRepository;
-import java.util.Optional;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,37 +13,21 @@ import org.springframework.stereotype.Repository;
 public class JdbcGithubLinkRepository implements GithubLinkRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public Optional<Long> findGithubBranchCountByLinkId(Long linkId) {
-        try {
-            Long count = jdbcTemplate.queryForObject(
-                "select branch_count from github_links where link_id = ?",
-                Long.class,
-                linkId
-            );
-            return Optional.of(count);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    public int add(Long linkId, Long branchCount) {
-        Long count = jdbcTemplate.queryForObject(
-            "select count(*) from github_links where link_id = ?",
+    @Override
+    @Transactional
+    public long add(GithubLink githubLink) {
+        List<Long> oldBranchCount = jdbcTemplate.queryForList(
+            "select branch_count from github_links where link_id = ?",
             Long.class,
-            linkId
+            githubLink.linkId()
         );
-        if (count != 0L) {
-            return 0;
-        }
-        return jdbcTemplate.update(
-            "insert into github_links (link_id, branch_count) values (?, ?)",
-            linkId,
-            branchCount
+        jdbcTemplate.update(
+            "insert into github_links (link_id, branch_count) values (?, ?) on conflict (link_id) do update set branch_count = EXCLUDED.branch_count",
+            githubLink.linkId(),
+            githubLink.branchCount()
         );
+        return oldBranchCount.isEmpty() ? githubLink.branchCount() : oldBranchCount.getFirst();
     }
 
-    public int update(Long linkId, Long count) {
-        return jdbcTemplate.update("update github_links set branch_count = ? where link_id = ?", count, linkId);
-    }
 }
 

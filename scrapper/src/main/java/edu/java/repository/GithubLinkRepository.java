@@ -1,12 +1,9 @@
 package edu.java.repository;
 
-import java.util.Optional;
+import edu.java.domain.GithubLink;
 
 public interface GithubLinkRepository {
 
-     Optional<Long> findGithubBranchCountByLinkId(Long linkId);
+    long add(GithubLink githubLink);
 
-    int add(Long linkId, Long count);
-
-    int update(Long linkId, Long count);
 }

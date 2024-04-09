@@ -6,10 +6,15 @@ import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.domain.ChatLink;
+import edu.java.domain.GithubLink;
 import edu.java.domain.Link;
+import edu.java.domain.StackOverflowLink;
 import edu.java.repository.ChatLinkRepository;
+import edu.java.repository.GithubLinkRepository;
 import edu.java.repository.LinkRepository;
+import edu.java.repository.StackOverflowLinkRepository;
 import edu.java.repository.TgChatRepository;
+import edu.java.scheduler.dto.UpdateType;
 import edu.java.service.LinkService;
 import edu.java.service.util.LinkTypeService;
 import jakarta.transaction.Transactional;
@@ -29,14 +34,16 @@ public class JdbcLinkService implements LinkService {
     private final LinkRepository linkRepository;
     private final LinkTypeService linkTypeService;
     private final ChatLinkRepository chatLinkRepository;
+    private final StackOverflowLinkRepository stackOverflowLinkRepository;
+    private final GithubLinkRepository githubLinkRepository;
 
     @Override
     @Transactional
     public LinkResponse add(long chatId, URI url) throws ChatNotFoundException, LinkAlreadyExistException {
         Link link = new Link().setUri(url)
-            .setLinkType(linkTypeService.getType(url.getHost()))
-            .setCheckedAt(OffsetDateTime.now())
-            .setUpdatedAt(OffsetDateTime.now());
+                              .setLinkType(linkTypeService.getType(url.getHost()))
+                              .setCheckedAt(OffsetDateTime.now())
+                              .setUpdatedAt(OffsetDateTime.now());
         long linkId = linkRepository.add(link);
         long tgChatId = tgChatRepository.findByChatId(chatId).getId();
         chatLinkRepository.add(new ChatLink(tgChatId, linkId));
@@ -65,11 +72,14 @@ public class JdbcLinkService implements LinkService {
     public ListLinksResponse listAll(long chatId) throws ChatNotFoundException {
         long tgChatId = tgChatRepository.findByChatId(chatId).getId();
         LinkResponse[] linkResponses = chatLinkRepository.findByTgChatId(tgChatId)
-            .stream()
-            .map(chatLink -> linkRepository.findById(chatLink.linkId()))
-            .filter(Optional::isPresent)
-            .map(link -> new LinkResponse(link.get().getId(), link.get().getUri()))
-            .toArray(LinkResponse[]::new);
+                                                         .stream()
+                                                         .map(chatLink -> linkRepository.findById(chatLink.linkId()))
+                                                         .filter(Optional::isPresent)
+                                                         .map(link -> new LinkResponse(
+                                                             link.get().getId(),
+                                                             link.get().getUri()
+                                                         ))
+                                                         .toArray(LinkResponse[]::new);
         return new ListLinksResponse(linkResponses, (long) linkResponses.length);
     }
 
@@ -83,10 +93,10 @@ public class JdbcLinkService implements LinkService {
     @Transactional
     public long[] getChatIdsByLinkId(long linkId) {
         return chatLinkRepository.findByLinkId(linkId)
-            .stream()
-            .map(chatLink -> tgChatRepository.findById(chatLink.tgChatId()))
-            .filter(Optional::isPresent)
-            .mapToLong(chat -> chat.get().getChatId()).toArray();
+                                 .stream()
+                                 .map(chatLink -> tgChatRepository.findById(chatLink.tgChatId()))
+                                 .filter(Optional::isPresent)
+                                 .mapToLong(chat -> chat.get().getChatId()).toArray();
     }
 
     @Override
@@ -94,4 +104,15 @@ public class JdbcLinkService implements LinkService {
     public List<Link> getStaleLinks(long limit) {
         return linkRepository.findStaleLinks(limit);
     }
+
+    public UpdateType updateStackOverflowAnswerCount(StackOverflowLink stackOverflowLink) {
+        long prevAnswerCount = stackOverflowLinkRepository.add(stackOverflowLink);
+        return prevAnswerCount > stackOverflowLink.answerCount() ? UpdateType.NO_UPDATE : UpdateType.UPDATE_ANSWER;
+    }
+
+    public UpdateType updateGithubBranchCount(GithubLink githubLink) {
+        long prevBranchCount = githubLinkRepository.add(githubLink);
+        return prevBranchCount > githubLink.branchCount() ? UpdateType.NO_UPDATE : UpdateType.UPDATE_BRANCH;
+    }
+
 }

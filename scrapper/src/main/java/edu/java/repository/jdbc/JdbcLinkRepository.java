@@ -109,8 +109,7 @@ public class JdbcLinkRepository implements LinkRepository {
     public List<Link> findStaleLinks(Long limit) {
         List<Map<String, Object>> list =
             jdbcTemplate.queryForList("select * from links order by checked_at asc limit ?", limit);
-        return listMapToLinkList(list).stream()
-            .toList();
+        return listMapToLinkList(list).stream().toList();
     }
 
     @Override

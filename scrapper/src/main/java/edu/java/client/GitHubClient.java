@@ -1,5 +1,6 @@
 package edu.java.client;
 
+import edu.java.client.dto.GitHubBranchResponse;
 import edu.java.client.dto.GitHubResponse;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Optional;
@@ -18,8 +19,8 @@ public class GitHubClient {
     private final WebClient webCLient;
 
     public GitHubClient(
-            @Value("${app.client.github.base-url}")
-            @NotBlank @URL String url
+        @Value("${app.client.github.base-url}")
+        @NotBlank @URL String url
     ) {
         this.webCLient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
@@ -30,6 +31,16 @@ public class GitHubClient {
                         .accept(MediaType.APPLICATION_JSON)
                         .retrieve()
                         .bodyToMono(GitHubResponse.class)
+                        .onErrorResume(Exception.class, e -> Mono.empty())
+                        .blockOptional();
+    }
+
+    public Optional<GitHubBranchResponse[]> fetchRepositoryBranches(String owner, String repo) {
+        return webCLient.get()
+                        .uri("/repos/{owner}/{repo}/branches", owner, repo)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .retrieve()
+                        .bodyToMono(GitHubBranchResponse[].class)
                         .onErrorResume(Exception.class, e -> Mono.empty())
                         .blockOptional();
     }
