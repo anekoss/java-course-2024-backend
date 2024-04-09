@@ -1,4 +1,4 @@
-package edu.java.configuration;
+package edu.java.configuration.db;
 
 import org.jooq.conf.RenderQuotedNames;
 import org.jooq.impl.DefaultConfiguration;
@@ -12,8 +12,9 @@ public class JooqConfig {
     @Bean
     public DefaultConfigurationCustomizer configurationCustomiser() {
         return (DefaultConfiguration c) -> c.settings()
-            .withRenderQuotedNames(
-                RenderQuotedNames.EXPLICIT_DEFAULT_UNQUOTED
-            );
+                                            .withRenderQuotedNames(
+                                                RenderQuotedNames.EXPLICIT_DEFAULT_UNQUOTED
+                                            );
     }
+
 }

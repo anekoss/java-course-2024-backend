@@ -1,4 +1,4 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.util;
 
 import edu.java.domain.LinkType;
 import edu.java.service.util.LinkTypeService;

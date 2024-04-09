@@ -25,10 +25,11 @@ public class GithubRepositoryResponseHandler extends GithubResponseHandler {
         Optional<GitHubResponse> gitHubResponse = gitHubClient.fetchRepository(owner, repos);
         if (gitHubResponse.isPresent() && gitHubResponse.get().updatedAt() != null) {
             OffsetDateTime updatedAt = gitHubResponse.get().updatedAt();
+            link.setCheckedAt(OffsetDateTime.now());
             if (updatedAt.isAfter(link.getUpdatedAt())) {
                 link.setUpdatedAt(updatedAt);
-                return nextHandler != null ? nextHandler.handle(owner, repos, link) :
-                    new LinkUpdate(link, UpdateType.UPDATE);
+                return nextHandler != null ? nextHandler.handle(owner, repos, link)
+                    : new LinkUpdate(link, UpdateType.UPDATE);
             }
         }
         return new LinkUpdate(link, UpdateType.NO_UPDATE);

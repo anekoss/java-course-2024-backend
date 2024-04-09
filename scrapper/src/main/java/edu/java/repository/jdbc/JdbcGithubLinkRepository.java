@@ -22,7 +22,8 @@ public class JdbcGithubLinkRepository implements GithubLinkRepository {
             githubLink.linkId()
         );
         jdbcTemplate.update(
-            "insert into github_links (link_id, branch_count) values (?, ?) on conflict (link_id) do update set branch_count = EXCLUDED.branch_count",
+            "insert into github_links (link_id, branch_count) values (?, ?) on conflict (link_id) "
+                + "do update set branch_count = EXCLUDED.branch_count",
             githubLink.linkId(),
             githubLink.branchCount()
         );

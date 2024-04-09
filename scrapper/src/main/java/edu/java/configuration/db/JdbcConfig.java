@@ -1,4 +1,4 @@
-package edu.java.configuration;
+package edu.java.configuration.db;
 
 import edu.java.domain.LinkType;
 import edu.java.scheduler.UpdateChecker;

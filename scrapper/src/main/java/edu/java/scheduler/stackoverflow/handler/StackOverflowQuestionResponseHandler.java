@@ -23,21 +23,21 @@ public class StackOverflowQuestionResponseHandler implements StackOverflowRespon
     public LinkUpdate handle(long question, Link link) {
         Optional<StackOverflowResponse> response = stackOverflowClient.fetchQuestion(question);
         if (response.isPresent()) {
-            Optional<StackOverflowResponse.StackOverflowItem> itemOptional = response.get().items()
-                                                                                     .stream()
-                                                                                     .filter(item -> item != null
-                                                                                         && item.updatedAt() != null
-                                                                                         && item.updatedAt()
-                                                                                                .isAfter(link.getUpdatedAt()))
-                                                                                     .findFirst();
-            if (itemOptional.isPresent()) {
-                link.setUpdatedAt(itemOptional.get().updatedAt());
-                link.setCheckedAt(OffsetDateTime.now());
+            Optional<StackOverflowResponse.StackOverflowItem> opItem = response.get().items()
+                                                                               .stream()
+                                                                               .filter(item -> item != null
+                                                                                   && item.updatedAt() != null
+                                                                                   && item.updatedAt()
+                                                                                          .isAfter(link.getUpdatedAt()))
+                                                                               .findFirst();
+            link.setCheckedAt(OffsetDateTime.now());
+            if (opItem.isPresent()) {
+                link.setUpdatedAt(opItem.get().updatedAt());
                 StackOverflowLink stackOverflowLink =
-                    new StackOverflowLink(link.getId(), itemOptional.get().countAnswer());
+                    new StackOverflowLink(link.getId(), opItem.get().countAnswer());
                 UpdateType type = linkService.updateStackOverflowAnswerCount(stackOverflowLink);
-                return type == UpdateType.UPDATE_ANSWER ? new LinkUpdate(link, UpdateType.UPDATE_ANSWER) :
-                    new LinkUpdate(link, UpdateType.UPDATE);
+                return type == UpdateType.UPDATE_ANSWER ? new LinkUpdate(link, type)
+                    : new LinkUpdate(link, UpdateType.UPDATE);
             }
         }
         return new LinkUpdate(link, UpdateType.NO_UPDATE);

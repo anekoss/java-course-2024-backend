@@ -30,9 +30,11 @@ public class GithubBranchesResponseHandler extends GithubResponseHandler {
         if (gitHubResponse.isPresent()) {
             GithubLink githubLink = new GithubLink(link.getId(), gitHubResponse.get().length);
             UpdateType type = linkService.updateGithubBranchCount(githubLink);
-            return nextHandler != null ? nextHandler.handle(owner, repos, link) :
-                new LinkUpdate(link, UpdateType.UPDATE);
+            if (type != UpdateType.NO_UPDATE) {
+                return new LinkUpdate(link, type);
+            }
         }
-        return new LinkUpdate(link, UpdateType.NO_UPDATE);
+        return nextHandler != null ? nextHandler.handle(owner, repos, link)
+            : new LinkUpdate(link, UpdateType.NO_UPDATE);
     }
 }

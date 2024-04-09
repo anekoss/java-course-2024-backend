@@ -20,7 +20,7 @@ public class GithubResponseHandlerConfig {
         return new GithubBranchesResponseHandler(gitHubClient, null, linkService);
     }
 
-    @Bean GithubRepositoryResponseHandler githubRepositoryResponseHandler(
+    @Bean GithubResponseHandler responseHandler(
         LinkService linkService,
         GitHubClient gitHubClient
     ) {

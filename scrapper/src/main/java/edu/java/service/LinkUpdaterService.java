@@ -3,8 +3,6 @@ package edu.java.service;
 import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.domain.Link;
 import edu.java.domain.LinkType;
-import edu.java.repository.GithubLinkRepository;
-import edu.java.repository.StackOverflowLinkRepository;
 import edu.java.scheduler.UpdateChecker;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
@@ -31,7 +29,14 @@ public class LinkUpdaterService {
             linkService.update(link.getId(), updatedLink.getUpdatedAt(), updatedLink.getCheckedAt());
             if (linkUpdateType.type() != UpdateType.NO_UPDATE) {
                 long[] chatIds = linkService.getChatIdsByLinkId(updatedLink.getId());
-                updates.add(new LinkUpdateRequest(link.getId(), link.getUri().toString(), "updates", chatIds));
+                if (chatIds.length != 0) {
+                    updates.add(new LinkUpdateRequest(
+                        link.getId(),
+                        link.getUri().toString(),
+                        linkUpdateType.type().getMessage(),
+                        chatIds
+                    ));
+                }
             }
         });
         return updates;

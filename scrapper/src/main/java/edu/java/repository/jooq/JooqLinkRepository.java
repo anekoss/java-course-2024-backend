@@ -12,15 +12,13 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import static edu.java.domain.jooq.Tables.LINKS;
 
-@Primary
 @Repository
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JooqLinkRepository implements LinkRepository {
 
     private final DSLContext dslContext;

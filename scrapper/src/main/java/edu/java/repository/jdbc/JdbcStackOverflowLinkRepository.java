@@ -22,7 +22,8 @@ public class JdbcStackOverflowLinkRepository implements StackOverflowLinkReposit
             stackOverflowLink.linkId()
         );
         jdbcTemplate.update(
-            "insert into stackoverflow_links (link_id, answer_count) values (?, ?) on conflict (link_id) do update set answer_count = EXCLUDED.answer_count",
+            "insert into stackoverflow_links (link_id, answer_count) values (?, ?) on conflict (link_id) "
+                + "do update set answer_count = EXCLUDED.answer_count",
             stackOverflowLink.linkId(),
             stackOverflowLink.answerCount()
         );
