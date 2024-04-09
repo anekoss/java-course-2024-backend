@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubResponse;
-import edu.java.client.exception.BadResponseBodyException;
 import edu.java.scrapper.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -13,18 +12,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GitHubClientTest extends IntegrationTest {
@@ -43,7 +40,7 @@ public class GitHubClientTest extends IntegrationTest {
     }
 
     @Test
-    void testGetRepositoryShouldReturnCorrectResponse() throws IOException, BadResponseBodyException {
+    void testGetRepository_shouldReturnCorrectResponse() throws IOException {
         String response = String.join("", Files.readAllLines(okResponsePath));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(200)
@@ -58,11 +55,13 @@ public class GitHubClientTest extends IntegrationTest {
                 OffsetDateTime.parse("2024-02-21T12:54:35Z"),
                 OffsetDateTime.parse("2024-02-11T11:13:57Z")
         );
-        assertThat(gitHubClient.fetchRepository("anekoss", "tinkoff-project")).isEqualTo(excepted);
+        Optional<GitHubResponse> actual = gitHubClient.fetchRepository("anekoss", "tinkoff-project");
+        assert actual.isPresent();
+        assertEquals(actual.get(), excepted);
     }
 
     @Test
-    void testGetRepositoryShouldReturnClientError() throws IOException {
+    void testGetRepository_shouldReturnEmptyOptionalIfClientError() throws IOException {
         String response = String.join("", Files.readAllLines(badResponsePath));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(404)
@@ -72,15 +71,12 @@ public class GitHubClientTest extends IntegrationTest {
                                                               )
                                                               .withBody(response))
         );
-        HttpClientErrorException exception = assertThrows(
-                HttpClientErrorException.class,
-                () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project")
-        );
-        assertThat(exception.getMessage()).isEqualTo("404 NOT_FOUND");
+        Optional<GitHubResponse> actual = gitHubClient.fetchRepository("anekoss", "tinkoff-project");
+        assert actual.isEmpty();
     }
 
     @Test
-    void testGetRepositoryShouldReturnServerError() throws IOException {
+    void testGetRepository_shouldReturnEmptyOptionalIfServerError() throws IOException {
         String response = String.join("", Files.readAllLines(badResponsePath));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(500)
@@ -90,15 +86,12 @@ public class GitHubClientTest extends IntegrationTest {
                                                               )
                                                               .withBody(response))
         );
-        HttpServerErrorException exception = assertThrows(
-                HttpServerErrorException.class,
-                () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project")
-        );
-        assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
+        Optional<GitHubResponse> actual = gitHubClient.fetchRepository("anekoss", "tinkoff-project");
+        assert actual.isEmpty();
     }
 
     @Test
-    void testGetRepositoryShouldReturnBadResponseBody() {
+    void testGetRepository_shouldReturnEmptyOptionalIfBadBody() {
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
                                        .willReturn(aResponse().withStatus(200)
                                                               .withHeader(
@@ -106,9 +99,8 @@ public class GitHubClientTest extends IntegrationTest {
                                                                       MediaType.APPLICATION_JSON_VALUE
                                                               )
                                                               .withBody("{id:mewmew}")));
-        BadResponseBodyException exception = assertThrows(BadResponseBodyException.class, () -> gitHubClient.fetchRepository("anekoss", "tinkoff-project"));
-        assertThat(exception.getMessage()).isEqualTo("Bad response body was returned from the service");
+        Optional<GitHubResponse> actual = gitHubClient.fetchRepository("anekoss", "tinkoff-project");
+        assert actual.isEmpty();
     }
-
 
 }
