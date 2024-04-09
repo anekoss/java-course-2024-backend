@@ -1,6 +1,6 @@
 package edu.java.scheduler.github;
 
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.scheduler.UpdateChecker;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
@@ -17,7 +17,7 @@ public class GithubUpdateChecker implements UpdateChecker {
     private static final int PART_REPOS = 4;
     private final GithubResponseHandler responseHandler;
 
-    public LinkUpdate check(@NotNull Link link) {
+    public LinkUpdate check(@NotNull LinkEntity link) {
         String[] githubValues = getOwnerAndReposGithub(link.getUri().toString());
         if (githubValues.length == 2) {
             String owner = githubValues[0];

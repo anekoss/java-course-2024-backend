@@ -2,7 +2,7 @@ package edu.java.scrapper.scheduler.github.handler;
 
 import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubBranchResponse;
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
@@ -27,10 +27,10 @@ public class GithubBranchesResponseHandlerTest {
         new GitHubBranchResponse[] {new GitHubBranchResponse("hw1"), new GitHubBranchResponse("hw2"),
             new GitHubBranchResponse("hw_2"), new GitHubBranchResponse("hw3")};
 
-    private final Link link =
-        new Link().setId(1L).setUri(URI.create("https://github.com/anekoss/tinkoff-project"))
-                  .setLinkType(LinkType.GITHUB)
-                  .setUpdatedAt(OffsetDateTime.now()).setCheckedAt(OffsetDateTime.now());
+    private final LinkEntity link =
+        new LinkEntity().setId(1L).setUri(URI.create("https://github.com/anekoss/tinkoff-project"))
+                        .setLinkType(LinkType.GITHUB)
+                        .setUpdatedAt(OffsetDateTime.now()).setCheckedAt(OffsetDateTime.now());
     private final String owner = "anekoss";
     private final String repos = "tinkoff-project";
 

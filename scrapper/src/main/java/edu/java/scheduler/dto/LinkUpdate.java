@@ -1,6 +1,6 @@
 package edu.java.scheduler.dto;
 
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 
-public record LinkUpdate(Link link, UpdateType type) {
+public record LinkUpdate(LinkEntity link, UpdateType type) {
 }

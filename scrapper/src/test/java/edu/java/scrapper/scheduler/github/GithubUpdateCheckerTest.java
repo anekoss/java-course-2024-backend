@@ -1,6 +1,6 @@
 package edu.java.scrapper.scheduler.github;
 
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.domain.LinkType;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
@@ -15,10 +15,10 @@ import static org.mockito.Mockito.when;
 public class GithubUpdateCheckerTest {
     private final GithubResponseHandler responseHandler = Mockito.mock(GithubResponseHandler.class);
     private final GithubUpdateChecker updateChecker = new GithubUpdateChecker(responseHandler);
-    private final Link link =
-        new Link().setId(1L).setUri(URI.create("https://github.com/anekoss/tinkoff-project"))
-                  .setLinkType(LinkType.GITHUB)
-                  .setUpdatedAt(OffsetDateTime.now()).setCheckedAt(OffsetDateTime.now());
+    private final LinkEntity link =
+        new LinkEntity().setId(1L).setUri(URI.create("https://github.com/anekoss/tinkoff-project"))
+                        .setLinkType(LinkType.GITHUB)
+                        .setUpdatedAt(OffsetDateTime.now()).setCheckedAt(OffsetDateTime.now());
     private final String owner = "anekoss";
     private final String repos = "tinkoff-project";
 

@@ -1,6 +1,6 @@
 package edu.java.scheduler.stackoverflow;
 
-import edu.java.domain.Link;
+import edu.java.domain.LinkEntity;
 import edu.java.scheduler.UpdateChecker;
 import edu.java.scheduler.dto.LinkUpdate;
 import edu.java.scheduler.dto.UpdateType;
@@ -15,7 +15,7 @@ public class StackOverflowUpdateChecker implements UpdateChecker {
     private static final int PART_QUESTION = 4;
     private final StackOverflowResponseHandler responseHandler;
 
-    public LinkUpdate check(Link link) {
+    public LinkUpdate check(LinkEntity link) {
         Long question = getQuestion(link.getUri().toString());
         if (question != -1L) {
             return responseHandler.handle(question, link);
