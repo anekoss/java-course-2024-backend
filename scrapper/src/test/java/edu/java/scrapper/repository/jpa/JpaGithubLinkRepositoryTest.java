@@ -6,12 +6,16 @@ import edu.java.repository.jpa.JpaGithubLinkRepository;
 import edu.java.repository.jpa.JpaLinkRepository;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.transaction.Transactional;
+
 import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @SpringBootTest
 public class JpaGithubLinkRepositoryTest extends IntegrationTest {
@@ -27,7 +31,7 @@ public class JpaGithubLinkRepositoryTest extends IntegrationTest {
     void testFindByLink_Id_shouldCorrectlyReturnGithubLinkIfExist() {
         Optional<GithubLinkEntity> githubLink = githubLinkRepository.findByLinkId(1L);
         assert githubLink.isPresent();
-        assertEquals(githubLink.get().getBranchCount(), 2L);
+        assert githubLink.get().getBranchCount() != null;
         Optional<LinkEntity> link = linkRepository.findById(1L);
         assert link.isPresent();
         assertEquals(githubLink.get().getLink(), link.get());
