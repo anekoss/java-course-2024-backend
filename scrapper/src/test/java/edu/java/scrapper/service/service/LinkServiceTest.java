@@ -242,14 +242,14 @@ public abstract class LinkServiceTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void testUpdateStackOverflowAnswerCount_shouldNoUpdateAnswerIfNewLess() {
-        assert linkService.updateStackOverflowAnswerCount(new StackOverflowLink(2L, 1L)) == UpdateType.NO_UPDATE;
+    void testUpdateStackOverflowAnswerCount_shouldNoUpdateAnswerIfNewEq() {
+        assert linkService.updateStackOverflowAnswerCount(new StackOverflowLink(2L, 3L)) == UpdateType.NO_UPDATE;
     }
 
     @Test
     @Transactional
     @Rollback
-    void testUpdateGithubBranchCount_shouldReturnUpdateBranchIfNewGreater() {
+    void testUpdateGithubBranchCount_shouldReturnUpdateBranchIfNewNoEq() {
         assert linkService.updateGithubBranchCount(new GithubLink(1L, 7L)) == UpdateType.UPDATE_BRANCH;
     }
 

@@ -19,6 +19,7 @@ public class JooqTgChatRepository implements TgChatRepository {
     private final DSLContext dslContext;
 
     @Override
+    @Transactional
     public long add(TgChatEntity tgChat) throws ChatAlreadyExistException {
         TgChatsRecord tgChatsRecord = dslContext.insertInto(TG_CHATS)
                                                 .set(TG_CHATS.CHAT_ID, tgChat.getChatId())
@@ -31,6 +32,7 @@ public class JooqTgChatRepository implements TgChatRepository {
     }
 
     @Override
+    @Transactional
     public long remove(TgChatEntity tgChat) throws ChatNotFoundException {
         TgChatsRecord tgChatsRecord = dslContext.deleteFrom(TG_CHATS)
                                                 .where(TG_CHATS.CHAT_ID.eq(tgChat.getChatId()))

@@ -24,6 +24,7 @@ public class JooqLinkRepository implements LinkRepository {
     private final DSLContext dslContext;
 
     @Override
+    @Transactional
     public long add(LinkEntity link) {
         LinksRecord linksRecord =
             dslContext.insertInto(LINKS, LINKS.URI, LINKS.LINK_TYPE, LINKS.UPDATED_AT, LINKS.CHECKED_AT)
@@ -45,6 +46,7 @@ public class JooqLinkRepository implements LinkRepository {
     }
 
     @Override
+    @Transactional
     public long remove(URI uri) throws LinkNotFoundException {
         LinksRecord linksRecord = dslContext.delete(LINKS)
                                             .where(LINKS.URI.eq(uri.toString()))
@@ -90,6 +92,7 @@ public class JooqLinkRepository implements LinkRepository {
     }
 
     @Override
+    @Transactional
     public Optional<LinkEntity> findById(long id) {
         LinksRecord linksRecord = dslContext.selectFrom(LINKS).where(LINKS.ID.eq(id)).fetchOne();
         if (linksRecord == null) {

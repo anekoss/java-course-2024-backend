@@ -119,7 +119,7 @@ public class JpaLinkService implements LinkService {
                                            stackOverflowLink.linkId()).get()));
         long prevAnswerCount = link.getAnswerCount();
         stackOverflowLinkRepository.saveAndFlush(link);
-        return prevAnswerCount > stackOverflowLink.answerCount() ? UpdateType.NO_UPDATE : UpdateType.UPDATE_ANSWER;
+        return prevAnswerCount != stackOverflowLink.answerCount() ? UpdateType.UPDATE_ANSWER : UpdateType.NO_UPDATE;
     }
 
     @Override
@@ -132,6 +132,6 @@ public class JpaLinkService implements LinkService {
                                                                                       githubLink.linkId()).get()));
         long prevBranchCount = link.getBranchCount();
         githubLinkRepository.saveAndFlush(link);
-        return prevBranchCount > githubLink.branchCount() ? UpdateType.NO_UPDATE : UpdateType.UPDATE_BRANCH;
+        return prevBranchCount != githubLink.branchCount() ? UpdateType.UPDATE_BRANCH : UpdateType.NO_UPDATE;
     }
 }
