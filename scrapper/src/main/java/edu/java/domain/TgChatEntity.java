@@ -50,8 +50,8 @@ public class TgChatEntity {
     }
 
     public void removeLink(LinkEntity link) {
-        link.getTgChats().remove(this);
         this.getLinks().remove(link);
+        link.getTgChats().remove(this);
     }
 
 }

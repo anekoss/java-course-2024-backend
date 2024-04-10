@@ -119,8 +119,8 @@ public abstract class LinkServiceTest extends IntegrationTest {
         throws ChatNotFoundException, LinkNotFoundException {
         URI uri = URI.create("https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh");
         linkService.remove(124025L, uri);
-        List<LinkEntity> link = linkRepository.findAll();
-        assertThat(link.stream().map(LinkEntity::getUri).toList()).doesNotContain(uri);
+        Optional<LinkEntity> link =  linkRepository.findByUri(uri);
+        assert link.isEmpty();
     }
 
     @Test

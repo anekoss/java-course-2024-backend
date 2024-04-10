@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaGithubLinkRepository extends JpaRepository<GithubLinkEntity, Long> {
 
-    Optional<GithubLinkEntity> findByLink_Id(Long linkId);
+    Optional<GithubLinkEntity> findByLinkId(Long linkId);
 
-    boolean existsByLink_Id(Long linkId);
+    boolean existsByLinkId(Long linkId);
 }

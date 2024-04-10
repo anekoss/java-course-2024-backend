@@ -24,7 +24,7 @@ public class LinksClient {
     private final WebClient webCLient;
 
     public LinksClient(
-            @Value("${app.client.links-client.base-url}")
+            @Value("${app.client.links.base-url}")
             @NotBlank @URL String url
     ) {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();

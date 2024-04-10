@@ -19,7 +19,7 @@ public class TgChatClient {
     private final WebClient webCLient;
 
     public TgChatClient(
-            @Value("${app.client.tg-сhat-client.base-url}")
+            @Value("${app.client.tg-сhat.base-url}")
             @NotBlank @URL String url
     ) {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();

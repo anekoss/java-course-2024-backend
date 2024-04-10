@@ -30,7 +30,7 @@ public class HelpCommandTest {
     }
 
     @Test
-    public void testHandle() {
+    public void testHandle_shouldReturnHelpMessage() {
         String response = "<b>Список доступных команд:</b>\n<b>/list</b> - Показать список отслеживаемых ссылок\n" +
             "<b>/help</b> - Вывести описание команд\n<b>/track</b> - Начать отслеживание ссылки\n" +
             "<b>/start</b> - Получить информацию о боте\n<b>/untrack</b> - Прекратить отслеживание ссылки\n";

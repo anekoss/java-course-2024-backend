@@ -11,7 +11,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,9 +20,9 @@ import static org.mockito.Mockito.when;
 
 public class ListCommandTest {
 
+    private static final Update updateMock = Mockito.mock(Update.class);
     private final CommandService commandServiceMock = Mockito.mock(CommandService.class);
     private final Command listCommand = new ListCommand(commandServiceMock);
-    private static final Update updateMock = Mockito.mock(Update.class);
     private final Printer printer = new HtmlPrinter();
 
     @BeforeEach
@@ -36,7 +35,7 @@ public class ListCommandTest {
     }
 
     @Test
-    public void testHandleNoTrackLinks() {
+    public void testHandle_shouldReturnNoLinkMessageIfNoTrackLinks() {
         when(commandServiceMock.list(any())).thenReturn(Set.of());
         assertThat(listCommand.handle(updateMock, printer)).isEqualTo("Вы еще не отслеживаете сслыки!");
         when(commandServiceMock.list(any())).thenReturn(null);
@@ -44,10 +43,8 @@ public class ListCommandTest {
     }
 
     @Test
-    public void testHandle() throws URISyntaxException, MalformedURLException {
-        when(commandServiceMock.list(any())).thenReturn(Set.of(
-            new URI("https://edu.tinkoff.ru").toURL()
-        ));
+    public void testHandle_shouldCorrectlyReturnTrackLink() throws URISyntaxException, MalformedURLException {
+        when(commandServiceMock.list(any())).thenReturn(Set.of(new URI("https://edu.tinkoff.ru")));
         String response =
             "<b>Отслеживаемые сслыки:</b>\n<a href=\"https://edu.tinkoff.ru\">https://edu.tinkoff.ru</a>\n";
         assertThat(listCommand.handle(updateMock, printer)).isEqualTo(response);

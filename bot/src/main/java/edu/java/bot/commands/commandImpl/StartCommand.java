@@ -27,9 +27,8 @@ public class StartCommand implements Command {
     public String handle(Update update, Printer printer) {
         Long id = update.message().from().id();
         commandService.start(id);
-        String response =
-            "Привет! Это сервис для отслеживания обновлений контента по ссылкам.\n"
-                + "Чтобы узнать о доступных командах введите /help.";
-        return response;
+        return "Привет! Это сервис для отслеживания обновлений контента по ссылкам.\n"
+            + "Чтобы узнать о доступных командах введите /help.";
+
     }
 }

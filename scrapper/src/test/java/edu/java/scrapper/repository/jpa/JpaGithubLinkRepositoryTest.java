@@ -25,7 +25,7 @@ public class JpaGithubLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testFindByLink_Id_shouldCorrectlyReturnGithubLinkIfExist() {
-        Optional<GithubLinkEntity> githubLink = githubLinkRepository.findByLink_Id(1L);
+        Optional<GithubLinkEntity> githubLink = githubLinkRepository.findByLinkId(1L);
         assert githubLink.isPresent();
         assert githubLink.get().getBranchCount() == 2L;
         Optional<LinkEntity> link = linkRepository.findById(1L);
@@ -37,7 +37,7 @@ public class JpaGithubLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testFindByLink_Id_shouldReturnOptionalEmptyIfNoExist() {
-        Optional<GithubLinkEntity> githubLink = githubLinkRepository.findByLink_Id(13435L);
+        Optional<GithubLinkEntity> githubLink = githubLinkRepository.findByLinkId(13435L);
         assert githubLink.isEmpty();
     }
 
@@ -45,14 +45,14 @@ public class JpaGithubLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testExistsByLink_Id_shouldReturnTrueIfExist() {
-        assert githubLinkRepository.existsByLink_Id(1L);
+        assert githubLinkRepository.existsByLinkId(1L);
     }
 
     @Test
     @Rollback
     @Transactional
     void testExistsByLink_Id_shouldReturnFalseIfNoExist() {
-        assert !githubLinkRepository.existsByLink_Id(13435L);
+        assert !githubLinkRepository.existsByLinkId(13435L);
     }
 
 }

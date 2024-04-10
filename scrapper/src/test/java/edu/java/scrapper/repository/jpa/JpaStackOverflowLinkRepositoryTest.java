@@ -25,7 +25,7 @@ public class JpaStackOverflowLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testFindByLink_Id_shouldCorrectlyReturnGithubLinkIfExist() {
-        Optional<StackOverflowLinkEntity> githubLink = stackOverflowLinkRepository.findByLink_Id(2L);
+        Optional<StackOverflowLinkEntity> githubLink = stackOverflowLinkRepository.findByLinkId(2L);
         assert githubLink.isPresent();
         assert githubLink.get().getAnswerCount() == 3L;
         Optional<LinkEntity> link = linkRepository.findById(2L);
@@ -37,7 +37,7 @@ public class JpaStackOverflowLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testFindByLink_Id_shouldReturnOptionalEmptyIfNoExist() {
-        Optional<StackOverflowLinkEntity> githubLink = stackOverflowLinkRepository.findByLink_Id(13435L);
+        Optional<StackOverflowLinkEntity> githubLink = stackOverflowLinkRepository.findByLinkId(13435L);
         assert githubLink.isEmpty();
     }
 
@@ -45,14 +45,14 @@ public class JpaStackOverflowLinkRepositoryTest extends IntegrationTest {
     @Rollback
     @Transactional
     void testExistsByLink_Id_shouldReturnTrueIfExist() {
-        assert stackOverflowLinkRepository.existsByLink_Id(2L);
+        assert stackOverflowLinkRepository.existsByLinkId(2L);
     }
 
     @Test
     @Rollback
     @Transactional
     void testExistsByLink_Id_shouldReturnFalseIfNoExist() {
-        assert !stackOverflowLinkRepository.existsByLink_Id(13435L);
+        assert !stackOverflowLinkRepository.existsByLinkId(13435L);
     }
 
 }
