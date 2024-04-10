@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @AllArgsConstructor
 public abstract class GithubLinkRepositoryTest extends IntegrationTest {
@@ -44,6 +45,6 @@ public abstract class GithubLinkRepositoryTest extends IntegrationTest {
             1L
         );
         assert actual != null;
-        assert actual == 5L;
+        assertEquals(actual, 5L);
     }
 }

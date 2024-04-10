@@ -27,7 +27,7 @@ public class JpaGithubLinkRepositoryTest extends IntegrationTest {
     void testFindByLink_Id_shouldCorrectlyReturnGithubLinkIfExist() {
         Optional<GithubLinkEntity> githubLink = githubLinkRepository.findByLinkId(1L);
         assert githubLink.isPresent();
-        assert githubLink.get().getBranchCount() == 2L;
+        assertEquals(githubLink.get().getBranchCount(), 2L);
         Optional<LinkEntity> link = linkRepository.findById(1L);
         assert link.isPresent();
         assertEquals(githubLink.get().getLink(), link.get());
