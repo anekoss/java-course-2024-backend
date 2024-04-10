@@ -1,5 +1,5 @@
 app:
-  telegram-token: "6590963871:AAGq-D_-i_R3ds4fpivmSfLldOywh_73bFY"
+  telegram-token: ${TOKEN}
   client:
     tg-сhat:
       base-url: "http://localhost:8080/tg-chat"
