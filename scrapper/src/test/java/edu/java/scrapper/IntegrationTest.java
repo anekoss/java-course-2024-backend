@@ -29,7 +29,7 @@ public abstract class IntegrationTest {
 
     static {
         POSTGRES = new PostgreSQLContainer<>("postgres:16")
-                .withDatabaseName("scrapper")
+                .withDatabaseName("scrapper-test")
                 .withUsername("postgres")
                 .withPassword("postgres");
         POSTGRES.start();

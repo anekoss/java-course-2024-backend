@@ -38,7 +38,7 @@ public abstract class GithubLinkRepositoryTest extends IntegrationTest {
     @Transactional
     void testAdd_shouldUpdateGithubLinkIfExistAndReturnOldBranchCount() {
         GithubLink githubLink = new GithubLink(1L, 5L);
-        assert githubLinkRepository.add(githubLink) == 2L;
+        assertEquals(githubLinkRepository.add(githubLink), 2L);
         Long actual = jdbcTemplate.queryForObject(
             "select branch_count from github_links where link_id = ?",
             Long.class,
