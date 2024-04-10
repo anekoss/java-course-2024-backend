@@ -10,6 +10,6 @@ import org.hibernate.validator.constraints.URL;
 @Accessors(chain = true)
 public record LinkResponse(
     @NotNull @Min(0) Long id,
-    @NotBlank @URL URI url
+    @NotBlank @URL URI uri
 ) {
 }

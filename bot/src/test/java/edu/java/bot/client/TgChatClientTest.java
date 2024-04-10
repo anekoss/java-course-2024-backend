@@ -3,12 +3,11 @@ package edu.java.bot.client;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import edu.java.bot.client.exception.BadResponseException;
+import edu.java.bot.client.exception.CustomClientErrorException;
+import edu.java.bot.client.exception.CustomServerErrorException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.client.HttpServerErrorException;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -29,7 +28,7 @@ public class TgChatClientTest {
     }
 
     @Test
-    void testRegisterChat_shouldReturnCorrectResponse() throws BadResponseException {
+    void testRegisterChat_shouldReturnCorrectResponse() throws CustomClientErrorException, CustomServerErrorException {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(200))
         );
@@ -41,26 +40,24 @@ public class TgChatClientTest {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(404))
         );
-        BadResponseException exception = assertThrows(
-            BadResponseException.class,
+        CustomClientErrorException exception = assertThrows(
+            CustomClientErrorException.class,
             () -> tgChatClient.registerChat(1L)
         );
-        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
     }
 
     @Test
     void testRegisterChatS_shouldReturnServerError() {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(500)));
-        HttpServerErrorException exception = assertThrows(
-            HttpServerErrorException.class,
+        CustomServerErrorException exception = assertThrows(
+            CustomServerErrorException.class,
             () -> tgChatClient.registerChat(1L)
         );
-        assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
     }
 
     @Test
-    void testDeleteChat_shouldReturnCorrectResponse() throws BadResponseException {
+    void testDeleteChat_shouldReturnCorrectResponse() throws CustomClientErrorException, CustomServerErrorException {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(200))
         );
@@ -72,21 +69,19 @@ public class TgChatClientTest {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(404))
         );
-        BadResponseException exception = assertThrows(
-            BadResponseException.class,
+        CustomClientErrorException exception = assertThrows(
+            CustomClientErrorException.class,
             () -> tgChatClient.deleteChat(1L)
         );
-        assertThat(exception.getMessage()).isEqualTo("Bad response was returned from the service");
     }
 
     @Test
     void testDeleteChat_shouldReturnServerError() {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(500)));
-        HttpServerErrorException exception = assertThrows(
-            HttpServerErrorException.class,
+        CustomServerErrorException exception = assertThrows(
+            CustomServerErrorException.class,
             () -> tgChatClient.deleteChat(1L)
         );
-        assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
     }
 }

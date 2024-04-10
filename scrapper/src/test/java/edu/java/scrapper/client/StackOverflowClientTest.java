@@ -34,7 +34,7 @@ public class StackOverflowClientTest extends IntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("app.client.stackOverflow.base-url", wireMockServer::baseUrl);
+        registry.add("app.client.stackOverflow.base-uri", wireMockServer::baseUrl);
     }
 
     @Test

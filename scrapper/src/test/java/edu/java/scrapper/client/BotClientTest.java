@@ -32,14 +32,14 @@ public class BotClientTest extends IntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("app.client.botClient.base-url", wireMockServer::baseUrl);
+        registry.add("app.client.botClient.base-uri", wireMockServer::baseUrl);
     }
 
     @BeforeAll
     static void initRequest() {
         linkUpdateRequest = new LinkUpdateRequest(1L, "https://api.stackexchange.com", "description", new long[] {1L});
         request =
-                "{\"id\":1,\"url\":\"https://api.stackexchange.com\",\"description\":\"description\",\"tgChatIds\":[1]}";
+                "{\"id\":1,\"uri\":\"https://api.stackexchange.com\",\"description\":\"description\",\"tgChatIds\":[1]}";
     }
 
     @Test

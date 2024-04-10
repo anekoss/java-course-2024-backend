@@ -1,6 +1,7 @@
 package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
+import edu.java.bot.client.exception.CustomServerErrorException;
 import edu.java.bot.commands.commandImpl.HelpCommand;
 import edu.java.bot.commands.commandImpl.ListCommand;
 import edu.java.bot.commands.commandImpl.StartCommand;
@@ -24,13 +25,13 @@ public class HelpCommandTest {
     private final Printer printer = new HtmlPrinter();
 
     @Test
-    public void testHandleNoAvailableCommands() {
+    public void testHandleNoAvailableCommands() throws CustomServerErrorException {
         assertThat(helpCommand.handle(updateMock, printer)).isEqualTo(
             "В данный момент нет доступных команд.");
     }
 
     @Test
-    public void testHandle_shouldReturnHelpMessage() {
+    public void testHandle_shouldReturnHelpMessage() throws CustomServerErrorException {
         String response = "<b>Список доступных команд:</b>\n<b>/list</b> - Показать список отслеживаемых ссылок\n" +
             "<b>/help</b> - Вывести описание команд\n<b>/track</b> - Начать отслеживание ссылки\n" +
             "<b>/start</b> - Получить информацию о боте\n<b>/untrack</b> - Прекратить отслеживание ссылки\n";

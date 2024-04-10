@@ -1,6 +1,7 @@
 package edu.java.bot.client;
 
-import edu.java.bot.client.exception.BadResponseException;
+import edu.java.bot.client.exception.CustomClientErrorException;
+import edu.java.bot.client.exception.CustomServerErrorException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
@@ -19,13 +20,13 @@ public class TgChatClient {
     private final WebClient webCLient;
 
     public TgChatClient(
-            @Value("${app.client.tg-сhat.base-url}")
-            @NotBlank @URL String url
+        @Value("${app.client.tg-сhat.base-url}")
+        @NotBlank @URL String url
     ) {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
-    public Void registerChat(Long id) throws BadResponseException {
+    public Void registerChat(Long id) throws CustomClientErrorException, CustomServerErrorException {
         try {
 
             return webCLient.post()
@@ -35,11 +36,13 @@ public class TgChatClient {
                             .block();
         } catch (WebClientResponseException | CodecException e) {
             log.error(e.getMessage());
-            throw new BadResponseException();
+            throw new CustomClientErrorException();
+        } catch (Exception e) {
+            throw new CustomServerErrorException();
         }
     }
 
-    public Void deleteChat(Long id) throws BadResponseException {
+    public Void deleteChat(Long id) throws CustomClientErrorException, CustomServerErrorException {
         try {
             return webCLient.delete()
                             .uri(pathId, id)
@@ -48,7 +51,9 @@ public class TgChatClient {
                             .block();
         } catch (WebClientResponseException | CodecException e) {
             log.error(e.getMessage());
-            throw new BadResponseException();
+            throw new CustomClientErrorException();
+        } catch (Exception e) {
+            throw new CustomServerErrorException();
         }
     }
 

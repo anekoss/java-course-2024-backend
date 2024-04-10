@@ -139,7 +139,7 @@ public abstract class LinkServiceTest extends IntegrationTest {
     void testFindAll_shouldReturnLinksIfChatHaveLinks() throws ChatNotFoundException {
         ListLinksResponse links = linkService.listAll(327034L);
         assert links.size() == 2;
-        List<String> uris = Arrays.stream(links.linkResponses()).map(link -> link.url().toString()).toList();
+        List<String> uris = Arrays.stream(links.linkResponses()).map(link -> link.uri().toString()).toList();
         assertThat(uris).contains("https://github.com/anekoss/tinkoff");
         assertThat(uris).contains(
             "https://stackoverflow.com/questions/59339862/retrieving-text-body-of-answers-and-comments-using-stackexchange-api");
