@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ClientStatusCodeHandler {
     public static final ExchangeFilterFunction ERROR_RESPONSE_FILTER = ExchangeFilterFunction
-            .ofResponseProcessor(ClientStatusCodeHandler::exchangeFilterResponseProcessor);
+        .ofResponseProcessor(ClientStatusCodeHandler::exchangeFilterResponseProcessor);
 
     private ClientStatusCodeHandler() {
 

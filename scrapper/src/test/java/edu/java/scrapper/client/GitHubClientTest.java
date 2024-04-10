@@ -37,7 +37,7 @@ public class GitHubClientTest extends IntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("app.client.github.base-uri", wireMockServer::baseUrl);
+        registry.add("app.client.github.base-url", wireMockServer::baseUrl);
     }
 
     @Test

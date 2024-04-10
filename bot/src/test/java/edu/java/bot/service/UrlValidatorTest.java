@@ -17,11 +17,11 @@ public class UrlValidatorTest {
 
     public static Stream<Arguments> provideDataForTest() throws URISyntaxException, MalformedURLException {
         return Stream.of(
-            Arguments.of("https://www.example.com", Optional.of(new URI("https://www.example.com").toURL())),
+            Arguments.of("https://github.com/anekoss/tinkoff-project", Optional.of(new URI("https://github.com/anekoss/tinkoff-project").toURL())),
             Arguments.of("invalid", Optional.empty()),
             Arguments.of(null, Optional.empty()),
             Arguments.of("", Optional.empty()),
-            Arguments.of("https://www.example.com:8080:invalid", Optional.empty())
+            Arguments.of("https://www.example.com", Optional.empty())
         );
     }
 

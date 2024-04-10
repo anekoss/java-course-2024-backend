@@ -17,8 +17,8 @@ public class StackOverflowClient {
     private final WebClient webClient;
 
     public StackOverflowClient(
-            @Value("${app.client.stackOverflow.base-url}")
-            @NotBlank @URL String url
+        @Value("${app.client.stackOverflow.base-url}")
+        @NotBlank @URL String url
     ) {
         this.webClient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }

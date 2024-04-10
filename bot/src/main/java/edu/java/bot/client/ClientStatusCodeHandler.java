@@ -1,6 +1,5 @@
 package edu.java.bot.client;
 
-import edu.java.bot.client.exception.CustomClientErrorException;
 import edu.java.bot.client.exception.CustomServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -20,10 +19,6 @@ public class ClientStatusCodeHandler {
         if (response.statusCode().is5xxServerError()) {
             log.error("SERVER_ERROR {}", response.statusCode());
             return Mono.error(new CustomServerErrorException());
-        }
-        if (response.statusCode().is4xxClientError()) {
-            log.error("CLIENT_ERROR {}", response.statusCode());
-            return Mono.error(new CustomClientErrorException());
         }
         return Mono.just(response);
     }

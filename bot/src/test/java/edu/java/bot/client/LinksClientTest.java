@@ -9,15 +9,12 @@ import edu.java.bot.client.dto.ListLinksResponse;
 import edu.java.bot.client.dto.RemoveLinkRequest;
 import edu.java.bot.client.exception.CustomClientErrorException;
 import edu.java.bot.client.exception.CustomServerErrorException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.http.MediaType;
-
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -53,15 +50,12 @@ public class LinksClientTest {
     }
 
     @Test
-    void testGetLinks_shouldReturnBadResponseExceptionIfClientError() {
+    void testGetLinks_shouldReturnCustomClientExceptionIfClientError() {
         wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .willReturn(WireMock.jsonResponse(response, 404)));
-        CustomClientErrorException exception = assertThrows(
-            CustomClientErrorException.class,
-            () -> linksClient.getLinks(1L)
-        );
+        assertThrows(CustomClientErrorException.class, () -> linksClient.getLinks(1L));
     }
 
     @Test
@@ -88,7 +82,7 @@ public class LinksClientTest {
     }
 
     @Test
-    void testDelete_linkShouldReturnBadResponseExceptionIfClientError() {
+    void testDelete_linkShouldReturnCustomClientExceptionIfClientError() {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
@@ -96,7 +90,7 @@ public class LinksClientTest {
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .withRequestBody(WireMock.equalToJson(request))
                                        .willReturn(WireMock.jsonResponse(response, 404)));
-        CustomClientErrorException exception = assertThrows(
+        assertThrows(
             CustomClientErrorException.class,
             () -> linksClient.deleteLink(1L, new RemoveLinkRequest("https://example.com/link1"))
         );
@@ -132,7 +126,7 @@ public class LinksClientTest {
     }
 
     @Test
-    void testAddLink_shouldReturnBadResponseExceptionIfClientError() {
+    void testAddLink_shouldReturnCustomClientExceptionIfClientError() {
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
@@ -140,7 +134,7 @@ public class LinksClientTest {
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .withRequestBody(WireMock.equalToJson(request))
                                        .willReturn(WireMock.jsonResponse(response, 404)));
-        CustomClientErrorException exception = assertThrows(
+        assertThrows(
             CustomClientErrorException.class,
             () -> linksClient.addLink(1L, new AddLinkRequest("https://example.com/link1"))
         );

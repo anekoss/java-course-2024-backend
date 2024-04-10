@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import static edu.java.bot.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
@@ -57,11 +58,10 @@ public class LinksClient {
                             .retrieve()
                             .bodyToMono(LinkResponse.class)
                             .block();
-        } catch (WebClientResponseException | CodecException e) {
+        } catch (WebClientException | CodecException e) {
             log.error(e.getMessage());
             throw new CustomClientErrorException();
         } catch (Exception e) {
-
             throw new CustomServerErrorException();
         }
     }

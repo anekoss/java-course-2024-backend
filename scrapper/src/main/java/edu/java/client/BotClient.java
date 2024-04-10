@@ -18,22 +18,22 @@ public class BotClient {
     private final WebClient webCLient;
 
     public BotClient(
-            @Value("${app.client.botClient.base-url}")
-            @NotBlank @URL String url
+        @Value("${app.client.botClient.base-url}")
+        @NotBlank @URL String url
     ) {
         this.webCLient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
     }
 
     public Optional<String> linkUpdates(LinkUpdateRequest request) {
         return webCLient
-                .post()
-                .uri("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(request), LinkUpdateRequest.class)
-                .retrieve()
-                .bodyToMono(String.class)
-                .onErrorResume(Exception.class, e -> Mono.empty())
-                .blockOptional();
+            .post()
+            .uri("/updates")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(Mono.just(request), LinkUpdateRequest.class)
+            .retrieve()
+            .bodyToMono(String.class)
+            .onErrorResume(Exception.class, e -> Mono.empty())
+            .blockOptional();
     }
 }

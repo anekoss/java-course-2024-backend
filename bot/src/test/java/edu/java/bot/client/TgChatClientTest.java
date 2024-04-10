@@ -36,24 +36,18 @@ public class TgChatClientTest {
     }
 
     @Test
-    void testRegisterChat_shouldReturnBadResponseExceptionIfClientError() {
+    void testRegisterChat_shouldReturnCustomClientExceptionIfClientError() {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(404))
         );
-        CustomClientErrorException exception = assertThrows(
-            CustomClientErrorException.class,
-            () -> tgChatClient.registerChat(1L)
-        );
+        assertThrows(CustomClientErrorException.class, () -> tgChatClient.registerChat(1L));
     }
 
     @Test
     void testRegisterChatS_shouldReturnServerError() {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(500)));
-        CustomServerErrorException exception = assertThrows(
-            CustomServerErrorException.class,
-            () -> tgChatClient.registerChat(1L)
-        );
+        assertThrows(CustomServerErrorException.class, () -> tgChatClient.registerChat(1L));
     }
 
     @Test
@@ -65,23 +59,17 @@ public class TgChatClientTest {
     }
 
     @Test
-    void testDeleteChat_shouldReturnBadResponseExceptionIfClientError() {
+    void testDeleteChat_shouldReturnCustomClientExceptionIfClientError() {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(404))
         );
-        CustomClientErrorException exception = assertThrows(
-            CustomClientErrorException.class,
-            () -> tgChatClient.deleteChat(1L)
-        );
+        assertThrows(CustomClientErrorException.class, () -> tgChatClient.deleteChat(1L));
     }
 
     @Test
     void testDeleteChat_shouldReturnServerError() {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .willReturn(aResponse().withStatus(500)));
-        CustomServerErrorException exception = assertThrows(
-            CustomServerErrorException.class,
-            () -> tgChatClient.deleteChat(1L)
-        );
+        assertThrows(CustomServerErrorException.class, () -> tgChatClient.deleteChat(1L));
     }
 }
