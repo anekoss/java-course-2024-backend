@@ -1,0 +1,34 @@
+[
+    {
+        "name": "hw1",
+        "commit": {
+            "sha": "0439698a72756acb41c559341102ce468dd23670",
+            "url": "https://api.github.com/repos/anekoss/tinkoff-project/commits/0439698a72756acb41c559341102ce468dd23670"
+        },
+        "protected": false
+    },
+    {
+        "name": "hw2",
+        "commit": {
+            "sha": "37d71851ca395c00c7d2297fcac745201cbe9669",
+            "url": "https://api.github.com/repos/anekoss/tinkoff-project/commits/37d71851ca395c00c7d2297fcac745201cbe9669"
+        },
+        "protected": false
+    },
+    {
+        "name": "hw_2",
+        "commit": {
+            "sha": "533bf624529ead722e17e9c0cac6c9d227117f81",
+            "url": "https://api.github.com/repos/anekoss/tinkoff-project/commits/533bf624529ead722e17e9c0cac6c9d227117f81"
+        },
+        "protected": false
+    },
+    {
+        "name": "hw3",
+        "commit": {
+            "sha": "eddb9827b875d7024e4c3a5267a81dbc22b3a816",
+            "url": "https://api.github.com/repos/anekoss/tinkoff-project/commits/eddb9827b875d7024e4c3a5267a81dbc22b3a816"
+        },
+        "protected": false
+    }
+]
