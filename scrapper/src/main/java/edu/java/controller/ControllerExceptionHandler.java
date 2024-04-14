@@ -4,6 +4,7 @@ import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
+import edu.java.controller.exception.RateLimitingException;
 import java.net.URISyntaxException;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,12 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(HttpServerErrorException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Сервер не может обработать запрос к сайту")
     public ErrorMessage serverError(HttpServerErrorException exception, WebRequest request) {
+        return new ErrorMessage(exception.getMessage());
+    }
+
+    @ExceptionHandler(RateLimitingException.class)
+    @ResponseStatus(value = HttpStatus.TOO_MANY_REQUESTS, reason = "исчерпан лимит обращений к сервису")
+    public ErrorMessage rateLimitingException(RateLimitingException exception, WebRequest request) {
         return new ErrorMessage(exception.getMessage());
     }
 }

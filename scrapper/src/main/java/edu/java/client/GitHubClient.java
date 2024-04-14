@@ -3,6 +3,7 @@ package edu.java.client;
 import edu.java.client.dto.GitHubBranchResponse;
 import edu.java.client.dto.GitHubResponse;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
-import java.util.Optional;
-
 @Slf4j
 @Component
 public class GitHubClient {
@@ -22,9 +21,9 @@ public class GitHubClient {
     private final Retry retry;
 
     public GitHubClient(
-            @Value("${app.client.github.base-url}")
-            @NotBlank @URL String url,
-            Retry retry
+        @Value("${app.client.github.base-url}")
+        @NotBlank @URL String url,
+        Retry retry
     ) {
         this.webCLient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
         this.retry = retry;
@@ -32,22 +31,22 @@ public class GitHubClient {
 
     public Optional<GitHubResponse> fetchRepository(String owner, String repo) {
         return webCLient.get()
-                        .uri("/repos/{owner}/{repo}", owner, repo)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .retrieve()
-                        .bodyToMono(GitHubResponse.class)
-                        .retryWhen(retry)
-                        .onErrorResume(Exception.class, e -> Mono.empty())
-                        .blockOptional();
+            .uri("/repos/{owner}/{repo}", owner, repo)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .bodyToMono(GitHubResponse.class)
+            .retryWhen(retry)
+            .onErrorResume(Exception.class, e -> Mono.empty())
+            .blockOptional();
     }
 
     public Optional<GitHubBranchResponse[]> fetchRepositoryBranches(String owner, String repo) {
         return webCLient.get()
-                        .uri("/repos/{owner}/{repo}/branches", owner, repo)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .retrieve()
-                        .bodyToMono(GitHubBranchResponse[].class)
-                        .onErrorResume(Exception.class, e -> Mono.empty())
-                        .blockOptional();
+            .uri("/repos/{owner}/{repo}/branches", owner, repo)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .bodyToMono(GitHubBranchResponse[].class)
+            .onErrorResume(Exception.class, e -> Mono.empty())
+            .blockOptional();
     }
 }

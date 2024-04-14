@@ -23,6 +23,10 @@ app:
       - 501
       - 502
     jitter: 0.75
+  rate-limiting-config:
+    limit: 100
+    time_duration: 15
+    nano_in_seconds: 15s
   db-access: "jooq"
 
 spring:

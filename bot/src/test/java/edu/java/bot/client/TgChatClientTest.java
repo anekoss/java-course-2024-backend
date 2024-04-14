@@ -4,6 +4,9 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import edu.java.bot.client.exception.CustomClientErrorException;
 import edu.java.bot.client.exception.CustomServerErrorException;
+import edu.java.bot.configuration.retry.ConstRetryConfig;
+import edu.java.bot.configuration.retry.ExponentialRetryConfig;
+import edu.java.bot.configuration.retry.LinearRetryConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +25,15 @@ public class TgChatClientTest {
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())
+
                                                                .build();
     @Autowired
     private TgChatClient tgChatClient;
 
-
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("app.client.tg-chat.base-url", wireMockServer::baseUrl);
+        registry.add("app.client.tg-сhat.base-url", wireMockServer::baseUrl);
     }
-
 
     @Test
     void testRegisterChat_shouldReturnCorrectResponse() throws CustomClientErrorException, CustomServerErrorException {

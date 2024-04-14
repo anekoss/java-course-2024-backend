@@ -1,14 +1,12 @@
 package edu.java.bot.retry.strategy;
 
-
 import edu.java.bot.retry.RetryStrategy;
+import java.time.Duration;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
-
-import java.time.Duration;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,14 +19,14 @@ public class LinearRetryStrategy implements RetryStrategy {
     @Override
     public Retry getRetryPolice() {
         return Retry.fixedDelay(maxAttempts, backoff)
-                    .maxBackoff(maxBackoff)
-                    .filter(throwable -> filter(throwable, statusCodes))
-                    .doBeforeRetry(retrySignal -> {
-                        log.warn(
-                                "Retry attempt {} due to response with code {}",
-                                retrySignal.totalRetries(),
-                                ((WebClientResponseException) retrySignal.failure()).getStatusCode()
-                        );
-                    });
+            .maxBackoff(maxBackoff)
+            .filter(throwable -> filter(throwable, statusCodes))
+            .doBeforeRetry(retrySignal -> {
+                log.warn(
+                    "Retry attempt {} due to response with code {}",
+                    retrySignal.totalRetries(),
+                    ((WebClientResponseException) retrySignal.failure()).getStatusCode()
+                );
+            });
     }
 }

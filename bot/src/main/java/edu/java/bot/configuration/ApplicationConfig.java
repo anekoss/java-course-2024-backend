@@ -7,11 +7,11 @@ import edu.java.bot.commands.CommandManager;
 import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.retry.RetryPolicy;
-import jakarta.validation.constraints.*;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.validation.annotation.Validated;
-
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = true)
@@ -40,7 +43,7 @@ public record ApplicationConfig(@NotEmpty String telegramToken, @NotNull @Bean R
     @Bean
     public SetMyCommands setMyCommandAs(Command[] commands, Command unknownCommand) {
         BotCommand[] botCommands = Arrays.stream(commands).filter(command -> !command.equals(unknownCommand))
-                                         .map(Command::toApiCommand).toArray(BotCommand[]::new);
+            .map(Command::toApiCommand).toArray(BotCommand[]::new);
         return new SetMyCommands(botCommands);
     }
 
@@ -53,7 +56,6 @@ public record ApplicationConfig(@NotEmpty String telegramToken, @NotNull @Bean R
     public ExecutorService executorService() {
         return Executors.newFixedThreadPool(THREAD_COUNT);
     }
-
 
     public record RetryConfig(@NotNull RetryPolicy policy,
                               @Positive int maxAttempts,

@@ -5,16 +5,16 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import java.time.Duration;
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.Duration;
-import java.util.List;
-
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = true)
-public record ApplicationConfig(@NotNull @Bean Scheduler scheduler, @NotNull @Bean RetryConfig retryConfig) {
+public record ApplicationConfig(@NotNull @Bean Scheduler scheduler, @NotNull @Bean RetryConfig retryConfig,
+                                @NotNull @Bean RateLimitingConfig rateLimitingConfig) {
     public record Scheduler(boolean enable,
                             @NotNull Duration interval,
                             @NotNull Duration forceCheckDelay,
@@ -27,6 +27,12 @@ public record ApplicationConfig(@NotNull @Bean Scheduler scheduler, @NotNull @Be
                               Duration maxBackoff,
                               @NotNull List<Integer> statusCodes,
                               @Min(0) @Max(1) double jitter) {
+
+    }
+
+    public record RateLimitingConfig(@Positive int limit,
+                                     @Positive int timeDuration,
+                                     @NotNull Duration nanoInSeconds) {
 
     }
 

@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GitHubClientTest extends IntegrationTest {
-    private static final int MAX_ATTEMPTS = 4;
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())
@@ -41,7 +40,6 @@ public class GitHubClientTest extends IntegrationTest {
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("app.client.github.base-url", wireMockServer::baseUrl);
-        registry.add("app.client.github.retry.maxAttempts", () -> MAX_ATTEMPTS);
     }
 
     @Test
