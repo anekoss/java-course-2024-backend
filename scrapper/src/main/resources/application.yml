@@ -11,6 +11,18 @@ app:
     interval: 10s
     force-check-delay: 10s
     limit: 5
+  retry-config:
+    policy: constant
+    max-attempts: 5
+    backoff: 2s
+    maxBackoff:
+    statusCodes:
+      - 400
+      - 500
+      - 403
+      - 501
+      - 502
+    jitter: 0.75
   db-access: "jooq"
 
 spring:

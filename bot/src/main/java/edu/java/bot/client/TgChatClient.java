@@ -10,6 +10,8 @@ import org.springframework.core.codec.CodecException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.util.retry.Retry;
+
 import static edu.java.bot.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 @Slf4j
@@ -18,12 +20,15 @@ public class TgChatClient {
 
     private final String pathId = "/{id}";
     private final WebClient webCLient;
+    private final Retry retry;
 
     public TgChatClient(
-        @Value("${app.client.tg-сhat.base-url}")
-        @NotBlank @URL String url
+            @Value("${app.client.tg-сhat.base-url}")
+            @NotBlank @URL String url,
+            Retry retry
     ) {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.retry = retry;
     }
 
     public Void registerChat(Long id) throws CustomClientErrorException, CustomServerErrorException {
@@ -33,6 +38,7 @@ public class TgChatClient {
                             .uri(pathId, id)
                             .retrieve()
                             .bodyToMono(Void.class)
+                            .retryWhen(retry)
                             .block();
         } catch (WebClientResponseException | CodecException e) {
             log.error(e.getMessage());
@@ -48,6 +54,7 @@ public class TgChatClient {
                             .uri(pathId, id)
                             .retrieve()
                             .bodyToMono(Void.class)
+                            .retryWhen(retry)
                             .block();
         } catch (WebClientResponseException | CodecException e) {
             log.error(e.getMessage());

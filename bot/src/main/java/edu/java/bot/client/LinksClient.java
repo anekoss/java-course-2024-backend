@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.util.retry.Retry;
+
 import static edu.java.bot.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 @Slf4j
@@ -24,12 +26,15 @@ import static edu.java.bot.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 public class LinksClient {
     private final String tgChatIdHeader = "Tg-Chat-Id";
     private final WebClient webCLient;
+    private final Retry retry;
 
     public LinksClient(
-        @Value("${app.client.links.base-url}")
-        @NotBlank @URL String url
+            @Value("${app.client.links.base-url}")
+            @NotBlank @URL String url,
+            Retry retry
     ) {
         this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.retry = retry;
     }
 
     public ListLinksResponse getLinks(Long tgChatId) throws CustomClientErrorException, CustomServerErrorException {
@@ -39,6 +44,7 @@ public class LinksClient {
                             .header(tgChatIdHeader, String.valueOf(tgChatId))
                             .retrieve()
                             .bodyToMono(ListLinksResponse.class)
+                            .retryWhen(retry)
                             .block();
         } catch (WebClientResponseException | CodecException e) {
             log.error(e.getMessage());
@@ -49,7 +55,7 @@ public class LinksClient {
     }
 
     public LinkResponse deleteLink(Long tgChatId, RemoveLinkRequest request)
-        throws CustomClientErrorException, CustomServerErrorException {
+            throws CustomClientErrorException, CustomServerErrorException {
         try {
             return webCLient.method(HttpMethod.DELETE)
                             .accept(MediaType.APPLICATION_JSON)
@@ -57,6 +63,7 @@ public class LinksClient {
                             .bodyValue(request)
                             .retrieve()
                             .bodyToMono(LinkResponse.class)
+                            .retryWhen(retry)
                             .block();
         } catch (WebClientException | CodecException e) {
             log.error(e.getMessage());
@@ -67,7 +74,7 @@ public class LinksClient {
     }
 
     public LinkResponse addLink(Long tgChatId, AddLinkRequest request)
-        throws CustomClientErrorException, CustomServerErrorException {
+            throws CustomClientErrorException, CustomServerErrorException {
         try {
             return webCLient.post()
                             .accept(MediaType.APPLICATION_JSON)
@@ -75,6 +82,7 @@ public class LinksClient {
                             .bodyValue(request)
                             .retrieve()
                             .bodyToMono(LinkResponse.class)
+                            .retryWhen(retry)
                             .block();
         } catch (WebClientResponseException | CodecException e) {
             log.error(e.getMessage());

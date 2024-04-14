@@ -6,19 +6,23 @@ import edu.java.bot.commands.Command;
 import edu.java.bot.commands.CommandManager;
 import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
-import jakarta.validation.constraints.NotEmpty;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import edu.java.bot.retry.RetryPolicy;
+import jakarta.validation.constraints.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = true)
-public record ApplicationConfig(@NotEmpty String telegramToken) {
+public record ApplicationConfig(@NotEmpty String telegramToken, @NotNull @Bean RetryConfig retryConfig) {
     private static final int THREAD_COUNT = 8;
 
     @Bean
@@ -48,6 +52,16 @@ public record ApplicationConfig(@NotEmpty String telegramToken) {
     @Bean
     public ExecutorService executorService() {
         return Executors.newFixedThreadPool(THREAD_COUNT);
+    }
+
+
+    public record RetryConfig(@NotNull RetryPolicy policy,
+                              @Positive int maxAttempts,
+                              @NotNull Duration backoff,
+                              Duration maxBackoff,
+                              @NotNull List<Integer> statusCodes,
+                              @Min(0) @Max(1) double jitter) {
+
     }
 
 }
