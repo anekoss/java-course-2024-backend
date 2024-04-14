@@ -10,10 +10,20 @@ app:
     enable: true
     interval: 10s
     force-check-delay: 10s
+    limit: 5
+  db-access: "jooq"
 
 spring:
   application:
     name: scrapper
+  datasource:
+    url: jdbc:postgresql://localhost:5432/scrapper
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    enabled: false
+
 
 server:
   port: 8080

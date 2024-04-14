@@ -1,10 +1,10 @@
 package edu.java.controller;
 
-import edu.java.controller.exception.AlreadyExistException;
-import edu.java.controller.exception.AlreadyRegisterException;
+import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
+import edu.java.controller.exception.LinkAlreadyExistException;
+import edu.java.controller.exception.LinkNotFoundException;
 import java.net.URISyntaxException;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,15 +22,15 @@ public class ControllerExceptionHandler {
         return new ErrorMessage(exception.getMessage());
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler(LinkNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Ссылка не найдена")
-    public ErrorMessage linkNotFound(ResourceNotFoundException exception, WebRequest request) {
+    public ErrorMessage linkNotFound(LinkNotFoundException exception, WebRequest request) {
         return new ErrorMessage(exception.getMessage());
     }
 
-    @ExceptionHandler(AlreadyRegisterException.class)
+    @ExceptionHandler(ChatAlreadyExistException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Повторная регистрация")
-    public ErrorMessage userAlreadyRegister(AlreadyRegisterException exception, WebRequest request) {
+    public ErrorMessage userAlreadyRegister(ChatAlreadyExistException exception, WebRequest request) {
         return new ErrorMessage(exception.getMessage());
     }
 
@@ -40,9 +40,9 @@ public class ControllerExceptionHandler {
         return new ErrorMessage(exception.getMessage());
     }
 
-    @ExceptionHandler(AlreadyExistException.class)
+    @ExceptionHandler(LinkAlreadyExistException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Повторное добавление ссылки")
-    public ErrorMessage linkAlreadyAdded(AlreadyExistException exception, WebRequest request) {
+    public ErrorMessage linkAlreadyAdded(LinkAlreadyExistException exception, WebRequest request) {
         return new ErrorMessage(exception.getMessage());
     }
 

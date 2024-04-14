@@ -2,6 +2,7 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Update;
+import edu.java.bot.client.exception.CustomServerErrorException;
 import edu.java.bot.printer.Printer;
 import java.util.function.Function;
 
@@ -12,7 +13,7 @@ public interface Command {
 
     String description();
 
-    String handle(Update update, Printer printer);
+    String handle(Update update, Printer printer) throws CustomServerErrorException;
 
     default boolean supports(Update update) {
 

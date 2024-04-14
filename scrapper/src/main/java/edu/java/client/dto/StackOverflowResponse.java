@@ -12,6 +12,7 @@ public record StackOverflowResponse(List<StackOverflowItem> items) {
         @JsonProperty("question_id") @NotNull Long id,
         @NotBlank String title,
         @NotBlank @URL String link,
+        @JsonProperty("answer_count") @NotNull Long countAnswer,
         @JsonProperty("creation_date") @NotNull OffsetDateTime createdAt,
         @JsonProperty("last_activity_date") @NotNull OffsetDateTime updatedAt
     ) {
