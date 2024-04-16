@@ -3,6 +3,7 @@ package edu.java.configuration;
 import edu.java.retry.RetryPolicy;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.time.Duration;
@@ -14,7 +15,9 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = true)
 public record ApplicationConfig(@NotNull @Bean Scheduler scheduler, @NotNull @Bean RetryConfig retryConfig,
-                                @NotNull @Bean RateLimitingConfig rateLimitingConfig) {
+                                @NotNull @Bean RateLimitingConfig rateLimitingConfig,
+                                @Bean KafkaConfig kafkaConfig,
+                                @NotNull Boolean useQueue) {
     public record Scheduler(boolean enable,
                             @NotNull Duration interval,
                             @NotNull Duration forceCheckDelay,
@@ -36,4 +39,14 @@ public record ApplicationConfig(@NotNull @Bean Scheduler scheduler, @NotNull @Be
 
     }
 
+    public record KafkaConfig(@NotNull Topic topic,
+                              int timeout,
+                              @NotBlank String bootstrapServers) {
+
+        public record Topic(@NotBlank String name,
+                            int partitions,
+                            int replicas) {
+
+        }
+    }
 }

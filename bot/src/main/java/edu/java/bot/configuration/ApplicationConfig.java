@@ -9,6 +9,7 @@ import edu.java.bot.printer.Printer;
 import edu.java.bot.retry.RetryPolicy;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -25,7 +26,8 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = true)
-public record ApplicationConfig(@NotEmpty String telegramToken, @NotNull @Bean RetryConfig retryConfig) {
+public record ApplicationConfig(@NotEmpty String telegramToken, @NotNull @Bean RetryConfig retryConfig,
+                                @Bean KafkaConfig kafkaConfig) {
     private static final int THREAD_COUNT = 8;
 
     @Bean
@@ -64,6 +66,17 @@ public record ApplicationConfig(@NotEmpty String telegramToken, @NotNull @Bean R
                               @NotNull List<Integer> statusCodes,
                               @Min(0) @Max(1) double jitter) {
 
+    }
+
+    public record KafkaConfig(@NotNull @Bean Topic topic,
+                              @NotNull @Bean Topic topicDlq,
+                              @NotBlank String bootstrapServers) {
+
+        public record Topic(@NotBlank String name,
+                            int partitions,
+                            int replicas) {
+
+        }
     }
 
 }

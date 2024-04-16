@@ -6,11 +6,13 @@ app:
       base-url: "https://api.stackexchange.com"
     botClient:
       base-url: "http://localhost:8090"
+
   scheduler:
     enable: true
     interval: 10s
     force-check-delay: 10s
     limit: 5
+
   retry-config:
     policy: constant
     max-attempts: 5
@@ -23,11 +25,23 @@ app:
       - 501
       - 502
     jitter: 0.75
+
   rate-limiting-config:
     limit: 100
     time_duration: 15
     nano_in_seconds: 15s
+
   db-access: "jooq"
+
+  kafka-config:
+    topic:
+      name: "topic"
+      partitions: 10
+      replicas: 1
+    bootstrap-servers: localhost:9092
+    timeout: 10
+  use-queue: true
+
 
 spring:
   application:
@@ -50,3 +64,4 @@ logging:
 springdoc:
   swagger-ui:
     path: /swagger-ui
+
