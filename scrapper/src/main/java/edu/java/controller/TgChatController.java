@@ -3,6 +3,7 @@ package edu.java.controller;
 import edu.java.controller.exception.ChatAlreadyExistException;
 import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.service.TgChatService;
+import io.micrometer.core.annotation.Counted;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class TgChatController {
     private final TgChatService chatService;
 
+    @Counted(value = "messages")
     @PostMapping(path = "/tg-chat/{id}")
     public ResponseEntity<Void> registerChat(@PathVariable("id") Long id) throws ChatAlreadyExistException {
         chatService.register(id);
         return ResponseEntity.ok().build();
     }
 
+    @Counted(value = "messages")
     @DeleteMapping(path = "/tg-chat/{id}")
     public ResponseEntity<Void> deleteChat(@PathVariable("id") Long id) throws ChatNotFoundException {
         chatService.unregister(id);

@@ -67,7 +67,7 @@ springdoc:
 
 management:
   server:
-    port: 8081
+    port: 8070
   endpoints:
     enabled-by-default: false
     web:

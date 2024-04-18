@@ -49,7 +49,7 @@ springdoc:
 
 management:
   server:
-    port: 8190
+    port: 8290
   endpoints:
     enabled-by-default: false
     web:

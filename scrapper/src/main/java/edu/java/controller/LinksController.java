@@ -8,6 +8,7 @@ import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import edu.java.service.LinkService;
+import io.micrometer.core.annotation.Counted;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.net.URI;
@@ -28,11 +29,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class LinksController {
     private final LinkService linkService;
 
+    @Counted(value = "messages")
     @GetMapping(path = "/links", produces = APPLICATION_JSON_VALUE)
     public ListLinksResponse getLinks(@RequestHeader(value = "Tg-Chat-Id") Long tgChatId) throws ChatNotFoundException {
         return linkService.listAll(tgChatId);
     }
 
+    @Counted(value = "messages")
     @DeleteMapping(path = "/links", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public LinkResponse deleteLink(
         @RequestHeader(value = "Tg-Chat-Id") @NotNull Long tgChatId,
@@ -41,6 +44,7 @@ public class LinksController {
         return linkService.remove(tgChatId, new URI(request.link()));
     }
 
+    @Counted(value = "messages")
     @PostMapping(path = "/links", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public LinkResponse addLink(
         @RequestHeader(value = "Tg-Chat-Id") @NotNull Long tgChatId,
