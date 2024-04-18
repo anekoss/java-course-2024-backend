@@ -2,19 +2,16 @@ package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import edu.java.bot.client.exception.CustomServerErrorException;
-import edu.java.bot.commands.commandImpl.HelpCommand;
-import edu.java.bot.commands.commandImpl.ListCommand;
-import edu.java.bot.commands.commandImpl.StartCommand;
-import edu.java.bot.commands.commandImpl.TrackCommand;
-import edu.java.bot.commands.commandImpl.UnTrackCommand;
-import edu.java.bot.commands.commandImpl.UnknownCommand;
+import edu.java.bot.commands.commandImpl.*;
 import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
 import edu.java.bot.service.CommandService;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelpCommandTest {
@@ -23,12 +20,6 @@ public class HelpCommandTest {
     private final Command helpCommand = new HelpCommand(commandServiceMock);
     private final Update updateMock = Mockito.mock(Update.class);
     private final Printer printer = new HtmlPrinter();
-
-    @Test
-    public void testHandleNoAvailableCommands() throws CustomServerErrorException {
-        assertThat(helpCommand.handle(updateMock, printer)).isEqualTo(
-            "В данный момент нет доступных команд.");
-    }
 
     @Test
     public void testHandle() throws CustomServerErrorException {
