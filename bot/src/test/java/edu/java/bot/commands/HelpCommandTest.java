@@ -21,11 +21,12 @@ public class HelpCommandTest {
     private final Update updateMock = Mockito.mock(Update.class);
     private final Printer printer = new HtmlPrinter();
 
+
     @Test
     public void testHandle() throws CustomServerErrorException {
         String response = "<b>Список доступных команд:</b>\n<b>/list</b> - Показать список отслеживаемых ссылок\n" +
-            "<b>/help</b> - Вывести описание команд\n<b>/track</b> - Начать отслеживание ссылки\n" +
-            "<b>/start</b> - Получить информацию о боте\n<b>/untrack</b> - Прекратить отслеживание ссылки\n";
+                "<b>/help</b> - Вывести описание команд\n<b>/track</b> - Начать отслеживание ссылки\n" +
+                "<b>/start</b> - Получить информацию о боте\n<b>/untrack</b> - Прекратить отслеживание ссылки\n";
         TrackCommand trackCommand = new TrackCommand(commandServiceMock);
         UnTrackCommand unTrackCommand = new UnTrackCommand(commandServiceMock);
         ListCommand listCommand = new ListCommand(commandServiceMock);
