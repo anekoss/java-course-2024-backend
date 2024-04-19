@@ -1,6 +1,6 @@
 package edu.java.controller.exception;
 
-public class AlreadyExistException extends Exception {
+public class LinkAlreadyExistException extends Exception {
 
     @Override
     public String getMessage() {
