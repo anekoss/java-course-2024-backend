@@ -10,7 +10,8 @@ app:
     enable: true
     interval: 10s
     force-check-delay: 10s
-  db-access: "jdbc"
+    limit: 5
+  db-access: "jooq"
 
 spring:
   application:

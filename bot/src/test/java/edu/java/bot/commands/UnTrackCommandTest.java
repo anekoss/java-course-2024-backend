@@ -3,6 +3,7 @@ package edu.java.bot.commands;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
+import edu.java.bot.client.exception.CustomServerErrorException;
 import edu.java.bot.commands.commandImpl.UnTrackCommand;
 import edu.java.bot.printer.HtmlPrinter;
 import edu.java.bot.printer.Printer;
@@ -10,17 +11,19 @@ import edu.java.bot.service.CommandService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import static edu.java.bot.commands.CommandExecutionStatus.SUCCESS_LINK_UN_TRACK;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class UnTrackCommandTest {
 
+    private static final Update updateMock = Mockito.mock(Update.class);
+    private static Message message;
     private final CommandService commandServiceMock = Mockito.mock(CommandService.class);
     private final Command unTrackCommand = new UnTrackCommand(commandServiceMock);
-    private static final Update updateMock = Mockito.mock(Update.class);
     private final Printer printer = new HtmlPrinter();
-    private static Message message;
 
     @BeforeEach
     public void init() {
@@ -32,39 +35,47 @@ public class UnTrackCommandTest {
     }
 
     @Test
-    public void testHandleRequest() {
+    public void testHandle_shouldReturnPromptToEnter() throws CustomServerErrorException {
         when(message.text()).thenReturn("/untrack");
         assertThat(unTrackCommand.handle(updateMock, printer)).isEqualTo(
             "Введите URL-ссылку, чтобы прекратить отслеживать обновления.");
     }
 
     @Test
-    public void testHandleInvalidLink() {
+    public void testHandle_shouldReturnFailIfLinkInvalid() throws CustomServerErrorException {
         when(message.text()).thenReturn("test");
-        when(commandServiceMock.unTrack(any(), any())).thenReturn(CommandExecutionStatus.LINK_INVALID);
+        when(commandServiceMock.unTrack(any(), any())).thenReturn(CommandExecutionStatus.FAIL_LINK_INVALID);
         assertThat(unTrackCommand.handle(
             updateMock,
             printer
-        )).isEqualTo(CommandExecutionStatus.LINK_INVALID.getMessage());
+        )).isEqualTo(CommandExecutionStatus.FAIL_LINK_INVALID.getMessage());
     }
 
     @Test
-    public void testHandleSuccess() {
+    public void testHandle_shouldReturnSuccessIfLinkTrack() throws CustomServerErrorException {
         when(message.text()).thenReturn("test");
-        when(commandServiceMock.unTrack(any(), any())).thenReturn(CommandExecutionStatus.SUCCESS);
+        when(commandServiceMock.unTrack(any(), any())).thenReturn(CommandExecutionStatus.SUCCESS_LINK_UN_TRACK);
         assertThat(unTrackCommand.handle(
             updateMock,
             printer
-        )).isEqualTo("Вы больше не отслеживаете сслыку!");
+        )).isEqualTo(SUCCESS_LINK_UN_TRACK.getMessage());
     }
 
     @Test
-    public void testHandleNoTrackLink() {
+    public void testHandle_shouldReturnFailIfLinkNoTrack() throws CustomServerErrorException {
         when(message.text()).thenReturn("test");
-        when(commandServiceMock.unTrack(any(), any())).thenReturn(CommandExecutionStatus.LINK_NOT_TRACK);
+        when(commandServiceMock.unTrack(any(), any())).thenReturn(CommandExecutionStatus.FAIL_LINK_NOT_TRACK);
         assertThat(unTrackCommand.handle(
             updateMock,
             printer
-        )).isEqualTo(CommandExecutionStatus.LINK_NOT_TRACK.getMessage());
+        )).isEqualTo(CommandExecutionStatus.FAIL_LINK_NOT_TRACK.getMessage());
+    }
+
+
+    @Test
+    public void testHandle_shouldThrowCustomServerExceptionIfServerError() throws CustomServerErrorException {
+        when(message.text()).thenReturn("test");
+        when(commandServiceMock.unTrack(any(), any())).thenThrow(CustomServerErrorException.class);
+        assertThrows(CustomServerErrorException.class, () -> unTrackCommand.handle(updateMock, printer));
     }
 }

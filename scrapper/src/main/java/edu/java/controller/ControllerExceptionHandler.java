@@ -5,7 +5,6 @@ import edu.java.controller.exception.ChatNotFoundException;
 import edu.java.controller.exception.LinkAlreadyExistException;
 import edu.java.controller.exception.LinkNotFoundException;
 import java.net.URISyntaxException;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,7 +24,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(LinkNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Ссылка не найдена")
-    public ErrorMessage linkNotFound(ResourceNotFoundException exception, WebRequest request) {
+    public ErrorMessage linkNotFound(LinkNotFoundException exception, WebRequest request) {
         return new ErrorMessage(exception.getMessage());
     }
 

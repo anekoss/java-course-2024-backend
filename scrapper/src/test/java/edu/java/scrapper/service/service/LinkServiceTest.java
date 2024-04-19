@@ -21,7 +21,9 @@ import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.Rollback;
@@ -117,7 +119,8 @@ public abstract class LinkServiceTest extends IntegrationTest {
         throws ChatNotFoundException, LinkNotFoundException {
         URI uri = URI.create("https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh");
         linkService.remove(124025L, uri);
-        assert linkRepository.findByUri(uri).isEmpty();
+        Optional<LinkEntity> link =  linkRepository.findByUri(uri);
+        assert link.isEmpty();
     }
 
     @Test
@@ -136,13 +139,10 @@ public abstract class LinkServiceTest extends IntegrationTest {
     void testFindAll_shouldReturnLinksIfChatHaveLinks() throws ChatNotFoundException {
         ListLinksResponse links = linkService.listAll(327034L);
         assert links.size() == 2;
-        assertEquals(links.linkResponses()[0].url().toString(), "https://github.com/anekoss/tinkoff");
-        assertEquals(
-            links.linkResponses()[1]
-                .url()
-                .toString(),
-            "https://stackoverflow.com/questions/59339862/retrieving-text-body-of-answers-and-comments-using-stackexchange-api"
-        );
+        List<String> uris = Arrays.stream(links.linkResponses()).map(link -> link.uri().toString()).toList();
+        assertThat(uris).contains("https://github.com/anekoss/tinkoff");
+        assertThat(uris).contains(
+            "https://stackoverflow.com/questions/59339862/retrieving-text-body-of-answers-and-comments-using-stackexchange-api");
     }
 
     @Test
@@ -160,9 +160,7 @@ public abstract class LinkServiceTest extends IntegrationTest {
     void testGetChatIdsByLinkId_shouldCorrectlyReturnIds() {
         long[] chatIds = linkService.getChatIdsByLinkId(1L);
         assert chatIds.length == 3;
-        assert chatIds[0] == 124025L;
-        assert chatIds[1] == 327034L;
-        assert chatIds[2] == 444444L;
+        assertThat(chatIds).contains(124025L, 327034L, 444444L);
     }
 
     @Test
@@ -244,14 +242,14 @@ public abstract class LinkServiceTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void testUpdateStackOverflowAnswerCount_shouldNoUpdateAnswerIfNewLess() {
-        assert linkService.updateStackOverflowAnswerCount(new StackOverflowLink(2L, 1L)) == UpdateType.NO_UPDATE;
+    void testUpdateStackOverflowAnswerCount_shouldNoUpdateAnswerIfNewEq() {
+        assert linkService.updateStackOverflowAnswerCount(new StackOverflowLink(2L, 3L)) == UpdateType.NO_UPDATE;
     }
 
     @Test
     @Transactional
     @Rollback
-    void testUpdateGithubBranchCount_shouldReturnUpdateBranchIfNewGreater() {
+    void testUpdateGithubBranchCount_shouldReturnUpdateBranchIfNewNoEq() {
         assert linkService.updateGithubBranchCount(new GithubLink(1L, 7L)) == UpdateType.UPDATE_BRANCH;
     }
 

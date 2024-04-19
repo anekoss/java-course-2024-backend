@@ -17,7 +17,10 @@ public class UrlValidator implements Validator {
             return Optional.empty();
         }
         try {
-            return Optional.of(new URI(url).toURL());
+            URI uri = new URI(url);
+            URL linkUrl = uri.toURL();
+            boolean hostValid = uri.getHost().equals("github.com") || uri.getHost().equals("stackoverflow.com");
+            return hostValid ? Optional.of(linkUrl) : Optional.empty();
         } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
             return Optional.empty();
         }

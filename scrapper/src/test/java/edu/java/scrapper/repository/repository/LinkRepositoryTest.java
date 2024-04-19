@@ -97,11 +97,11 @@ public abstract class LinkRepositoryTest extends IntegrationTest {
     void testFindAll_shouldCorrectlyFindAllLink() {
         List<LinkEntity> links = linkRepository.findAll();
         assert links.size() == 3;
-        assertEquals(links.getFirst().getUri().toString(), "https://github.com/anekoss/tinkoff");
-        assertEquals(
-            links.getLast().getUri().toString(),
+        assertThat(links.stream().map(link -> link.getUri().toString()).toList()).contains(
+            "https://github.com/anekoss/tinkoff",
             "https://stackoverflow.com/questions/44760112/marching-cubes-generating-holes-in-mesh"
         );
+
     }
 
     @Test

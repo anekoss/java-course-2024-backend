@@ -1,7 +1,7 @@
 package edu.java.bot.client;
 
+import edu.java.bot.client.exception.CustomServerErrorException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.publisher.Mono;
@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ClientStatusCodeHandler {
     public static final ExchangeFilterFunction ERROR_RESPONSE_FILTER = ExchangeFilterFunction
-            .ofResponseProcessor(ClientStatusCodeHandler::exchangeFilterResponseProcessor);
+        .ofResponseProcessor(ClientStatusCodeHandler::exchangeFilterResponseProcessor);
 
     private ClientStatusCodeHandler() {
 
@@ -17,8 +17,8 @@ public class ClientStatusCodeHandler {
 
     private static Mono<ClientResponse> exchangeFilterResponseProcessor(ClientResponse response) {
         if (response.statusCode().is5xxServerError()) {
-            log.error(response.statusCode() + " SERVER_ERROR");
-            return Mono.error(new HttpServerErrorException(response.statusCode()));
+            log.error("SERVER_ERROR {}", response.statusCode());
+            return Mono.error(new CustomServerErrorException());
         }
         return Mono.just(response);
     }

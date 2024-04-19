@@ -105,13 +105,13 @@ public class AbstractLinkService implements LinkService {
     @Transactional
     public UpdateType updateStackOverflowAnswerCount(StackOverflowLink stackOverflowLink) {
         long prevAnswerCount = stackOverflowLinkRepository.add(stackOverflowLink);
-        return prevAnswerCount > stackOverflowLink.answerCount() ? UpdateType.NO_UPDATE : UpdateType.UPDATE_ANSWER;
+        return prevAnswerCount != stackOverflowLink.answerCount() ? UpdateType.UPDATE_ANSWER : UpdateType.NO_UPDATE;
     }
 
     @Override
     @Transactional
     public UpdateType updateGithubBranchCount(GithubLink githubLink) {
         long prevBranchCount = githubLinkRepository.add(githubLink);
-        return prevBranchCount > githubLink.branchCount() ? UpdateType.NO_UPDATE : UpdateType.UPDATE_BRANCH;
+        return prevBranchCount != githubLink.branchCount() ? UpdateType.UPDATE_BRANCH : UpdateType.NO_UPDATE;
     }
 }

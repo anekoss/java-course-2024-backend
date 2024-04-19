@@ -32,9 +32,9 @@ public class TgChatEntity {
 
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
-            name = "tg_chat_links",
-            joinColumns = {@JoinColumn(name = "tg_chat_id")},
-            inverseJoinColumns = {@JoinColumn(name = "link_id")}
+        name = "tg_chat_links",
+        joinColumns = {@JoinColumn(name = "tg_chat_id")},
+        inverseJoinColumns = {@JoinColumn(name = "link_id")}
     )
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<LinkEntity> links;
@@ -45,13 +45,13 @@ public class TgChatEntity {
     }
 
     public void addLink(LinkEntity link) {
-        this.links.add(link);
-        link.addTgChat(this);
+        link.getTgChats().add(this);
+        this.getLinks().add(link);
     }
 
     public void removeLink(LinkEntity link) {
-        this.links.remove(link);
-        link.removeTgChat(this);
+        this.getLinks().remove(link);
+        link.getTgChats().remove(this);
     }
 
 }

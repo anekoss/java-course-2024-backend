@@ -48,12 +48,12 @@ public class LinkEntity {
     }
 
     public void addTgChat(TgChatEntity tgChat) {
+        tgChat.getLinks().add(this);
         this.getTgChats().add(tgChat);
-        tgChat.addLink(this);
     }
 
     public void removeTgChat(TgChatEntity tgChat) {
+        tgChat.getLinks().remove(this);
         this.getTgChats().remove(tgChat);
-        tgChat.removeLink(this);
     }
 }

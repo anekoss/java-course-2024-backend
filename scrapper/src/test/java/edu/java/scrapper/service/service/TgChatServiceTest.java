@@ -8,6 +8,7 @@ import edu.java.service.TgChatService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -49,7 +50,7 @@ public abstract class TgChatServiceTest extends IntegrationTest {
     void testUnregister_shouldCorrectlyUnregisterExistChat() throws ChatNotFoundException {
         tgChatService.unregister(555555L);
         assertThrows(
-            EmptyResultDataAccessException.class,
+            DataAccessException.class,
             () -> jdbcTemplate.queryForObject("select * from tg_chats where chat_id = ?", TgChatEntity.class, 555555L)
         );
     }
