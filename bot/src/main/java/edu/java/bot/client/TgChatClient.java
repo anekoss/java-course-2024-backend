@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
-import static edu.java.bot.client.ClientStatusCodeHandler.ERROR_RESPONSE_FILTER;
 
 @Slf4j
 @Component
@@ -27,13 +26,12 @@ public class TgChatClient {
         @NotBlank @URL String url,
         @NotNull Retry retry
     ) {
-        this.webCLient = WebClient.builder().filter(ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.webCLient = WebClient.builder().baseUrl(url).build();
         this.retry = retry;
     }
 
     public Void registerChat(Long id) throws CustomClientErrorException, CustomServerErrorException {
         try {
-
             return webCLient.post()
                 .uri(pathId, id)
                 .retrieve()
