@@ -24,7 +24,7 @@ public class BotClient {
         @NotBlank @URL String url,
         Retry retry
     ) {
-        this.webCLient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.webCLient = WebClient.builder().baseUrl(url).build();
         this.retry = retry;
     }
 
@@ -38,7 +38,10 @@ public class BotClient {
             .retrieve()
             .bodyToMono(String.class)
             .retryWhen(retry)
-            .onErrorResume(Exception.class, e -> Mono.empty())
+            .onErrorResume(Exception.class, e -> {
+                log.warn(e.getMessage());
+                return Mono.empty();
+            })
             .blockOptional();
     }
 }

@@ -15,7 +15,7 @@ app:
     policy: constant
     max-attempts: 5
     backoff: 2s
-    maxBackoff:
+    maxBackoff: 10s
     statusCodes:
       - 400
       - 500

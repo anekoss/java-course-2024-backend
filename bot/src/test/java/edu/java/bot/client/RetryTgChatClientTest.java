@@ -39,7 +39,7 @@ public class RetryTgChatClientTest {
     }
 
     @BeforeEach
-    void provideDataForDeleteChatTest() {
+    void provideWireMockServerForDeleteChatTest() {
         wireMockServer.stubFor(WireMock.delete(urlEqualTo("/1"))
                                        .inScenario("deleteChat")
                                        .whenScenarioStateIs(STARTED)
@@ -51,7 +51,7 @@ public class RetryTgChatClientTest {
     }
 
     @BeforeEach
-    void provideDataForRegisterChatTest() {
+    void provideWireMockServerRegisterChatTest() {
         wireMockServer.stubFor(WireMock.post(urlEqualTo("/1"))
                                        .inScenario("registerChat")
                                        .whenScenarioStateIs(STARTED)

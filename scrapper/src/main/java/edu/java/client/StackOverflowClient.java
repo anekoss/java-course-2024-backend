@@ -23,7 +23,7 @@ public class StackOverflowClient {
         @NotBlank @URL String url,
         Retry retry
     ) {
-        this.webClient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.webClient = WebClient.builder().baseUrl(url).build();
         this.retry = retry;
     }
 
@@ -36,7 +36,10 @@ public class StackOverflowClient {
             .retrieve()
             .bodyToMono(StackOverflowResponse.class)
             .retryWhen(retry)
-            .onErrorResume(Exception.class, e -> Mono.empty())
+            .onErrorResume(Exception.class, e -> {
+                log.warn(e.getMessage());
+                return Mono.empty();
+            })
             .blockOptional();
     }
 

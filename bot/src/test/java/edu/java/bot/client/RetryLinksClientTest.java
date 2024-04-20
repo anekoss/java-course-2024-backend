@@ -8,6 +8,7 @@ import edu.java.bot.client.dto.ListLinksResponse;
 import edu.java.bot.client.dto.RemoveLinkRequest;
 import edu.java.bot.client.exception.CustomClientErrorException;
 import edu.java.bot.client.exception.CustomServerErrorException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,32 +47,8 @@ public class RetryLinksClientTest {
         registry.add("app.retry-config.max-attempts", () -> 4);
     }
 
-
-    static void provideDataForGetLinksTest() {
-        wireMockServer.stubFor(WireMock.get(anyUrl())
-                                       .inScenario("getLinks")
-                                       .whenScenarioStateIs(STARTED)
-                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
-                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
-                                       .willReturn(WireMock.jsonResponse(RESPONSE, 500))
-                                       .willSetStateTo(SECOND_STATE));
-        wireMockServer.stubFor(WireMock.get(anyUrl())
-                                       .inScenario("getLinks")
-                                       .whenScenarioStateIs(SECOND_STATE)
-                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
-                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
-                                       .willReturn(WireMock.jsonResponse(RESPONSE, 500))
-                                       .willSetStateTo(THIRD_STATE));
-        wireMockServer.stubFor(WireMock.get(anyUrl())
-                                       .inScenario("getLinks")
-                                       .whenScenarioStateIs(THIRD_STATE)
-                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
-                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
-                                       .willReturn(WireMock.jsonResponse(RESPONSE, 500))
-                                       .willSetStateTo(FOURTH_STATE));
-    }
-
-    static void provideDataForDeleteLinkTest() {
+    @BeforeEach
+    void provideWireMockServerForDeleteLinkTest() {
         wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
                                        .inScenario("deleteLink")
                                        .whenScenarioStateIs(STARTED)
@@ -99,7 +76,8 @@ public class RetryLinksClientTest {
 
     }
 
-    static void provideDataForAddLinkTest() {
+    @BeforeEach
+    void provideWireMockServerForAddLinkTest() {
         wireMockServer.stubFor(WireMock.post(anyUrl())
                                        .inScenario("addLink")
                                        .whenScenarioStateIs(STARTED)
@@ -122,6 +100,31 @@ public class RetryLinksClientTest {
                                        .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .withRequestBody(WireMock.equalToJson(REQUEST_BODY))
+                                       .willReturn(WireMock.jsonResponse(RESPONSE, 500))
+                                       .willSetStateTo(FOURTH_STATE));
+    }
+
+    @BeforeEach
+    void provideWireMockServerForGetLinksTest() {
+        wireMockServer.stubFor(WireMock.get(anyUrl())
+                                       .inScenario("getLinks")
+                                       .whenScenarioStateIs(STARTED)
+                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
+                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .willReturn(WireMock.jsonResponse(RESPONSE, 500))
+                                       .willSetStateTo(SECOND_STATE));
+        wireMockServer.stubFor(WireMock.get(anyUrl())
+                                       .inScenario("getLinks")
+                                       .whenScenarioStateIs(SECOND_STATE)
+                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
+                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
+                                       .willReturn(WireMock.jsonResponse(RESPONSE, 500))
+                                       .willSetStateTo(THIRD_STATE));
+        wireMockServer.stubFor(WireMock.get(anyUrl())
+                                       .inScenario("getLinks")
+                                       .whenScenarioStateIs(THIRD_STATE)
+                                       .withHeader("Accept", WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
+                                       .withHeader("Tg-Chat-Id", WireMock.equalTo(String.valueOf(1L)))
                                        .willReturn(WireMock.jsonResponse(RESPONSE, 500))
                                        .willSetStateTo(FOURTH_STATE));
     }
@@ -129,7 +132,6 @@ public class RetryLinksClientTest {
     @Test
     void testGetLinks_shouldReturnCorrectResponse()
             throws URISyntaxException, CustomClientErrorException, CustomServerErrorException {
-        provideDataForGetLinksTest();
         ListLinksResponse excepted =
                 new ListLinksResponse(new LinkResponse[]{new LinkResponse(1L, new URI("https://example.com/link1"))}, 1L);
         wireMockServer.stubFor(WireMock.get(anyUrl())
@@ -145,7 +147,6 @@ public class RetryLinksClientTest {
 
     @Test
     void testGetLinks_shouldReturnCustomClientExceptionIfClientError() {
-        provideDataForGetLinksTest();
         wireMockServer.stubFor(WireMock.get(anyUrl())
                                        .inScenario("getLinks")
                                        .whenScenarioStateIs(FOURTH_STATE)
@@ -157,7 +158,6 @@ public class RetryLinksClientTest {
 
     @Test
     void testGetLinks_shouldReturnCustomServerExceptionIfServerError() {
-        provideDataForGetLinksTest();
         wireMockServer.stubFor(WireMock.get(anyUrl())
                                        .inScenario("getLinks")
                                        .whenScenarioStateIs(FOURTH_STATE)
@@ -170,7 +170,6 @@ public class RetryLinksClientTest {
     @Test
     void testDeleteLink_shouldReturnCorrectResponse()
             throws URISyntaxException, CustomClientErrorException, CustomServerErrorException {
-        provideDataForDeleteLinkTest();
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));
@@ -186,7 +185,6 @@ public class RetryLinksClientTest {
 
     @Test
     void testDelete_linkShouldReturnCustomClientExceptionIfClientError() {
-        provideDataForDeleteLinkTest();
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
@@ -204,7 +202,6 @@ public class RetryLinksClientTest {
 
     @Test
     void testDeleteLink_shouldReturnCustomServerExceptionIfServerError() {
-        provideDataForDeleteLinkTest();
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.delete(WireMock.anyUrl())
@@ -223,7 +220,6 @@ public class RetryLinksClientTest {
     @Test
     void testAddLink_shouldReturnCorrectResponse()
             throws URISyntaxException, CustomClientErrorException, CustomServerErrorException {
-        provideDataForAddLinkTest();
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         LinkResponse excepted = new LinkResponse(1L, new URI("https://example.com/link1"));
@@ -237,7 +233,6 @@ public class RetryLinksClientTest {
 
     @Test
     void testAddLink_shouldReturnCustomClientExceptionIfClientError() {
-        provideDataForAddLinkTest();
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
@@ -253,7 +248,6 @@ public class RetryLinksClientTest {
 
     @Test
     void testAddLink_shouldReturnCustomServerExceptionIfServerError() {
-        provideDataForAddLinkTest();
         String request = "{\"link\":\"https://example.com/link1\"}";
         String response = "{\"id\":1, \"uri\":\"https://example.com/link1\"}";
         wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
