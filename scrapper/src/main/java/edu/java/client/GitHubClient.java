@@ -25,7 +25,7 @@ public class GitHubClient {
         @NotBlank @URL String url,
         Retry retry
     ) {
-        this.webCLient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.webCLient = WebClient.builder().baseUrl(url).build();
         this.retry = retry;
     }
 
@@ -46,6 +46,7 @@ public class GitHubClient {
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
             .bodyToMono(GitHubBranchResponse[].class)
+            .retryWhen(retry)
             .onErrorResume(Exception.class, e -> Mono.empty())
             .blockOptional();
     }

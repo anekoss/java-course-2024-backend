@@ -41,7 +41,6 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-
         <!-- Database -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -58,7 +57,6 @@
             <artifactId>spring-boot-starter-jooq</artifactId>
             <version>3.2.4</version>
         </dependency>
-
         <!-- Kafka -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
