@@ -17,6 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.codec.DecodingException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -51,13 +53,15 @@ public class KafkaUpdateServiceTest extends KafkaIntegrationTest {
     }
 
     @Test
-    void testUpdateService_shouldCorrectlyExecuteBot() throws InterruptedException {
+    void testUpdateService_shouldCorrectlyExecuteBot() {
         doNothing().when(updatesSenderService).sendUpdates(any());
         String linkUpdateRequest =
             "{ \"id\": 1, \"url\": \"url\", \"description\": \"updated\", \"tgChatIds\": [1, 2] }";
         kafkaTemplate.send(topic, linkUpdateRequest);
-        wait(10000);
-        verify(updatesSenderService, times(1)).sendUpdates(any());
+        await()
+            .pollInterval(Duration.ofSeconds(3))
+            .atMost(15, SECONDS)
+            .untilAsserted(() -> verify(updatesSenderService, times(1)).sendUpdates(any()));
     }
 
     @Test
@@ -66,13 +70,13 @@ public class KafkaUpdateServiceTest extends KafkaIntegrationTest {
         String linkUpdateRequest =
             "{ \"id\": 1, \"url\": \"url\", \"description\": \"updated\", \"tgChatIds\": [1, 2] }";
         kafkaTemplate.send(topic, linkUpdateRequest);
+        ConsumerRecords<String, String> records;
         try (KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(getConsumerProps())) {
             kafkaConsumer.subscribe(List.of(dlq));
-            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(10));
-            assert !records.isEmpty();
-            assert !records.iterator().next().value().isEmpty();
-
+            records = kafkaConsumer.poll(Duration.ofSeconds(20));
         }
+        assert !records.isEmpty();
+        assert !records.iterator().next().value().isEmpty();
     }
 
 }
