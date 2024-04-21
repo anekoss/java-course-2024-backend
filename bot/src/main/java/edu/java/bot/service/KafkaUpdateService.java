@@ -16,7 +16,7 @@ public class KafkaUpdateService {
     private final UpdatesSenderService updatesSenderService;
     private final ApplicationConfig.KafkaConfig kafkaConfig;
 
-    @KafkaListener(id = "id",
+    @KafkaListener(id = "group",
                    topics = "${app.kafka-config.topic.name}",
                    containerFactory = "kafkaListenerContainerFactory")
     public void send(LinkUpdateRequest request) {
@@ -24,7 +24,7 @@ public class KafkaUpdateService {
             updatesSenderService.sendUpdates(request);
         } catch (Exception e) {
             log.warn("send updates exception {}", e.getMessage());
-            kafkaTemplate.send(kafkaConfig.topicDlq().name(), e.getMessage());
+            kafkaTemplate.send(kafkaConfig.dlqTopic(), e.getMessage());
         }
     }
 }

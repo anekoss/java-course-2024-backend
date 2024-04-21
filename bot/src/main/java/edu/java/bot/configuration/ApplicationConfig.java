@@ -69,14 +69,14 @@ public record ApplicationConfig(@NotEmpty String telegramToken, @NotNull @Bean R
     }
 
     public record KafkaConfig(@NotNull @Bean Topic topic,
-                              @NotNull @Bean Topic topicDlq,
+                              @NotNull @Bean String dlqTopic,
                               @NotBlank String bootstrapServers) {
 
         public record Topic(@NotBlank String name,
                             int partitions,
                             int replicas) {
-
         }
+
     }
 
 }

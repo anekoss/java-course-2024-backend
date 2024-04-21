@@ -32,4 +32,8 @@ public class RateLimitingService {
             .addLimit(limit)
             .build();
     }
+
+    public void clearBucket() {
+        cache.clear();
+    }
 }
