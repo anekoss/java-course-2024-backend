@@ -10,18 +10,22 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Slf4j
 @Component
 public class BotClient {
 
     private final WebClient webCLient;
+    private final Retry retry;
 
     public BotClient(
         @Value("${app.client.botClient.base-url}")
-        @NotBlank @URL String url
+        @NotBlank @URL String url,
+        Retry retry
     ) {
-        this.webCLient = WebClient.builder().filter(ClientStatusCodeHandler.ERROR_RESPONSE_FILTER).baseUrl(url).build();
+        this.webCLient = WebClient.builder().baseUrl(url).build();
+        this.retry = retry;
     }
 
     public Optional<String> linkUpdates(LinkUpdateRequest request) {
@@ -33,7 +37,11 @@ public class BotClient {
             .body(Mono.just(request), LinkUpdateRequest.class)
             .retrieve()
             .bodyToMono(String.class)
-            .onErrorResume(Exception.class, e -> Mono.empty())
+            .retryWhen(retry)
+            .onErrorResume(Exception.class, e -> {
+                log.warn(e.getMessage());
+                return Mono.empty();
+            })
             .blockOptional();
     }
 }

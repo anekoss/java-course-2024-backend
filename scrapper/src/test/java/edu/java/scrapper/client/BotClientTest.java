@@ -6,7 +6,6 @@ import edu.java.client.BotClient;
 import edu.java.client.dto.LinkUpdateRequest;
 import edu.java.scrapper.IntegrationTest;
 import jakarta.validation.constraints.AssertTrue;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -15,6 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+
+import java.util.Optional;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,9 +39,9 @@ public class BotClientTest extends IntegrationTest {
 
     @BeforeAll
     static void initRequest() {
-        linkUpdateRequest = new LinkUpdateRequest(1L, "https://api.stackexchange.com", "description", new long[] {1L});
+        linkUpdateRequest = new LinkUpdateRequest(1L, "https://api.stackexchange.com", "description", new long[]{1L});
         request =
-            "{\"id\":1,\"url\":\"https://api.stackexchange.com\",\"description\":\"description\",\"tgChatIds\":[1]}";
+                "{\"id\":1,\"url\":\"https://api.stackexchange.com\",\"description\":\"description\",\"tgChatIds\":[1]}";
     }
 
     @Test
@@ -48,8 +50,8 @@ public class BotClientTest extends IntegrationTest {
         wireMockServer.stubFor(WireMock.post(WireMock.urlPathTemplate("/updates"))
                                        .withHeader("Accept", WireMock.containing(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader(
-                                           "Content-Type",
-                                           WireMock.containing(MediaType.APPLICATION_JSON_VALUE)
+                                               "Content-Type",
+                                               WireMock.containing(MediaType.APPLICATION_JSON_VALUE)
                                        )
                                        .withRequestBody(equalToJson(request))
                                        .willReturn(WireMock.aResponse().withStatus(200).withBody("updated")));
@@ -63,15 +65,15 @@ public class BotClientTest extends IntegrationTest {
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathTemplate("/updates"))
                                        .withHeader("Accept", WireMock.containing(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader(
-                                           "Content-Type",
-                                           WireMock.containing(MediaType.APPLICATION_JSON_VALUE)
+                                               "Content-Type",
+                                               WireMock.containing(MediaType.APPLICATION_JSON_VALUE)
                                        )
                                        .withRequestBody(equalToJson(request))
                                        .willReturn(WireMock.aResponse()
                                                            .withStatus(404)
                                                            .withHeader(
-                                                               "Content-Type",
-                                                               MediaType.APPLICATION_JSON_VALUE
+                                                                   "Content-Type",
+                                                                   MediaType.APPLICATION_JSON_VALUE
                                                            )));
         Optional<String> actual = botClient.linkUpdates(linkUpdateRequest);
         assert actual.isEmpty();
@@ -82,15 +84,15 @@ public class BotClientTest extends IntegrationTest {
         wireMockServer.stubFor(WireMock.post(WireMock.urlPathTemplate("/updates"))
                                        .withHeader("Accept", WireMock.containing(MediaType.APPLICATION_JSON_VALUE))
                                        .withHeader(
-                                           "Content-Type",
-                                           WireMock.containing(MediaType.APPLICATION_JSON_VALUE)
+                                               "Content-Type",
+                                               WireMock.containing(MediaType.APPLICATION_JSON_VALUE)
                                        )
                                        .withRequestBody(equalToJson(request))
                                        .willReturn(WireMock.aResponse()
                                                            .withStatus(500).withHeader(
-                                               "Content-Type",
-                                               MediaType.APPLICATION_JSON_VALUE
-                                           )));
+                                                       "Content-Type",
+                                                       MediaType.APPLICATION_JSON_VALUE
+                                               )));
         Optional<String> actual = botClient.linkUpdates(linkUpdateRequest);
         assert actual.isEmpty();
     }

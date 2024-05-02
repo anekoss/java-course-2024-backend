@@ -1,5 +1,5 @@
 package edu.java.client.exception;
 
-public class CustomWebClientException extends Exception {
+public class CustomWebClientException extends RuntimeException {
 
 }

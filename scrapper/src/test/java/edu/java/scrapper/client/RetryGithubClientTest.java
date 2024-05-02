@@ -6,6 +6,7 @@ import edu.java.client.GitHubClient;
 import edu.java.client.dto.GitHubBranchResponse;
 import edu.java.client.dto.GitHubResponse;
 import edu.java.scrapper.IntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +23,86 @@ import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class GitHubClientTest extends IntegrationTest {
+public class RetryGithubClientTest extends IntegrationTest {
+
+    private static final String THIRD_STATE = "third";
+    private static final String SECOND_STATE = "second";
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
                                                                .options(wireMockConfig().dynamicPort())
                                                                .build();
-    private final Path okResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_ok.json");
-    private final Path badResponsePath = Path.of("src/test/java/edu/java/scrapper/client/github/github_bad.json");
-    private final Path okBranchResponsePath =
+    private static final Path OK_RESPONSE_PATH = Path.of("src/test/java/edu/java/scrapper/client/github/github_ok.json");
+    private static final Path BAD_RESPONSE_PATH = Path.of("src/test/java/edu/java/scrapper/client/github/github_bad.json");
+    private static final Path OK_BRANCH_RESPONSE_PATH =
             Path.of("src/test/java/edu/java/scrapper/client/github/github_branch_ok.json");
     @Autowired
     private GitHubClient gitHubClient;
 
+
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("app.client.github.base-url", wireMockServer::baseUrl);
+        registry.add("app.retry-config.policy", () -> "constant");
+        registry.add("app.retry-config.max-attempts", () -> 3);
     }
+
+    @BeforeEach
+    void provideWireMockServerForGetRepositoryTest() throws IOException {
+        String response = String.join("", Files.readAllLines(BAD_RESPONSE_PATH));
+        wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
+                                       .inScenario("getRepository")
+                                       .whenScenarioStateIs(STARTED)
+                                       .willReturn(aResponse().withStatus(500)
+                                                              .withHeader(
+                                                                      "Content-Type",
+                                                                      MediaType.APPLICATION_JSON_VALUE
+                                                              )
+                                                              .withBody(response)).willSetStateTo(SECOND_STATE));
+        wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
+                                       .inScenario("getRepository")
+                                       .whenScenarioStateIs(SECOND_STATE)
+                                       .willReturn(aResponse().withStatus(500)
+                                                              .withHeader(
+                                                                      "Content-Type",
+                                                                      MediaType.APPLICATION_JSON_VALUE
+                                                              )
+                                                              .withBody(response)).willSetStateTo(THIRD_STATE));
+    }
+
+    @BeforeEach
+    void provideWireMockServerForGetRepositoryBranchesTest() throws IOException {
+        String response = String.join("", Files.readAllLines(OK_BRANCH_RESPONSE_PATH));
+        wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project/branches")
+                                       .inScenario("getRepositoryBranches")
+                                       .whenScenarioStateIs(STARTED)
+                                       .willReturn(aResponse().withStatus(500)
+                                                              .withHeader(
+                                                                      "Content-Type",
+                                                                      MediaType.APPLICATION_JSON_VALUE
+                                                              )
+                                                              .withBody(response)).willSetStateTo(SECOND_STATE));
+        wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project/branches")
+                                       .inScenario("getRepositoryBranches")
+                                       .whenScenarioStateIs(SECOND_STATE)
+                                       .willReturn(aResponse().withStatus(500)
+                                                              .withHeader(
+                                                                      "Content-Type",
+                                                                      MediaType.APPLICATION_JSON_VALUE
+                                                              )
+                                                              .withBody(response)).willSetStateTo(THIRD_STATE));
+    }
+
 
     @Test
     void testGetRepository_shouldReturnCorrectResponse() throws IOException {
-        String response = String.join("", Files.readAllLines(okResponsePath));
+        String response = String.join("", Files.readAllLines(OK_RESPONSE_PATH));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
+                                       .inScenario("getRepository")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(200)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -68,8 +125,10 @@ public class GitHubClientTest extends IntegrationTest {
 
     @Test
     void testGetRepository_shouldReturnEmptyOptionalIfClientError() throws IOException {
-        String response = String.join("", Files.readAllLines(badResponsePath));
+        String response = String.join("", Files.readAllLines(BAD_RESPONSE_PATH));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
+                                       .inScenario("getRepository")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(404)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -82,8 +141,10 @@ public class GitHubClientTest extends IntegrationTest {
 
     @Test
     void testGetRepository_shouldReturnEmptyOptionalIfServerError() throws IOException {
-        String response = String.join("", Files.readAllLines(badResponsePath));
+        String response = String.join("", Files.readAllLines(BAD_RESPONSE_PATH));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
+                                       .inScenario("getRepository")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(500)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -97,6 +158,8 @@ public class GitHubClientTest extends IntegrationTest {
     @Test
     void testGetRepository_shouldReturnEmptyOptionalIfBadBody() {
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
+                                       .inScenario("getRepository")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(200)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -109,8 +172,10 @@ public class GitHubClientTest extends IntegrationTest {
 
     @Test
     void testGetRepositoryBranches_shouldReturnOptionalEmptyIfServerError() throws IOException {
-        String response = String.join("", Files.readAllLines(okBranchResponsePath));
+        String response = String.join("", Files.readAllLines(OK_BRANCH_RESPONSE_PATH));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project/branches")
+                                       .inScenario("getRepositoryBranches")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(500)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -123,6 +188,8 @@ public class GitHubClientTest extends IntegrationTest {
     @Test
     void testGetRepository_shouldReturnOptionalEmptyIfBadResponseBody() {
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project")
+                                       .inScenario("getRepository")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(200)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -134,8 +201,10 @@ public class GitHubClientTest extends IntegrationTest {
 
     @Test
     void testGetRepositoryBranches_shouldReturnCorrectResponse() throws IOException {
-        String response = String.join("", Files.readAllLines(okBranchResponsePath));
+        String response = String.join("", Files.readAllLines(OK_BRANCH_RESPONSE_PATH));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project/branches")
+                                       .inScenario("getRepositoryBranches")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(200)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -156,8 +225,10 @@ public class GitHubClientTest extends IntegrationTest {
 
     @Test
     void testGetRepositoryBranches_shouldReturnOptionalEmptyIfClientError() throws IOException {
-        String response = String.join("", Files.readAllLines(badResponsePath));
+        String response = String.join("", Files.readAllLines(BAD_RESPONSE_PATH));
         wireMockServer.stubFor(WireMock.get("/repos/anekoss/tinkoff-project/branches")
+                                       .inScenario("getRepositoryBranches")
+                                       .whenScenarioStateIs(THIRD_STATE)
                                        .willReturn(aResponse().withStatus(404)
                                                               .withHeader(
                                                                       "Content-Type",
@@ -165,6 +236,5 @@ public class GitHubClientTest extends IntegrationTest {
                                                               )
                                                               .withBody(response)));
         assert gitHubClient.fetchRepositoryBranches("anekoss", "tinkoff-project").isEmpty();
-
     }
 }

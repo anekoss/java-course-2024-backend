@@ -5,6 +5,18 @@ app:
       base-url: "http://localhost:8080/tg-chat"
     links:
       base-url: "http://localhost:8080/links"
+  retry-config:
+    policy: constant
+    max-attempts: 5
+    backoff: 2s
+    maxBackoff:
+    statusCodes:
+      - 400
+      - 500
+      - 403
+      - 501
+      - 502
+    jitter: 0.75
 
 spring:
   application:
