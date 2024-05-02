@@ -17,6 +17,15 @@ app:
       - 501
       - 502
     jitter: 0.75
+  kafka-config:
+    topic:
+      name: "topic"
+      partitions: 10
+      replicas: 1
+    bootstrap-servers: "localhost:9092"
+    dlq-topic: "dlq"
+
+
 
 spring:
   application:
